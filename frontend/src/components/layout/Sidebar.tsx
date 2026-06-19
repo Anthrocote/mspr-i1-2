@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const MENU_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', href: '/', icon: (
@@ -45,6 +46,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { t } = useLanguage();
 
   const handleLinkClick = () => {
     if (onClose) {
@@ -101,7 +103,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         <div className={`text-[11px] font-semibold text-espresso-400 uppercase tracking-[.13em] mb-2 ${
           collapsed ? 'text-center text-[9px] opacity-60 ml-0' : 'ml-3'
         }`}>
-          {collapsed ? '•' : 'Menu'}
+          {collapsed ? '•' : t('menu')}
         </div>
         <nav className="flex flex-col gap-[3px] mb-[22px]">
           {MENU_ITEMS.map((item) => {
@@ -111,7 +113,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 <Link
                   href={item.href}
                   onClick={handleLinkClick}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsed ? t(item.id) : undefined}
                   className={`relative flex items-center rounded-xl text-sm font-medium transition-all duration-150 ${
                     collapsed ? 'justify-center py-[10px] px-0' : 'py-[10px] px-[13px] gap-3'
                   } ${
@@ -128,7 +130,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     />
                   )}
                   {item.icon}
-                  {!collapsed && item.label}
+                  {!collapsed && t(item.id)}
                   {!collapsed && item.badge && (
                     <span className={`ml-auto text-[10px] font-bold px-[7px] py-[1px] rounded-full ${item.badgeColor}`}>
                       {item.badge}
@@ -144,7 +146,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         <div className={`text-[11px] font-semibold text-espresso-400 uppercase tracking-[.13em] mb-2 ${
           collapsed ? 'text-center text-[9px] opacity-60 ml-0' : 'ml-3'
         }`}>
-          {collapsed ? '•' : 'Général'}
+          {collapsed ? '•' : t('general')}
         </div>
         <nav className="flex flex-col gap-[3px] mb-4">
           {GENERAL_ITEMS.map((item) => {
@@ -154,7 +156,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 <Link
                   href={item.href}
                   onClick={handleLinkClick}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsed ? t(item.id) : undefined}
                   className={`relative flex items-center rounded-xl text-sm font-medium transition-all duration-150 ${
                     collapsed ? 'justify-center py-[10px] px-0' : 'py-[10px] px-[13px] gap-3'
                   } ${
@@ -171,7 +173,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                     />
                   )}
                   {item.icon}
-                  {!collapsed && item.label}
+                  {!collapsed && t(item.id)}
                 </Link>
               </motion.div>
             );
@@ -181,7 +183,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         {/* Compliance card */}
         {!collapsed && (
           <div className="mt-auto rounded-[14px] p-4 border border-white/[.06] mb-4" style={{ background: 'linear-gradient(150deg, #3D2610, #1E0F06)' }}>
-            <div className="text-xs text-espresso-300 mb-1">Conformité globale</div>
+            <div className="text-xs text-espresso-300 mb-1">{t('compliance_global')}</div>
             <div className="font-mono text-[26px] font-bold text-parchment-100 leading-none">70%</div>
             <div className="h-1.5 bg-white/10 rounded-full mt-[10px] overflow-hidden">
               <motion.div

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { COUNTRIES } from '@/data/mock';
 import Toggle from '@/components/ui/Toggle';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const container = {
   hidden: { opacity: 0 },
@@ -15,9 +16,23 @@ const section = {
 };
 
 export default function ParametresPage() {
+  const { language, setLanguage, t } = useLanguage();
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [fifoStrict, setFifoStrict] = useState(false);
   const [iotRealtime, setIotRealtime] = useState(true);
+  const [selectedLang, setSelectedLang] = useState(language);
+
+  useEffect(() => {
+    setSelectedLang(language);
+  }, [language]);
+
+  const handleSave = () => {
+    setLanguage(selectedLang);
+  };
+
+  const handleCancel = () => {
+    setSelectedLang(language);
+  };
 
   return (
     <motion.div
@@ -29,10 +44,10 @@ export default function ParametresPage() {
       {/* IoT thresholds */}
       <motion.div variants={section} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-[26px] shadow-sm">
         <h2 className="font-display text-[21px] font-semibold text-[#1E0F06] mb-1">
-          Seuils IoT par pays
+          {t('iot_thresholds_title')}
         </h2>
         <p className="text-[13px] text-[#A08060] mb-[22px]">
-          Plages de température et d&apos;humidité déclenchant une alerte.
+          {t('iot_thresholds_desc')}
         </p>
         {COUNTRIES.map((c) => (
           <div
@@ -43,13 +58,13 @@ export default function ParametresPage() {
               {c.flag} {c.name}
             </div>
             <div>
-              <div className="text-[11px] text-[#A08060] mb-[5px]">Température</div>
+              <div className="text-[11px] text-[#A08060] mb-[5px]">{t('temperature')}</div>
               <div className="inline-flex items-center border-[1.5px] border-[#E8D9C4] rounded-[10px] py-[7px] px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4]">
                 {c.tempThreshold}
               </div>
             </div>
             <div>
-              <div className="text-[11px] text-[#A08060] mb-[5px]">Humidité</div>
+              <div className="text-[11px] text-[#A08060] mb-[5px]">{t('humidity')}</div>
               <div className="inline-flex items-center border-[1.5px] border-[#E8D9C4] rounded-[10px] py-[7px] px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4]">
                 {c.humThreshold}
               </div>
@@ -61,26 +76,26 @@ export default function ParametresPage() {
       {/* Notifications */}
       <motion.div variants={section} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-[26px] shadow-sm">
         <h2 className="font-display text-[21px] font-semibold text-[#1E0F06] mb-[22px]">
-          Notifications & règles
+          {t('notifications_rules')}
         </h2>
         <div className="flex flex-col gap-[18px]">
           <ToggleRow
-            title="Alertes email"
-            description="Envoyer un email au responsable lors d'une dérive"
+            title={t('email_alerts_label')}
+            description={t('email_alerts_desc')}
             enabled={emailAlerts}
             onToggle={() => setEmailAlerts(!emailAlerts)}
           />
           <div className="h-px bg-[#F0E6D8]" />
           <ToggleRow
-            title="Mode FIFO strict"
-            description="Bloquer toute sortie ne respectant pas l'ordre d'entrée"
+            title={t('strict_fifo_label')}
+            description={t('strict_fifo_desc')}
             enabled={fifoStrict}
             onToggle={() => setFifoStrict(!fifoStrict)}
           />
           <div className="h-px bg-[#F0E6D8]" />
           <ToggleRow
-            title="Surveillance IoT temps réel"
-            description="Rafraîchir les capteurs MQTT toutes les 3 min"
+            title={t('realtime_iot_label')}
+            description={t('realtime_iot_desc')}
             enabled={iotRealtime}
             onToggle={() => setIotRealtime(!iotRealtime)}
           />
@@ -89,7 +104,7 @@ export default function ParametresPage() {
 
       {/* Account */}
       <motion.div variants={section} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-[26px] shadow-sm">
-        <h2 className="font-display text-[21px] font-semibold text-[#1E0F06] mb-[22px]">Compte</h2>
+        <h2 className="font-display text-[21px] font-semibold text-[#1E0F06] mb-[22px]">{t('account')}</h2>
         <div className="flex items-center gap-4 mb-[22px]">
           <div className="w-[60px] h-[60px] rounded-full bg-gradient-to-br from-[#3D2610] to-[#A0714F] flex items-center justify-center text-[#FAF4EC] font-bold text-xl">
             MJ
@@ -103,7 +118,7 @@ export default function ParametresPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <div className="text-[13px] font-medium text-[#5C3A1E] mb-1.5">Nom complet</div>
+            <div className="text-[13px] font-medium text-[#5C3A1E] mb-1.5">{t('full_name')}</div>
             <input
               type="text"
               defaultValue="Marina Joaquim"
@@ -111,20 +126,30 @@ export default function ParametresPage() {
             />
           </div>
           <div>
-            <div className="text-[13px] font-medium text-[#5C3A1E] mb-1.5">Langue</div>
-            <input
-              type="text"
-              defaultValue="Français"
+            <div className="text-[13px] font-medium text-[#5C3A1E] mb-1.5">{t('language')}</div>
+            <select
+              value={selectedLang}
+              onChange={(e) => setSelectedLang(e.target.value as any)}
               className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-[10px] px-[14px] text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
-            />
+            >
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
           </div>
         </div>
         <div className="flex gap-[10px] mt-[22px]">
-          <button className="inline-flex items-center gap-[7px] py-[10px] px-5 rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)]">
-            Enregistrer
+          <button
+            onClick={handleSave}
+            className="inline-flex items-center gap-[7px] py-[10px] px-5 rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)] hover:bg-[#1E0F06]"
+          >
+            {t('save')}
           </button>
-          <button className="inline-flex items-center gap-[7px] py-[10px] px-5 rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer">
-            Annuler
+          <button
+            onClick={handleCancel}
+            className="inline-flex items-center gap-[7px] py-[10px] px-5 rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]"
+          >
+            {t('cancel_btn')}
           </button>
         </div>
       </motion.div>
