@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSearch } from '@/contexts/SearchContext';
 
 interface TopbarProps {
   title: string;
@@ -11,6 +12,7 @@ interface TopbarProps {
 
 export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
   const { t } = useLanguage();
+  const { searchQuery, setSearchQuery } = useSearch();
   return (
     <motion.header
       initial={{ y: -10, opacity: 0 }}
@@ -46,6 +48,8 @@ export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
           </svg>
           <input
             placeholder={t('search')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="border-none bg-transparent outline-none font-[inherit] text-[13px] text-espresso-900 w-full placeholder:text-parchment-700"
           />
         </label>

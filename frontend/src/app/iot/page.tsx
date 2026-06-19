@@ -15,6 +15,8 @@ const card = {
   show: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: 'easeOut' as const } },
 };
 
+import { useSearch } from '@/contexts/SearchContext';
+
 function cellStyle(isOk: boolean) {
   return isOk
     ? 'border border-[#A5D6A7] rounded-[11px] p-[14px] text-center bg-[#EDF7EE]'
@@ -29,6 +31,13 @@ function valColor(isOk: boolean, isWarn: boolean) {
 
 export default function IoTPage() {
   const { t } = useLanguage();
+  const { searchQuery } = useSearch();
+
+  const filteredWarehouses = WAREHOUSES.filter((w) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return w.name.toLowerCase().includes(q) || w.country.toLowerCase().includes(q);
+  });
 
   return (
     <motion.div
@@ -39,7 +48,7 @@ export default function IoTPage() {
     >
       {/* Warehouse cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[18px]">
-        {WAREHOUSES.map((w) => {
+        {filteredWarehouses.map((w) => {
           const tOk = w.tempNum >= w.tempRange[0] && w.tempNum <= w.tempRange[1];
           const hOk = w.humNum >= w.humRange[0] && w.humNum <= w.humRange[1];
           const hWarn = !hOk && w.humNum <= w.humRange[1] + 3;

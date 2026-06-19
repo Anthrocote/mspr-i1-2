@@ -7,6 +7,7 @@ import Topbar from '@/components/layout/Topbar';
 import { PAGE_META } from '@/types';
 import type { PageId } from '@/types';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
+import { SearchProvider } from '@/contexts/SearchContext';
 
 function pageIdFromPath(pathname: string): string {
   if (pathname === '/') return 'dashboard';
@@ -44,7 +45,9 @@ function InnerClientShell({ children }: { children: React.ReactNode }) {
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   return (
     <LanguageProvider>
-      <InnerClientShell>{children}</InnerClientShell>
+      <SearchProvider>
+        <InnerClientShell>{children}</InnerClientShell>
+      </SearchProvider>
     </LanguageProvider>
   );
 }

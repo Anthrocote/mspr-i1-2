@@ -17,6 +17,8 @@ const row = {
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' as const } },
 };
 
+import { useSearch } from '@/contexts/SearchContext';
+
 type Filter = 'all' | CountryCode | 'alertes';
 type SortField = 'id' | 'country' | 'warehouse' | 'storageDate' | 'durationDays' | 'status';
 type SortOrder = 'asc' | 'desc';
@@ -37,6 +39,7 @@ function durationColor(v: string) {
 
 export default function LotsPage() {
   const { t } = useLanguage();
+  const { searchQuery } = useSearch();
   const [lotsList, setLotsList] = useState<Lot[]>(LOTS);
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
@@ -77,6 +80,16 @@ export default function LotsPage() {
     if (warehouseFilter !== 'all' && l.warehouse !== warehouseFilter) return false;
     // 3. Status Filter
     if (statusFilter !== 'all' && l.statusVariant !== statusFilter) return false;
+
+    // 4. Global Search Filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchId = l.id.toLowerCase().includes(q);
+      const matchCountry = l.country.toLowerCase().includes(q);
+      const matchWarehouse = l.warehouse.toLowerCase().includes(q);
+      const matchStatus = l.status.toLowerCase().includes(q);
+      if (!matchId && !matchCountry && !matchWarehouse && !matchStatus) return false;
+    }
 
     return true;
   });

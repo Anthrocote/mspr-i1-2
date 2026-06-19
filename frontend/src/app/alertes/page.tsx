@@ -6,6 +6,8 @@ import { ALERTS } from '@/data/mock';
 import Badge from '@/components/ui/Badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+import { useSearch } from '@/contexts/SearchContext';
+
 type AlertFilter = 'all' | 'critique' | 'alerte';
 
 const item = {
@@ -19,12 +21,22 @@ export default function AlertesPage() {
   const [filter, setFilter] = useState<AlertFilter>('all');
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
   const { t } = useLanguage();
+  const { searchQuery } = useSearch();
 
   const selectedAlert = alertsList.find((a) => a.id === selectedAlertId) ?? null;
 
   const filtered = alertsList.filter((a) => {
-    if (filter === 'all') return true;
-    return a.severity === filter;
+    if (filter !== 'all' && a.severity !== filter) return false;
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchTitle = a.title.toLowerCase().includes(q);
+      const matchDesc = a.description.toLowerCase().includes(q);
+      const matchLevel = a.level.toLowerCase().includes(q);
+      if (!matchTitle && !matchDesc && !matchLevel) return false;
+    }
+
+    return true;
   });
 
   const critiques = alertsList.filter((a) => a.severity === 'critique').length;
