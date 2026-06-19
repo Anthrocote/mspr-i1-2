@@ -17,6 +17,8 @@ const row = {
 };
 
 type Filter = 'all' | CountryCode | 'alertes';
+type SortField = 'id' | 'country' | 'warehouse' | 'storageDate' | 'durationDays' | 'status';
+type SortOrder = 'asc' | 'desc';
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: 'all', label: 'Tous les lots' },
@@ -45,7 +47,20 @@ export default function LotsPage() {
   // Creation Modal State
   const [showAddLotModal, setShowAddLotModal] = useState(false);
 
+  // Sorting States
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
   const selectedLot = lotsList.find((l) => l.id === selectedLotId) ?? null;
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
 
   const filtered = lotsList.filter((l) => {
     // 1. Quick Filters (Country / Alert indicator)
@@ -62,6 +77,33 @@ export default function LotsPage() {
     if (statusFilter !== 'all' && l.statusVariant !== statusFilter) return false;
 
     return true;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let aVal: any = a[sortField];
+    let bVal: any = b[sortField];
+
+    if (sortField === 'storageDate') {
+      aVal = a.durationDays;
+      bVal = b.durationDays;
+      return sortOrder === 'asc' ? bVal - aVal : aVal - bVal;
+    }
+
+    if (typeof aVal === 'string') {
+      return sortOrder === 'asc'
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
+
+    if (typeof aVal === 'number') {
+      return sortOrder === 'asc'
+        ? aVal - bVal
+        : bVal - aVal;
+    }
+
+    return 0;
   });
 
   if (selectedLot) {
@@ -173,17 +215,38 @@ export default function LotsPage() {
       <div className="overflow-x-auto -mx-4 sm:mx-0">
         <div className="min-w-[850px] bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-sm overflow-hidden mx-4 sm:mx-0">
           {/* Header */}
-          <div className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4]">
-            {['ID Lot', 'Pays', 'Entrepôt', 'Stocké le', 'Durée', 'Statut', ''].map((h) => (
-              <div key={h} className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide">
-                {h}
-              </div>
-            ))}
+          <div className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4] select-none">
+            {[
+              { label: 'ID Lot', field: 'id' as SortField },
+              { label: 'Pays', field: 'country' as SortField },
+              { label: 'Entrepôt', field: 'warehouse' as SortField },
+              { label: 'Stocké le', field: 'storageDate' as SortField },
+              { label: 'Durée', field: 'durationDays' as SortField },
+              { label: 'Statut', field: 'status' as SortField },
+              { label: '', field: null }
+            ].map((h, i) => {
+              if (!h.field) {
+                return <div key={i} />;
+              }
+              const isSorted = sortField === h.field;
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleSort(h.field!)}
+                  className="flex items-center gap-1 text-[11px] font-semibold text-[#A08060] uppercase tracking-wide hover:text-[#5C3A1E] transition-colors cursor-pointer text-left outline-none border-none bg-transparent"
+                >
+                  {h.label}
+                  {isSorted && (
+                    <span className="text-[9px] text-[#A0714F]">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
           {/* Rows */}
           <motion.div variants={container} initial="hidden" animate="show">
             <AnimatePresence mode="popLayout">
-              {filtered.map((l) => (
+              {sorted.map((l) => (
                 <motion.div
                   key={l.id}
                   variants={row}
