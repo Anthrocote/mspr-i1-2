@@ -33,7 +33,7 @@ export default function DashboardPage() {
             label="Total Lots"
             value="248"
             trend="↑ +12 ce mois"
-            trendColor="text-[#8ED492]"
+            trendColor="#8ED492"
             variant="dark"
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DFC0A0" strokeWidth="2">
@@ -48,7 +48,7 @@ export default function DashboardPage() {
             value="7"
             valueColor="text-[#B45309]"
             trend="↑ +3 depuis hier"
-            trendColor="text-[#9B1C1C]"
+            trendColor="#9B1C1C"
             variant="alert"
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2">
@@ -65,7 +65,7 @@ export default function DashboardPage() {
             value="2"
             valueColor="text-[#9B1C1C]"
             trend="Dépassement FIFO"
-            trendColor="text-[#A08060]"
+            trendColor="#A08060"
             variant="light"
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B1C1C" strokeWidth="2">
@@ -80,7 +80,7 @@ export default function DashboardPage() {
             label="En Transit"
             value="14"
             trend="↑ +2 aujourd'hui"
-            trendColor="text-[#C1EAC3]"
+            trendColor="#8ED492"
             variant="green"
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
