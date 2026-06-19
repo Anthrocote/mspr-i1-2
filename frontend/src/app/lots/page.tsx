@@ -33,15 +33,35 @@ function durationColor(v: string) {
 }
 
 export default function LotsPage() {
+  const [lotsList, setLotsList] = useState<Lot[]>(LOTS);
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
 
-  const selectedLot = LOTS.find((l) => l.id === selectedLotId) ?? null;
+  // Advanced Filtering States
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [warehouseFilter, setWarehouseFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  const filtered = LOTS.filter((l) => {
-    if (filter === 'all') return true;
-    if (filter === 'alertes') return l.statusVariant !== 'ok';
-    return l.countryCode === filter;
+  // Creation Modal State
+  const [showAddLotModal, setShowAddLotModal] = useState(false);
+
+  const selectedLot = lotsList.find((l) => l.id === selectedLotId) ?? null;
+
+  const filtered = lotsList.filter((l) => {
+    // 1. Quick Filters (Country / Alert indicator)
+    if (filter !== 'all') {
+      if (filter === 'alertes') {
+        if (l.statusVariant === 'ok') return false;
+      } else if (l.countryCode !== filter) {
+        return false;
+      }
+    }
+    // 2. Warehouse Filter
+    if (warehouseFilter !== 'all' && l.warehouse !== warehouseFilter) return false;
+    // 3. Status Filter
+    if (statusFilter !== 'all' && l.statusVariant !== statusFilter) return false;
+
+    return true;
   });
 
   if (selectedLot) {
@@ -57,7 +77,7 @@ export default function LotsPage() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`inline-flex items-center gap-1.5 py-[7px] px-[12px] sm:px-[14px] rounded-full text-xs font-semibold cursor-pointer transition-colors py-1 ${
+              className={`inline-flex items-center gap-1.5 py-[7px] px-[12px] sm:px-[14px] rounded-full text-xs font-semibold cursor-pointer transition-colors ${
                 filter === f.key
                   ? 'bg-[#2C1A0A] text-[#FAF4EC]'
                   : 'bg-[#FFFCF8] text-[#7A5235] border border-[#E8D9C4] hover:bg-[#F5EDE0]'
@@ -67,14 +87,79 @@ export default function LotsPage() {
             </button>
           ))}
         </div>
-        <div className="flex gap-[10px] w-full sm:w-auto sm:ml-auto justify-between sm:justify-start">
-          <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-4 rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]">
+        <div className="flex gap-[10px] w-full sm:w-auto sm:ml-auto justify-between sm:justify-start relative">
+          <button
+            onClick={() => {
+              setShowFilterMenu(!showFilterMenu);
+              setShowAddLotModal(false);
+            }}
+            className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-4 rounded-full text-[13px] font-semibold border cursor-pointer transition-colors ${
+              showFilterMenu
+                ? 'bg-[#2C1A0A] text-[#FAF4EC] border-transparent shadow-[0_2px_8px_rgba(44,26,10,.15)]'
+                : 'bg-[#F5EDE0] text-[#5C3A1E] border-[#E8D9C4] hover:bg-[#EDE0D0]'
+            }`}
+          >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             Filtrer
           </button>
-          <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-[18px] rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)]">
+
+          {/* Filter Popover Menu */}
+          {showFilterMenu && (
+            <div className="absolute right-0 top-12 z-30 bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-5 shadow-lg min-w-[280px] flex flex-col gap-4 text-left">
+              <div>
+                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">Entrepôt</h4>
+                <select
+                  value={warehouseFilter}
+                  onChange={(e) => setWarehouseFilter(e.target.value)}
+                  className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
+                >
+                  <option value="all">Tous les entrepôts</option>
+                  <option value="São Paulo A">🇧🇷 São Paulo A</option>
+                  <option value="Rio C">🇧🇷 Rio C</option>
+                  <option value="Quito B">🇪🇨 Quito B</option>
+                  <option value="Guayaquil A">🇪🇨 Guayaquil A</option>
+                  <option value="Bogotá C">🇨🇴 Bogotá C</option>
+                  <option value="Medellín D">🇨🇴 Medellín D</option>
+                </select>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">Statut</h4>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
+                >
+                  <option value="all">Tous les statuts</option>
+                  <option value="ok">Conforme</option>
+                  <option value="warn">En Alerte</option>
+                  <option value="err">Périmé</option>
+                </select>
+              </div>
+
+              {(warehouseFilter !== 'all' || statusFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setWarehouseFilter('all');
+                    setStatusFilter('all');
+                  }}
+                  className="text-xs font-semibold text-[#9B1C1C] hover:underline text-left cursor-pointer"
+                >
+                  Réinitialiser les filtres
+                </button>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={() => {
+              setShowAddLotModal(true);
+              setShowFilterMenu(false);
+            }}
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-[18px] rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)] hover:bg-[#1E0F06]"
+          >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
@@ -134,6 +219,54 @@ export default function LotsPage() {
         </motion.div>
       </div>
     </div>
+
+    {/* Creation Modal - Nouveau Lot */}
+    <AnimatePresence>
+      {showAddLotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Overlay backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowAddLotModal(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          {/* Modal sheet card dialog */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="relative z-10 w-full max-w-md bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-xl overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-[#2C1A0A] p-5 py-4 flex items-center justify-between text-[#FAF4EC]">
+              <h3 className="font-display text-lg font-semibold">Ajouter un nouveau lot</h3>
+              <button
+                onClick={() => setShowAddLotModal(false)}
+                className="p-1 rounded-md text-espresso-300 hover:text-parchment-100 hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            {/* Form component */}
+            <AddLotForm
+              onAdd={(newLot) => {
+                setLotsList([newLot, ...lotsList]);
+                setShowAddLotModal(false);
+              }}
+              onCancel={() => setShowAddLotModal(false)}
+            />
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   </div>
   );
 }
@@ -253,5 +386,174 @@ function TimelineStep({ color, title, desc, hasLine }: { color: string; title: s
         <div className="text-xs text-[#A08060]">{desc}</div>
       </div>
     </div>
+  );
+}
+
+// ── Form and Mock Data for New Lot Creation ──
+
+const WAREHOUSES_BY_COUNTRY = {
+  br: [
+    { name: 'São Paulo A', temp: '29°C', hum: '55%' },
+    { name: 'Rio C', temp: '27°C', hum: '58%' }
+  ],
+  ec: [
+    { name: 'Quito B', temp: '31°C', hum: '60%' },
+    { name: 'Guayaquil A', temp: '30°C', hum: '64%' }
+  ],
+  co: [
+    { name: 'Bogotá C', temp: '26°C', hum: '82%' },
+    { name: 'Medellín D', temp: '25°C', hum: '78%' }
+  ]
+};
+
+const COUNTRY_NAMES = {
+  br: { name: 'Brésil', flag: '🇧🇷' },
+  ec: { name: 'Équateur', flag: '🇪🇨' },
+  co: { name: 'Colombie', flag: '🇨🇴' }
+};
+
+interface AddLotFormProps {
+  onAdd: (newLot: Lot) => void;
+  onCancel: () => void;
+}
+
+function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
+  const [countryCode, setCountryCode] = useState<'br' | 'ec' | 'co'>('br');
+  const [warehouse, setWarehouse] = useState('São Paulo A');
+  const [temp, setTemp] = useState('29');
+  const [hum, setHum] = useState('55');
+
+  const handleCountryChange = (cc: 'br' | 'ec' | 'co') => {
+    setCountryCode(cc);
+    const whs = WAREHOUSES_BY_COUNTRY[cc];
+    setWarehouse(whs[0].name);
+    setTemp(whs[0].temp.replace('°C', ''));
+    setHum(whs[0].hum.replace('%', ''));
+  };
+
+  const handleWarehouseChange = (whName: string) => {
+    setWarehouse(whName);
+    const whs = WAREHOUSES_BY_COUNTRY[countryCode];
+    const match = whs.find(w => w.name === whName);
+    if (match) {
+      setTemp(match.temp.replace('°C', ''));
+      setHum(match.hum.replace('%', ''));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cInfo = COUNTRY_NAMES[countryCode];
+    const rand = Math.floor(100 + Math.random() * 900);
+    const id = `LOT-${countryCode.toUpperCase()}-2026-00${rand}`;
+
+    let idealTemp = '29°C ±3';
+    let idealHum = '55% ±2';
+    if (countryCode === 'ec') {
+      idealTemp = '31°C ±3';
+      idealHum = '60% ±3';
+    } else if (countryCode === 'co') {
+      idealTemp = '26°C ±3';
+      idealHum = '80% ±3';
+    }
+
+    const newLot: Lot = {
+      id,
+      countryCode,
+      country: cInfo.name,
+      flag: cInfo.flag,
+      warehouse,
+      storageDate: '19 juin 2026',
+      duration: '0 j',
+      durationDays: 0,
+      status: 'Conforme',
+      statusVariant: 'ok',
+      durationVariant: '',
+      temp: `${temp}°C`,
+      hum: `${hum}%`,
+      idealTemp,
+      idealHum
+    };
+
+    onAdd(newLot);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 text-left">
+      <div>
+        <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
+          Pays d'origine
+        </label>
+        <select
+          value={countryCode}
+          onChange={(e) => handleCountryChange(e.target.value as any)}
+          className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
+        >
+          <option value="br">🇧🇷 Brésil</option>
+          <option value="ec">🇪🇨 Équateur</option>
+          <option value="co">🇨🇴 Colombie</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
+          Entrepôt de stockage
+        </label>
+        <select
+          value={warehouse}
+          onChange={(e) => handleWarehouseChange(e.target.value)}
+          className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
+        >
+          {WAREHOUSES_BY_COUNTRY[countryCode].map((w) => (
+            <option key={w.name} value={w.name}>
+              {w.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
+            Température (°C)
+          </label>
+          <input
+            type="number"
+            value={temp}
+            onChange={(e) => setTemp(e.target.value)}
+            required
+            className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
+            Humidité (%)
+          </label>
+          <input
+            type="number"
+            value={hum}
+            onChange={(e) => setHum(e.target.value)}
+            required
+            className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-2 justify-end mt-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="py-2 px-4 rounded-full text-xs font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          className="py-2 px-5 rounded-full text-xs font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer hover:bg-[#1E0F06]"
+        >
+          Ajouter le lot
+        </button>
+      </div>
+    </form>
   );
 }
