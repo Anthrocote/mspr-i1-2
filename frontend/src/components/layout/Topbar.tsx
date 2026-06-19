@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TopbarProps {
   title: string;
@@ -9,6 +10,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
+  const { t } = useLanguage();
   return (
     <motion.header
       initial={{ y: -10, opacity: 0 }}
@@ -22,7 +24,7 @@ export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
         <button
           onClick={onMenuClick}
           className="p-2 -ml-2 rounded-lg text-espresso-900 hover:bg-parchment-200 lg:hidden transition-colors cursor-pointer"
-          aria-label="Ouvrir le menu"
+          aria-label={t('open_menu')}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -43,7 +45,7 @@ export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
           <input
-            placeholder="Rechercher…"
+            placeholder={t('search')}
             className="border-none bg-transparent outline-none font-[inherit] text-[13px] text-espresso-900 w-full placeholder:text-parchment-700"
           />
         </label>
@@ -63,7 +65,7 @@ export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
           </div>
           <div className="leading-[1.2] hidden md:block">
             <div className="text-[13px] font-semibold text-espresso-900">Marina Joaquim</div>
-            <div className="text-[11px] text-parchment-700">Responsable Qualité</div>
+            <div className="text-[11px] text-parchment-700">{t('user_role')}</div>
           </div>
         </div>
       </div>

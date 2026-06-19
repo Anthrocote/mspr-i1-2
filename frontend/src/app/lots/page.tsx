@@ -6,6 +6,7 @@ import { LOTS } from '@/data/mock';
 import type { Lot, CountryCode } from '@/types';
 import Badge from '@/components/ui/Badge';
 import CountryTag from '@/components/ui/CountryTag';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const container = {
   hidden: { opacity: 0 },
@@ -20,12 +21,12 @@ type Filter = 'all' | CountryCode | 'alertes';
 type SortField = 'id' | 'country' | 'warehouse' | 'storageDate' | 'durationDays' | 'status';
 type SortOrder = 'asc' | 'desc';
 
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all', label: 'Tous les lots' },
-  { key: 'br', label: '🇧🇷 Brésil' },
-  { key: 'ec', label: '🇪🇨 Équateur' },
-  { key: 'co', label: '🇨🇴 Colombie' },
-  { key: 'alertes', label: 'Alertes actives' },
+const FILTERS: { key: Filter }[] = [
+  { key: 'all' },
+  { key: 'br' },
+  { key: 'ec' },
+  { key: 'co' },
+  { key: 'alertes' },
 ];
 
 function durationColor(v: string) {
@@ -35,6 +36,7 @@ function durationColor(v: string) {
 }
 
 export default function LotsPage() {
+  const { t } = useLanguage();
   const [lotsList, setLotsList] = useState<Lot[]>(LOTS);
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
@@ -125,7 +127,7 @@ export default function LotsPage() {
                   : 'bg-[#FFFCF8] text-[#7A5235] border border-[#E8D9C4] hover:bg-[#F5EDE0]'
               }`}
             >
-              {f.label}
+              {t('filter_' + f.key)}
             </button>
           ))}
         </div>
@@ -144,20 +146,20 @@ export default function LotsPage() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
-            Filtrer
+            {t('filter')}
           </button>
 
           {/* Filter Popover Menu */}
           {showFilterMenu && (
             <div className="absolute right-0 top-12 z-30 bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-5 shadow-lg min-w-[280px] flex flex-col gap-4 text-left">
               <div>
-                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">Entrepôt</h4>
+                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">{t('warehouse')}</h4>
                 <select
                   value={warehouseFilter}
                   onChange={(e) => setWarehouseFilter(e.target.value)}
                   className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
                 >
-                  <option value="all">Tous les entrepôts</option>
+                  <option value="all">{t('all_warehouses')}</option>
                   <option value="São Paulo A">🇧🇷 São Paulo A</option>
                   <option value="Rio C">🇧🇷 Rio C</option>
                   <option value="Quito B">🇪🇨 Quito B</option>
@@ -168,16 +170,16 @@ export default function LotsPage() {
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">Statut</h4>
+                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">{t('status')}</h4>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
                 >
-                  <option value="all">Tous les statuts</option>
-                  <option value="ok">Conforme</option>
-                  <option value="warn">En Alerte</option>
-                  <option value="err">Périmé</option>
+                  <option value="all">{t('all_statuses')}</option>
+                  <option value="ok">{t('status_ok')}</option>
+                  <option value="warn">{t('status_warn')}</option>
+                  <option value="err">{t('status_err')}</option>
                 </select>
               </div>
 
@@ -189,7 +191,7 @@ export default function LotsPage() {
                   }}
                   className="text-xs font-semibold text-[#9B1C1C] hover:underline text-left cursor-pointer"
                 >
-                  Réinitialiser les filtres
+                  {t('reset_filters')}
                 </button>
               )}
             </div>
@@ -206,7 +208,7 @@ export default function LotsPage() {
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            Nouveau Lot
+            {t('new_lot')}
           </button>
         </div>
       </div>
@@ -217,12 +219,12 @@ export default function LotsPage() {
           {/* Header */}
           <div className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4] select-none">
             {[
-              { label: 'ID Lot', field: 'id' as SortField },
-              { label: 'Pays', field: 'country' as SortField },
-              { label: 'Entrepôt', field: 'warehouse' as SortField },
-              { label: 'Stocké le', field: 'storageDate' as SortField },
-              { label: 'Durée', field: 'durationDays' as SortField },
-              { label: 'Statut', field: 'status' as SortField },
+              { label: t('id_lot'), field: 'id' as SortField },
+              { label: t('country'), field: 'country' as SortField },
+              { label: t('warehouse'), field: 'warehouse' as SortField },
+              { label: t('stored_on'), field: 'storageDate' as SortField },
+              { label: t('duration'), field: 'durationDays' as SortField },
+              { label: t('status'), field: 'status' as SortField },
               { label: '', field: null }
             ].map((h, i) => {
               if (!h.field) {
@@ -255,87 +257,88 @@ export default function LotsPage() {
                   onClick={() => setSelectedLotId(l.id)}
                   className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 items-center py-[15px] px-6 border-b border-[#F0E6D8] cursor-pointer hover:bg-[#FAF4EC] transition-colors"
                 >
-                <div>
-                  <span className="font-mono text-xs font-bold text-[#3D2610] bg-[#F5EDE0] py-[3px] px-2 rounded border border-[#E8D9C4]">
-                    {l.id}
-                  </span>
-                </div>
-                <div>
-                  <CountryTag countryCode={l.countryCode}>
-                    {l.flag} {l.country}
-                  </CountryTag>
-                </div>
-                <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
-                <div className="text-[13px] text-[#443524]">{l.storageDate}</div>
-                <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>
-                  {l.duration}
-                </div>
-                <div>
-                  <Badge variant={l.statusVariant}>{l.status}</Badge>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-semibold text-[#1E5220]">Voir →</span>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </div>
-    </div>
-
-    {/* Creation Modal - Nouveau Lot */}
-    <AnimatePresence>
-      {showAddLotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Overlay backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setShowAddLotModal(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-          />
-          {/* Modal sheet card dialog */}
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative z-10 w-full max-w-md bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-xl overflow-hidden"
-          >
-            {/* Header */}
-            <div className="bg-[#2C1A0A] p-5 py-4 flex items-center justify-between text-[#FAF4EC]">
-              <h3 className="font-display text-lg font-semibold">Ajouter un nouveau lot</h3>
-              <button
-                onClick={() => setShowAddLotModal(false)}
-                className="p-1 rounded-md text-espresso-300 hover:text-parchment-100 hover:bg-white/10 transition-colors cursor-pointer"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-
-            {/* Form component */}
-            <AddLotForm
-              onAdd={(newLot) => {
-                setLotsList([newLot, ...lotsList]);
-                setShowAddLotModal(false);
-              }}
-              onCancel={() => setShowAddLotModal(false)}
-            />
+                  <div>
+                    <span className="font-mono text-xs font-bold text-[#3D2610] bg-[#F5EDE0] py-[3px] px-2 rounded border border-[#E8D9C4]">
+                      {l.id}
+                    </span>
+                  </div>
+                  <div>
+                    <CountryTag countryCode={l.countryCode}>
+                      {l.flag} {t(l.countryCode)}
+                    </CountryTag>
+                  </div>
+                  <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
+                  <div className="text-[13px] text-[#443524]">{l.storageDate}</div>
+                  <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>
+                    {l.duration}
+                  </div>
+                  <div>
+                    <Badge variant={l.statusVariant}>{t('status_' + l.statusVariant)}</Badge>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-semibold text-[#1E5220]">{t('see')}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </motion.div>
         </div>
-      )}
-    </AnimatePresence>
-  </div>
+      </div>
+
+      {/* Creation Modal - Nouveau Lot */}
+      <AnimatePresence>
+        {showAddLotModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Overlay backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setShowAddLotModal(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            {/* Modal sheet card dialog */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative z-10 w-full max-w-md bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-xl overflow-hidden"
+            >
+              {/* Header */}
+              <div className="bg-[#2C1A0A] p-5 py-4 flex items-center justify-between text-[#FAF4EC]">
+                <h3 className="font-display text-lg font-semibold">{t('add_new_lot')}</h3>
+                <button
+                  onClick={() => setShowAddLotModal(false)}
+                  className="p-1 rounded-md text-espresso-300 hover:text-parchment-100 hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Form component */}
+              <AddLotForm
+                onAdd={(newLot) => {
+                  setLotsList([newLot, ...lotsList]);
+                  setShowAddLotModal(false);
+                }}
+                onCancel={() => setShowAddLotModal(false)}
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
 /* ── Lot Detail ── */
 function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
+  const { t } = useLanguage();
   return (
     <motion.div
       className="max-w-[1100px] mx-auto w-full"
@@ -351,7 +354,7 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        Retour aux lots
+        {t('back_to_lots')}
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-[18px] items-start">
@@ -363,35 +366,35 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
               <div className="font-mono text-[13px] font-bold text-[#DFC0A0] tracking-wide">{lot.id}</div>
               <div className="font-display text-[26px] font-semibold text-[#FAF4EC] mt-1">{lot.warehouse}</div>
             </div>
-            <Badge variant={lot.statusVariant}>{lot.status}</Badge>
+            <Badge variant={lot.statusVariant}>{t('status_' + lot.statusVariant)}</Badge>
           </div>
           {/* Body */}
           <div className="p-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px] mb-6">
-              <DetailField label="Pays / Exploitation" value={`${lot.flag} ${lot.country}`} />
-              <DetailField label="Date de stockage" value={lot.storageDate} />
+              <DetailField label={`${t('country')} / Exploitation`} value={`${lot.flag} ${t(lot.countryCode)}`} />
+              <DetailField label={t('stored_on')} value={lot.storageDate} />
               <DetailField
                 label="Durée en stock"
                 value={lot.duration}
                 valueColor={lot.durationVariant === 'err' ? '#9B1C1C' : lot.durationVariant === 'warn' ? '#B45309' : '#1E0F06'}
                 bold
               />
-              <DetailField label="Entrepôt" value={lot.warehouse} />
+              <DetailField label={t('warehouse')} value={lot.warehouse} />
             </div>
             <div className="h-px bg-[#F0E6D8] mb-6" />
             <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-widest mb-[14px]">
-              Conditions actuelles (IoT)
+              {t('current_conditions')}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[14px]">
               <div className="border border-[#E8D9C4] rounded-[13px] p-[18px] text-center bg-[#FDF9F4]">
-                <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-1.5">Température</div>
+                <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-1.5">{t('temperature')}</div>
                 <div className="font-mono text-[28px] font-bold text-[#1E0F06] leading-none">{lot.temp}</div>
-                <div className="text-[11px] text-[#A08060] mt-1.5">Idéal : {lot.idealTemp}</div>
+                <div className="text-[11px] text-[#A08060] mt-1.5">{t('ideal')} : {lot.idealTemp}</div>
               </div>
               <div className="border border-[#E8D9C4] rounded-[13px] p-[18px] text-center bg-[#FDF9F4]">
-                <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-1.5">Humidité</div>
+                <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-1.5">{t('humidity')}</div>
                 <div className="font-mono text-[28px] font-bold text-[#1E0F06] leading-none">{lot.hum}</div>
-                <div className="text-[11px] text-[#A08060] mt-1.5">Idéal : {lot.idealHum}</div>
+                <div className="text-[11px] text-[#A08060] mt-1.5">{t('ideal')} : {lot.idealHum}</div>
               </div>
             </div>
           </div>
@@ -401,11 +404,11 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
         <div className="flex flex-col gap-[18px]">
           {/* Timeline */}
           <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-display text-[19px] font-semibold text-[#1E0F06] mb-[18px]">Traçabilité FIFO</h3>
+            <h3 className="font-display text-[19px] font-semibold text-[#1E0F06] mb-[18px]">{t('fifo_traceability')}</h3>
             <div className="flex flex-col">
-              <TimelineStep color="#2E7D32" title="Récolté" desc={`Exploitation · ${lot.country}`} hasLine />
-              <TimelineStep color="#2E7D32" title="Stocké" desc={`${lot.warehouse} · ${lot.storageDate}`} hasLine />
-              <TimelineStep color="#C49A78" title="Surveillance en cours" desc={`${lot.duration} en stock`} hasLine={false} />
+              <TimelineStep color="#2E7D32" title={t('harvested')} desc={`Exploitation · ${t(lot.countryCode)}`} hasLine />
+              <TimelineStep color="#2E7D32" title={t('stored')} desc={`${lot.warehouse} · ${lot.storageDate}`} hasLine />
+              <TimelineStep color="#C49A78" title={t('monitoring_ongoing')} desc={`${lot.duration} en stock`} hasLine={false} />
             </div>
           </div>
           {/* Actions */}
@@ -414,10 +417,10 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              Valider conforme
+              {t('validate_conforming')}
             </button>
             <button className="w-full inline-flex items-center justify-center gap-2 py-[11px] rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer">
-              Marquer en transit
+              {t('mark_in_transit')}
             </button>
           </div>
         </div>
@@ -470,9 +473,9 @@ const WAREHOUSES_BY_COUNTRY = {
 };
 
 const COUNTRY_NAMES = {
-  br: { name: 'Brésil', flag: '🇧🇷' },
-  ec: { name: 'Équateur', flag: '🇪🇨' },
-  co: { name: 'Colombie', flag: '🇨🇴' }
+  br: { name: 'br', flag: '🇧🇷' },
+  ec: { name: 'ec', flag: '🇪🇨' },
+  co: { name: 'co', flag: '🇨🇴' }
 };
 
 interface AddLotFormProps {
@@ -481,6 +484,7 @@ interface AddLotFormProps {
 }
 
 function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
+  const { t } = useLanguage();
   const [countryCode, setCountryCode] = useState<'br' | 'ec' | 'co'>('br');
   const [warehouse, setWarehouse] = useState('São Paulo A');
   const [temp, setTemp] = useState('29');
@@ -523,13 +527,13 @@ function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
     const newLot: Lot = {
       id,
       countryCode,
-      country: cInfo.name,
+      country: t(cInfo.name),
       flag: cInfo.flag,
       warehouse,
       storageDate: '19 juin 2026',
       duration: '0 j',
       durationDays: 0,
-      status: 'Conforme',
+      status: t('status_ok'),
       statusVariant: 'ok',
       durationVariant: '',
       temp: `${temp}°C`,
@@ -545,22 +549,22 @@ function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
     <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 text-left">
       <div>
         <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-          Pays d'origine
+          {t('origin_country')}
         </label>
         <select
           value={countryCode}
           onChange={(e) => handleCountryChange(e.target.value as any)}
           className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
         >
-          <option value="br">🇧🇷 Brésil</option>
-          <option value="ec">🇪🇨 Équateur</option>
-          <option value="co">🇨🇴 Colombie</option>
+          <option value="br">🇧🇷 {t('br')}</option>
+          <option value="ec">🇪🇨 {t('ec')}</option>
+          <option value="co">🇨🇴 {t('co')}</option>
         </select>
       </div>
 
       <div>
         <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-          Entrepôt de stockage
+          {t('storage_warehouse')}
         </label>
         <select
           value={warehouse}
@@ -578,7 +582,7 @@ function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-            Température (°C)
+            {t('temperature')} (°C)
           </label>
           <input
             type="number"
@@ -590,7 +594,7 @@ function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
         </div>
         <div>
           <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-            Humidité (%)
+            {t('humidity')} (%)
           </label>
           <input
             type="number"
@@ -608,13 +612,13 @@ function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
           onClick={onCancel}
           className="py-2 px-4 rounded-full text-xs font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]"
         >
-          Annuler
+          {t('cancel')}
         </button>
         <button
           type="submit"
           className="py-2 px-5 rounded-full text-xs font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer hover:bg-[#1E0F06]"
         >
-          Ajouter le lot
+          {t('add_lot_btn')}
         </button>
       </div>
     </form>

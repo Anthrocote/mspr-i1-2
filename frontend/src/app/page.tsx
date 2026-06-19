@@ -7,6 +7,7 @@ import Badge from '@/components/ui/Badge';
 import MetricCard from '@/components/ui/MetricCard';
 import TemperatureLineChart from '@/components/charts/TemperatureLineChart';
 import DonutChart from '@/components/charts/DonutChart';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const container = {
   hidden: { opacity: 0 },
@@ -18,6 +19,7 @@ const item = {
 };
 
 export default function DashboardPage() {
+  const { t } = useLanguage();
   const topWarehouses = WAREHOUSES.slice(0, 4);
 
   return (
@@ -31,9 +33,9 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[18px]">
         <motion.div variants={item}>
           <MetricCard
-            label="Total Lots"
+            label={t('total_lots')}
             value="248"
-            trend="↑ +12 ce mois"
+            trend={t('trend_lots')}
             trendColor="#8ED492"
             variant="dark"
             icon={
@@ -45,10 +47,10 @@ export default function DashboardPage() {
         </motion.div>
         <motion.div variants={item}>
           <MetricCard
-            label="En Alerte"
+            label={t('in_alert')}
             value="7"
             valueColor="text-[#B45309]"
-            trend="↑ +3 depuis hier"
+            trend={t('trend_alert')}
             trendColor="#9B1C1C"
             variant="alert"
             icon={
@@ -62,10 +64,10 @@ export default function DashboardPage() {
         </motion.div>
         <motion.div variants={item}>
           <MetricCard
-            label="Lots Périmés"
+            label={t('expired_lots')}
             value="2"
             valueColor="text-[#9B1C1C]"
-            trend="Dépassement FIFO"
+            trend={t('trend_fifo_delay')}
             trendColor="#A08060"
             variant="light"
             icon={
@@ -78,9 +80,9 @@ export default function DashboardPage() {
         </motion.div>
         <motion.div variants={item}>
           <MetricCard
-            label="En Transit"
+            label={t('in_transit')}
             value="14"
-            trend="↑ +2 aujourd'hui"
+            trend={t('trend_transit')}
             trendColor="#8ED492"
             variant="green"
             icon={
@@ -110,8 +112,8 @@ export default function DashboardPage() {
         {/* Warehouses */}
         <motion.div variants={item} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-[18px]">
-            <h3 className="font-display text-xl font-semibold text-[#1E0F06]">Entrepôts surveillés</h3>
-            <Link href="/iot" className="text-xs text-[#1E5220] font-semibold hover:underline">Voir tout →</Link>
+            <h3 className="font-display text-xl font-semibold text-[#1E0F06]">{t('monitored_warehouses')}</h3>
+            <Link href="/iot" className="text-xs text-[#1E5220] font-semibold hover:underline">{t('see_all')}</Link>
           </div>
           <div className="flex flex-col gap-[11px]">
             {topWarehouses.map((w) => (
@@ -121,15 +123,15 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-[#1E0F06]">{w.name}</div>
-                  <div className="text-xs text-[#A08060]">{w.lots} lots · {w.country}</div>
+                  <div className="text-xs text-[#A08060]">{w.lots} {t('lots_count')} · {t(w.countryCode)}</div>
                 </div>
                 <div className="text-right">
                   <div className="font-mono text-base font-bold leading-none" style={{ color: w.statusVariant === 'err' ? '#9B1C1C' : w.statusVariant === 'warn' ? '#B45309' : '#1E0F06' }}>
                      {w.temp}
                   </div>
-                  <div className="text-[11px] text-[#A08060]">{w.hum} hum.</div>
+                  <div className="text-[11px] text-[#A08060]">{w.hum} {t('hum_abbrev').toLowerCase()}.</div>
                 </div>
-                <Badge variant={w.statusVariant}>{w.status}</Badge>
+                <Badge variant={w.statusVariant}>{t(w.statusVariant === 'ok' ? 'status_ok' : w.statusVariant === 'warn' ? 'status_warn' : 'status_err')}</Badge>
               </div>
             ))}
           </div>
@@ -138,8 +140,8 @@ export default function DashboardPage() {
         {/* Recent alerts */}
         <motion.div variants={item} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-[18px]">
-            <h3 className="font-display text-xl font-semibold text-[#1E0F06]">Alertes récentes</h3>
-            <Link href="/alertes" className="text-xs text-[#1E5220] font-semibold hover:underline">Tout voir →</Link>
+            <h3 className="font-display text-xl font-semibold text-[#1E0F06]">{t('recent_alerts')}</h3>
+            <Link href="/alertes" className="text-xs text-[#1E5220] font-semibold hover:underline">{t('see_all_alerts')}</Link>
           </div>
           <div className="flex flex-col gap-[11px]">
             {DASHBOARD_ALERTS.map((a, i) => (

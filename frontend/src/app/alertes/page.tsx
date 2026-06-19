@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ALERTS } from '@/data/mock';
 import Badge from '@/components/ui/Badge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type AlertFilter = 'all' | 'critique' | 'alerte';
 
@@ -17,6 +18,7 @@ export default function AlertesPage() {
   const [alertsList, setAlertsList] = useState(ALERTS);
   const [filter, setFilter] = useState<AlertFilter>('all');
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const selectedAlert = alertsList.find((a) => a.id === selectedAlertId) ?? null;
 
@@ -53,7 +55,7 @@ export default function AlertesPage() {
               : 'bg-[#FFFCF8] text-[#7A5235] border border-[#E8D9C4] hover:bg-[#F5EDE0]'
           }`}
         >
-          Toutes · {alertsList.length}
+          {t('all')} · {alertsList.length}
         </button>
         <button
           onClick={() => setFilter('critique')}
@@ -63,7 +65,7 @@ export default function AlertesPage() {
               : 'bg-[#FFFCF8] text-[#9B1C1C] border border-[#FCA5A5] hover:bg-[#FEF2F2]'
           }`}
         >
-          Critiques · {critiques}
+          {t('critical')} · {critiques}
         </button>
         <button
           onClick={() => setFilter('alerte')}
@@ -73,7 +75,7 @@ export default function AlertesPage() {
               : 'bg-[#FFFCF8] text-[#B45309] border border-[#F6CC7A] hover:bg-[#FEF3E2]'
           }`}
         >
-          Avertissements · {avertissements}
+          {t('warnings')} · {avertissements}
         </button>
       </div>
 
@@ -111,7 +113,7 @@ export default function AlertesPage() {
                 onClick={() => setSelectedAlertId(a.id)}
                 className="text-xs font-semibold text-[#1E5220] cursor-pointer sm:mt-1 hover:underline"
               >
-                Traiter →
+                {t('treat')}
               </span>
             </div>
           </motion.div>
@@ -131,6 +133,7 @@ interface AlertTreatmentProps {
 function AlertTreatment({ alert, onBack, onResolve }: AlertTreatmentProps) {
   const [action, setAction] = useState('ajustement');
   const [comment, setComment] = useState('');
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +156,7 @@ function AlertTreatment({ alert, onBack, onResolve }: AlertTreatmentProps) {
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
-        Retour aux alertes
+        {t('back_to_alerts')}
       </button>
 
       <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-[18px] items-start">
@@ -170,13 +173,13 @@ function AlertTreatment({ alert, onBack, onResolve }: AlertTreatmentProps) {
                 <Badge variant={alert.variant}>{alert.level}</Badge>
               </div>
               <h3 className="font-display text-xl font-bold text-[#1E0F06] mt-1">{alert.title}</h3>
-              <p className="text-[11px] text-[#A08060] mt-1">Déclenché {alert.time}</p>
+              <p className="text-[11px] text-[#A08060] mt-1">{t('triggered')} {alert.time}</p>
             </div>
           </div>
 
           <div className="p-6 text-left flex flex-col gap-5">
             <div>
-              <h4 className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">Description de l'anomalie</h4>
+              <h4 className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">{t('anomaly_desc')}</h4>
               <p className="text-sm text-[#443524] bg-[#FAF4EC] p-3.5 rounded-xl border border-[#E8D9C4] font-medium leading-relaxed">
                 {alert.description}
               </p>
@@ -185,18 +188,18 @@ function AlertTreatment({ alert, onBack, onResolve }: AlertTreatmentProps) {
             <div className="h-px bg-[#F0E6D8]" />
 
             <div>
-              <h4 className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-2">Seuils et diagnostic IoT</h4>
+              <h4 className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-2">{t('thresholds_diagnostic')}</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="border border-[#E8D9C4] rounded-xl p-3 bg-[#FDF9F4]">
-                  <div className="text-[10px] text-[#A08060] uppercase tracking-wide">Valeur lue</div>
+                  <div className="text-[10px] text-[#A08060] uppercase tracking-wide">{t('read_value')}</div>
                   <div className="text-lg font-bold text-[#9B1C1C] mt-0.5">
-                    {alert.title.includes('Température') ? '34°C' : alert.title.includes('Humidité') ? '83%' : 'Hors seuils'}
+                    {alert.title.includes('Température') ? '34°C' : alert.title.includes('Humidité') ? '83%' : t('out_of_bounds')}
                   </div>
                 </div>
                 <div className="border border-[#E8D9C4] rounded-xl p-3 bg-[#FDF9F4]">
-                  <div className="text-[10px] text-[#A08060] uppercase tracking-wide">Seuil idéal</div>
+                  <div className="text-[10px] text-[#A08060] uppercase tracking-wide">{t('ideal_threshold')}</div>
                   <div className="text-lg font-bold text-[#2E7D32] mt-0.5">
-                    {alert.title.includes('Température') ? '31°C ±3' : alert.title.includes('Humidité') ? '80% ±3' : 'Conforme'}
+                    {alert.title.includes('Température') ? '31°C ±3' : alert.title.includes('Humidité') ? '80% ±3' : t('compliant_value')}
                   </div>
                 </div>
               </div>
@@ -207,30 +210,30 @@ function AlertTreatment({ alert, onBack, onResolve }: AlertTreatmentProps) {
         {/* Right column - Actions and notes Form */}
         <div className="flex flex-col gap-[18px]">
           <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-display text-[19px] font-semibold text-[#1E0F06] mb-[18px] text-left">Traiter l'incident</h3>
+            <h3 className="font-display text-[19px] font-semibold text-[#1E0F06] mb-[18px] text-left">{t('incident_treatment')}</h3>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-left">
               <div>
-                <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">Action corrective prise</label>
+                <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">{t('corrective_action')}</label>
                 <select
                   value={action}
                   onChange={(e) => setAction(e.target.value)}
                   className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F]"
                 >
-                  <option value="ajustement">Ajustement des conditions de stockage</option>
-                  <option value="ventilation">Activation de la ventilation</option>
-                  <option value="deplacement">Déplacement physique du lot</option>
-                  <option value="recalibrage">Remplacement / Recalibrage du capteur</option>
-                  <option value="fausse_alerte">Fausse alerte / Erreur de mesure</option>
+                  <option value="ajustement">{t('action_adjustment')}</option>
+                  <option value="ventilation">{t('action_ventilation')}</option>
+                  <option value="deplacement">{t('action_move')}</option>
+                  <option value="recalibrage">{t('action_recalibrate')}</option>
+                  <option value="fausse_alerte">{t('action_false_alarm')}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">Commentaire de résolution</label>
+                <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">{t('resolution_comment')}</label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Expliquez brièvement l'action effectuée pour résoudre l'incident..."
+                  placeholder={t('resolution_placeholder')}
                   required
                   rows={4}
                   className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2.5 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] resize-none"
@@ -245,7 +248,7 @@ function AlertTreatment({ alert, onBack, onResolve }: AlertTreatmentProps) {
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
-                  Résoudre et fermer
+                  {t('resolve_close')}
                 </button>
               </div>
             </form>
@@ -253,8 +256,8 @@ function AlertTreatment({ alert, onBack, onResolve }: AlertTreatmentProps) {
 
           {/* Snooze Options */}
           <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm text-left">
-            <h4 className="font-display text-[17px] font-semibold text-[#1E0F06] mb-3">Mettre en sourdine (Snooze)</h4>
-            <p className="text-xs text-[#A08060] mb-4">Masquer temporairement cette alerte de l'écran principal.</p>
+            <h4 className="font-display text-[17px] font-semibold text-[#1E0F06] mb-3">{t('snooze')}</h4>
+            <p className="text-xs text-[#A08060] mb-4">{t('snooze_desc')}</p>
             <div className="flex gap-[10px] flex-wrap">
               {['1 h', '4 h', '24 h'].map((time) => (
                 <button

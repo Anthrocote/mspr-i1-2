@@ -1,8 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AlertsAreaChart() {
+  const { t } = useLanguage();
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -11,8 +13,8 @@ export default function AlertsAreaChart() {
       className="bg-parchment-0 border border-parchment-400 rounded-[18px] p-6"
       style={{ boxShadow: '0 2px 8px rgba(44,26,10,.08)' }}
     >
-      <div className="font-display text-xl font-semibold text-espresso-900 mb-1">Alertes par mois</div>
-      <div className="text-xs text-parchment-700 mb-[22px]">6 derniers mois</div>
+      <div className="font-display text-xl font-semibold text-espresso-900 mb-1">{t('alerts_per_month')}</div>
+      <div className="text-xs text-parchment-700 mb-[22px]">{t('last_6_months')}</div>
       <svg width="100%" height="170" viewBox="0 0 520 170" preserveAspectRatio="none" className="block overflow-visible">
         <defs>
           <linearGradient id="alertArea" x1="0" y1="0" x2="0" y2="1">
@@ -41,7 +43,7 @@ export default function AlertsAreaChart() {
         ))}
       </svg>
       <div className="flex justify-between mt-2">
-        {['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'].map(m => (
+        {[t('jan'), t('feb'), t('mar'), t('apr'), t('may'), t('jun')].map(m => (
           <span key={m} className="text-[11px] text-parchment-700">{m}</span>
         ))}
       </div>

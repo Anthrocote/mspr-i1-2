@@ -1,13 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TemperatureLineChartProps {
   title?: string;
   subtitle?: string;
 }
 
-export default function TemperatureLineChart({ title = 'Historique Température', subtitle = 'São Paulo A · 7 derniers jours' }: TemperatureLineChartProps) {
+export default function TemperatureLineChart({ title, subtitle }: TemperatureLineChartProps) {
+  const { t } = useLanguage();
+  const resolvedTitle = title ?? t('temp_history');
+  const resolvedSubtitle = subtitle ?? t('temp_subtitle');
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -18,8 +22,8 @@ export default function TemperatureLineChart({ title = 'Historique Température'
     >
       <div className="flex items-center justify-between mb-5">
         <div>
-          <div className="font-display text-xl font-semibold text-espresso-900">{title}</div>
-          <div className="text-xs text-parchment-700">{subtitle}</div>
+          <div className="font-display text-xl font-semibold text-espresso-900">{resolvedTitle}</div>
+          <div className="text-xs text-parchment-700">{resolvedSubtitle}</div>
         </div>
         <div className="flex gap-[7px]">
           <span className="text-xs font-semibold py-1.5 px-[13px] rounded-full bg-parchment-100 text-espresso-500 border border-parchment-400 cursor-pointer hover:bg-parchment-200 transition-colors">24h</span>
@@ -54,7 +58,7 @@ export default function TemperatureLineChart({ title = 'Historique Température'
         <text x="6" y="112" style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fill: '#A0714F' }}>26°</text>
       </svg>
       <div className="flex justify-between mt-2">
-        {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(d => (
+        {[t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat'), t('sun')].map(d => (
           <span key={d} className="text-[11px] text-parchment-700">{d}</span>
         ))}
       </div>

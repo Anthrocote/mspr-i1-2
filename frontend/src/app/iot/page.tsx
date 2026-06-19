@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { WAREHOUSES } from '@/data/mock';
 import Badge from '@/components/ui/Badge';
 import GaugeChart from '@/components/charts/GaugeChart';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const container = {
   hidden: { opacity: 0 },
@@ -27,6 +28,8 @@ function valColor(isOk: boolean, isWarn: boolean) {
 }
 
 export default function IoTPage() {
+  const { t } = useLanguage();
+
   return (
     <motion.div
       className="max-w-[1320px] mx-auto w-full flex flex-col gap-[22px]"
@@ -51,13 +54,15 @@ export default function IoTPage() {
                 <div className="font-display text-lg font-semibold text-[#FAF4EC]">
                   {w.flag} {w.name}
                 </div>
-                <Badge variant={w.statusVariant}>{w.status}</Badge>
+                <Badge variant={w.statusVariant}>
+                  {t(w.statusVariant === 'ok' ? 'status_ok' : w.statusVariant === 'warn' ? 'status_warn' : 'status_err')}
+                </Badge>
               </div>
               <div className="p-5">
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className={cellStyle(tOk)}>
                     <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-[3px]">
-                      Temp.
+                      {t('temp_abbrev')}
                     </div>
                     <div
                       className="font-mono text-[22px] font-bold leading-none"
@@ -68,7 +73,7 @@ export default function IoTPage() {
                   </div>
                   <div className={cellStyle(hOk)}>
                     <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-[3px]">
-                      Hum.
+                      {t('hum_abbrev')}
                     </div>
                     <div
                       className="font-mono text-[22px] font-bold leading-none"
@@ -79,8 +84,8 @@ export default function IoTPage() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#A08060]">
-                  <span>Idéal {w.idealTemp} · {w.idealHum}</span>
-                  <span>{w.lots} lots</span>
+                  <span>{t('ideal')} {w.idealTemp} · {w.idealHum}</span>
+                  <span>{w.lots} {t('lots_count')}</span>
                 </div>
               </div>
             </motion.div>
@@ -91,13 +96,34 @@ export default function IoTPage() {
       {/* Gauges */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[18px]">
         <motion.div variants={card}>
-          <GaugeChart value={29} unit="°C" label="Température · São Paulo A" ideal="Idéal 29°C ±3" isOk={true} color="#2E7D32" />
+          <GaugeChart
+            value={29}
+            unit="°C"
+            label={`${t('temperature')} · São Paulo A`}
+            ideal={`${t('ideal')} 29°C ±3`}
+            isOk={true}
+            color="#2E7D32"
+          />
         </motion.div>
         <motion.div variants={card}>
-          <GaugeChart value={55} unit="%" label="Humidité · São Paulo A" ideal="Idéal 55% ±2" isOk={true} color="#A0714F" />
+          <GaugeChart
+            value={55}
+            unit="%"
+            label={`${t('humidity')} · São Paulo A`}
+            ideal={`${t('ideal')} 55% ±2`}
+            isOk={true}
+            color="#A0714F"
+          />
         </motion.div>
         <motion.div variants={card}>
-          <GaugeChart value={34} unit="°C" label="Température · Quito B" ideal="Idéal 31°C ±3" isOk={false} color="#9B1C1C" />
+          <GaugeChart
+            value={34}
+            unit="°C"
+            label={`${t('temperature')} · Quito B`}
+            ideal={`${t('ideal')} 31°C ±3`}
+            isOk={false}
+            color="#9B1C1C"
+          />
         </motion.div>
       </div>
 
@@ -108,11 +134,11 @@ export default function IoTPage() {
       >
         <div className="flex items-center justify-between mb-[18px]">
           <h3 className="font-display text-xl font-semibold text-[#1E0F06]">
-            Flux temps réel — Quito B (24 h)
+            {t('realtime_flux')}
           </h3>
           <span className="inline-flex items-center gap-1.5 text-xs text-[#9B1C1C] font-semibold">
             <span className="w-2 h-2 rounded-full bg-[#9B1C1C]" />
-            Dérive détectée
+            {t('drift_detected')}
           </span>
         </div>
         <svg
@@ -138,7 +164,7 @@ export default function IoTPage() {
             34°C
           </text>
           <text x="6" y="36" style={{ fontFamily: "'DM Sans'", fontSize: '10px', fill: '#A0714F' }}>
-            34° (seuil)
+            34° ({t('threshold')})
           </text>
           <text x="6" y="124" style={{ fontFamily: "'DM Sans'", fontSize: '10px', fill: '#A0714F' }}>
             28°

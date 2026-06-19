@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BARS = [
   { label: '🇧🇷 Brésil',   value: 118, pct: 88, gradient: 'linear-gradient(to top, #2C1A0A, #7A5235)' },
@@ -9,6 +10,7 @@ const BARS = [
 ];
 
 export default function BarChart() {
+  const { t } = useLanguage();
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -17,8 +19,8 @@ export default function BarChart() {
       className="bg-parchment-0 border border-parchment-400 rounded-[18px] p-6"
       style={{ boxShadow: '0 2px 8px rgba(44,26,10,.08)' }}
     >
-      <div className="font-display text-xl font-semibold text-espresso-900 mb-1">Lots par Pays</div>
-      <div className="text-xs text-parchment-700 mb-[22px]">Répartition du stock actif</div>
+      <div className="font-display text-xl font-semibold text-espresso-900 mb-1">{t('lots_by_country')}</div>
+      <div className="text-xs text-parchment-700 mb-[22px]">{t('active_stock_distribution')}</div>
       <div className="flex items-end gap-[26px] h-[170px] px-[10px]">
         {BARS.map((bar, i) => (
           <div key={bar.label} className="flex-1 flex flex-col items-center gap-[10px] h-full justify-end">

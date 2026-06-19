@@ -24,30 +24,47 @@ export const translations: Record<Language, Record<string, string>> = {
     "analytique_subtitle": "Tendances & indicateurs de performance",
     "parametres_subtitle": "Seuils IoT, notifications & compte",
 
-    // Dashboard
+    // Dashboard Metrics
     "total_lots": "Total Lots",
     "in_alert": "En Alerte",
     "expired_lots": "Lots Périmés",
     "in_transit": "En Transit",
+    "trend_lots": "↑ +12 ce mois",
+    "trend_alert": "↑ +3 depuis hier",
+    "trend_fifo_delay": "Dépassement FIFO",
+    "trend_transit": "↑ +2 aujourd'hui",
+
+    // Dashboard Sections
     "monitored_warehouses": "Entrepôts surveillés",
     "recent_alerts": "Alertes récentes",
     "see_all": "Voir tout →",
     "see_all_alerts": "Tout voir →",
-    "per_month": "par mois",
     "lots_status": "Statut des Lots",
     "global_distribution": "Répartition globale",
-    "active_alerts_count": "7 alertes actives nécessitant une action",
     "lots_by_country": "Lots par Pays",
 
-    // Lots
-    "all_lots": "Tous les lots",
-    "active_alerts": "Alertes actives",
+    // Country Names
+    "br": "Brésil",
+    "ec": "Équateur",
+    "co": "Colombie",
+
+    // Lots Filters
+    "filter_all": "Tous les lots",
+    "filter_br": "🇧🇷 Brésil",
+    "filter_ec": "🇪🇨 Équateur",
+    "filter_co": "🇨🇴 Colombie",
+    "filter_alertes": "Alertes actives",
+
+    // Lots UI
     "filter": "Filtrer",
     "new_lot": "Nouveau Lot",
     "warehouse": "Entrepôt",
     "status": "Statut",
     "all_warehouses": "Tous les entrepôts",
     "all_statuses": "Tous les statuts",
+    "status_ok": "Conforme",
+    "status_warn": "En Alerte",
+    "status_err": "Périmé",
     "reset_filters": "Réinitialiser les filtres",
     "id_lot": "ID Lot",
     "country": "Pays",
@@ -71,7 +88,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "validate_conforming": "Valider conforme",
     "mark_in_transit": "Marquer en transit",
 
-    // IoT
+    // IoT Page
     "temp_abbrev": "Temp.",
     "hum_abbrev": "Hum.",
     "lots_count": "lots",
@@ -79,7 +96,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "drift_detected": "Dérive détectée",
     "threshold": "seuil",
 
-    // Alerts
+    // Alerts Page
     "all": "Toutes",
     "critical": "Critiques",
     "warnings": "Avertissements",
@@ -96,15 +113,17 @@ export const translations: Record<Language, Record<string, string>> = {
     "snooze": "Mettre en sourdine (Snooze)",
     "snooze_desc": "Masquer temporairement cette alerte de l'écran principal.",
 
-    // Farms
-    "partner_farms": "Exploitations partenaires",
+    // Farms Page
+    "farms_count": "exploitations",
+    "warehouses_count": "entrepôts",
     "active_lots": "Lots actifs",
     "ideal_conditions": "Conditions idéales",
+    "partner_farms": "Exploitations partenaires",
     "farm": "Exploitation",
     "lots_supplied": "Lots fournis",
     "certification": "Certification",
 
-    // Analytics
+    // Analytics Page
     "compliance_rate": "Taux de conformité",
     "avg_storage_duration": "Durée moy. stockage",
     "online_sensors": "Capteurs en ligne",
@@ -112,7 +131,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "fifo_target": "cible FIFO",
     "alert_helps": "grâce aux alertes IoT",
 
-    // Settings
+    // Settings Page
     "iot_thresholds_title": "Seuils IoT par pays",
     "iot_thresholds_desc": "Plages de température et d'humidité déclenchant une alerte.",
     "notifications_rules": "Notifications & règles",
@@ -127,7 +146,35 @@ export const translations: Record<Language, Record<string, string>> = {
     "language": "Langue",
     "save": "Enregistrer",
     "cancel_btn": "Annuler",
-    "user_role": "Responsable Qualité"
+    "user_role": "Responsable Qualité",
+
+    // Charts
+    "active_stock_distribution": "Répartition du stock actif",
+    "last_6_months": "6 derniers mois",
+    "alerts_per_month": "Alertes par mois",
+    "temp_history": "Historique Température",
+    "temp_subtitle": "São Paulo A · 7 derniers jours",
+    "compliant": "conformes",
+    "in_alert_chart": "En alerte",
+    "expired_chart": "Périmé",
+    "mon": "Lun", "tue": "Mar", "wed": "Mer", "thu": "Jeu", "fri": "Ven", "sat": "Sam", "sun": "Dim",
+    "jan": "Jan", "feb": "Fév", "mar": "Mar", "apr": "Avr", "may": "Mai", "jun": "Juin",
+
+    // Alert Treatment Actions
+    "action_adjustment": "Ajustement des conditions de stockage",
+    "action_ventilation": "Activation de la ventilation",
+    "action_move": "Déplacement physique du lot",
+    "action_recalibrate": "Remplacement / Recalibrage du capteur",
+    "action_false_alarm": "Fausse alerte / Erreur de mesure",
+    "resolution_placeholder": "Expliquez brièvement l'action effectuée pour résoudre l'incident...",
+    "triggered": "Déclenché",
+    "out_of_bounds": "Hors seuils",
+    "compliant_value": "Conforme",
+    "open_menu": "Ouvrir le menu",
+    "search": "Rechercher…",
+    "degraded": "dégradés",
+    "vs_last_month": "↑ +4 pts vs mois dernier",
+    "fifo_target_180": "cible FIFO < 180 j"
   },
   en: {
     // Menu & Layout
@@ -152,30 +199,47 @@ export const translations: Record<Language, Record<string, string>> = {
     "analytique_subtitle": "Trends & performance indicators",
     "parametres_subtitle": "IoT thresholds, notifications & account",
 
-    // Dashboard
+    // Dashboard Metrics
     "total_lots": "Total Lots",
     "in_alert": "In Alert",
     "expired_lots": "Expired Lots",
     "in_transit": "In Transit",
+    "trend_lots": "↑ +12 this month",
+    "trend_alert": "↑ +3 since yesterday",
+    "trend_fifo_delay": "FIFO Exceeded",
+    "trend_transit": "↑ +2 today",
+
+    // Dashboard Sections
     "monitored_warehouses": "Monitored Warehouses",
     "recent_alerts": "Recent Alerts",
     "see_all": "See all →",
     "see_all_alerts": "See all →",
-    "per_month": "per month",
     "lots_status": "Lots Status",
     "global_distribution": "Global Distribution",
-    "active_alerts_count": "7 active alerts requiring action",
     "lots_by_country": "Lots by Country",
 
-    // Lots
-    "all_lots": "All lots",
-    "active_alerts": "Active alerts",
+    // Country Names
+    "br": "Brazil",
+    "ec": "Ecuador",
+    "co": "Colombia",
+
+    // Lots Filters
+    "filter_all": "All lots",
+    "filter_br": "🇧🇷 Brazil",
+    "filter_ec": "🇪🇨 Ecuador",
+    "filter_co": "🇨🇴 Colombia",
+    "filter_alertes": "Active alerts",
+
+    // Lots UI
     "filter": "Filter",
     "new_lot": "New Lot",
     "warehouse": "Warehouse",
     "status": "Status",
     "all_warehouses": "All warehouses",
     "all_statuses": "All statuses",
+    "status_ok": "Compliant",
+    "status_warn": "In Alert",
+    "status_err": "Expired",
     "reset_filters": "Reset filters",
     "id_lot": "Lot ID",
     "country": "Country",
@@ -199,7 +263,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "validate_conforming": "Validate compliant",
     "mark_in_transit": "Mark in transit",
 
-    // IoT
+    // IoT Page
     "temp_abbrev": "Temp.",
     "hum_abbrev": "Hum.",
     "lots_count": "lots",
@@ -207,7 +271,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "drift_detected": "Drift detected",
     "threshold": "limit",
 
-    // Alerts
+    // Alerts Page
     "all": "All",
     "critical": "Critical",
     "warnings": "Warnings",
@@ -224,15 +288,17 @@ export const translations: Record<Language, Record<string, string>> = {
     "snooze": "Snooze",
     "snooze_desc": "Temporarily hide this alert from the main screen.",
 
-    // Farms
-    "partner_farms": "Partner Farms",
+    // Farms Page
+    "farms_count": "farms",
+    "warehouses_count": "warehouses",
     "active_lots": "Active lots",
     "ideal_conditions": "Ideal conditions",
+    "partner_farms": "Partner Farms",
     "farm": "Farm",
     "lots_supplied": "Lots supplied",
     "certification": "Certification",
 
-    // Analytics
+    // Analytics Page
     "compliance_rate": "Compliance rate",
     "avg_storage_duration": "Avg. storage duration",
     "online_sensors": "Online sensors",
@@ -240,7 +306,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "fifo_target": "FIFO target",
     "alert_helps": "thanks to IoT alerts",
 
-    // Settings
+    // Settings Page
     "iot_thresholds_title": "IoT Thresholds by Country",
     "iot_thresholds_desc": "Temperature and humidity ranges triggering an alert.",
     "notifications_rules": "Notifications & Rules",
@@ -255,7 +321,35 @@ export const translations: Record<Language, Record<string, string>> = {
     "language": "Language",
     "save": "Save",
     "cancel_btn": "Cancel",
-    "user_role": "Quality Manager"
+    "user_role": "Quality Manager",
+
+    // Charts
+    "active_stock_distribution": "Active stock distribution",
+    "last_6_months": "Last 6 months",
+    "alerts_per_month": "Alerts per month",
+    "temp_history": "Temperature History",
+    "temp_subtitle": "São Paulo A · Last 7 days",
+    "compliant": "compliant",
+    "in_alert_chart": "In alert",
+    "expired_chart": "Expired",
+    "mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun",
+    "jan": "Jan", "feb": "Feb", "mar": "Mar", "apr": "Apr", "may": "May", "jun": "Jun",
+
+    // Alert Treatment Actions
+    "action_adjustment": "Storage conditions adjustment",
+    "action_ventilation": "Ventilation activation",
+    "action_move": "Physical lot relocation",
+    "action_recalibrate": "Sensor replacement / Recalibration",
+    "action_false_alarm": "False alarm / Measurement error",
+    "resolution_placeholder": "Briefly explain the action taken to resolve the incident...",
+    "triggered": "Triggered",
+    "out_of_bounds": "Out of bounds",
+    "compliant_value": "Compliant",
+    "open_menu": "Open menu",
+    "search": "Search…",
+    "degraded": "degraded",
+    "vs_last_month": "↑ +4 pts vs last month",
+    "fifo_target_180": "FIFO target < 180 d"
   },
   es: {
     // Menu & Layout
@@ -265,7 +359,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "lots": "Gestión de Lotes",
     "iot": "Monitoreo IoT",
     "alertes": "Alertas",
-    "exploitations": "Farms",
+    "exploitations": "Explotaciones",
     "analytique": "Analítica",
     "parametres": "Ajustes",
     "compliance_global": "Cumplimiento global",
@@ -280,30 +374,47 @@ export const translations: Record<Language, Record<string, string>> = {
     "analytique_subtitle": "Tendencias e indicadores de rendimiento",
     "parametres_subtitle": "Límites IoT, notificaciones y cuenta",
 
-    // Dashboard
+    // Dashboard Metrics
     "total_lots": "Total Lotes",
     "in_alert": "En Alerta",
     "expired_lots": "Lotes Caducados",
     "in_transit": "En Tránsito",
+    "trend_lots": "↑ +12 este mes",
+    "trend_alert": "↑ +3 desde ayer",
+    "trend_fifo_delay": "Exceso FIFO",
+    "trend_transit": "↑ +2 hoy",
+
+    // Dashboard Sections
     "monitored_warehouses": "Almacenes monitoreados",
     "recent_alerts": "Alertas recientes",
     "see_all": "Ver todo →",
     "see_all_alerts": "Ver todo →",
-    "per_month": "por mes",
     "lots_status": "Estado de Lotes",
     "global_distribution": "Distribución global",
-    "active_alerts_count": "7 alertas activas que requieren acción",
     "lots_by_country": "Lotes por País",
 
-    // Lots
-    "all_lots": "Todos los lotes",
-    "active_alerts": "Alertas activas",
+    // Country Names
+    "br": "Brasil",
+    "ec": "Ecuador",
+    "co": "Colombia",
+
+    // Lots Filters
+    "filter_all": "Todos los lotes",
+    "filter_br": "🇧🇷 Brasil",
+    "filter_ec": "🇪🇨 Ecuador",
+    "filter_co": "🇨🇴 Colombia",
+    "filter_alertes": "Alertas activas",
+
+    // Lots UI
     "filter": "Filtrar",
     "new_lot": "Nuevo Lote",
     "warehouse": "Almacén",
     "status": "Estado",
     "all_warehouses": "Todos los almacenes",
     "all_statuses": "Todos los estados",
+    "status_ok": "Conforme",
+    "status_warn": "En Alerte",
+    "status_err": "Caducado",
     "reset_filters": "Restablecer filtros",
     "id_lot": "ID Lote",
     "country": "País",
@@ -327,7 +438,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "validate_conforming": "Validar conforme",
     "mark_in_transit": "Marcar en tránsito",
 
-    // IoT
+    // IoT Page
     "temp_abbrev": "Temp.",
     "hum_abbrev": "Hum.",
     "lots_count": "lotes",
@@ -335,7 +446,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "drift_detected": "Desviación detectada",
     "threshold": "límite",
 
-    // Alerts
+    // Alerts Page
     "all": "Todas",
     "critical": "Críticas",
     "warnings": "Advertencias",
@@ -352,15 +463,17 @@ export const translations: Record<Language, Record<string, string>> = {
     "snooze": "Silenciar (Snooze)",
     "snooze_desc": "Ocultar temporalmente esta alerte de la pantalla principal.",
 
-    // Farms
-    "partner_farms": "Explotaciones asociadas",
+    // Farms Page
+    "farms_count": "explotaciones",
+    "warehouses_count": "almacenes",
     "active_lots": "Lotes activos",
     "ideal_conditions": "Condiciones ideales",
+    "partner_farms": "Explotaciones asociadas",
     "farm": "Explotación",
     "lots_supplied": "Lotes suministrados",
     "certification": "Certificación",
 
-    // Analytics
+    // Analytics Page
     "compliance_rate": "Tasa de cumplimiento",
     "avg_storage_duration": "Duración prom. almacenamiento",
     "online_sensors": "Sensores en línea",
@@ -368,7 +481,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "fifo_target": "objetivo FIFO",
     "alert_helps": "gracias a las alertas IoT",
 
-    // Settings
+    // Settings Page
     "iot_thresholds_title": "Límites IoT por País",
     "iot_thresholds_desc": "Rangos de temperatura y humedad que activan una alerte.",
     "notifications_rules": "Notificaciones & Reglas",
@@ -383,6 +496,34 @@ export const translations: Record<Language, Record<string, string>> = {
     "language": "Idioma",
     "save": "Guardar",
     "cancel_btn": "Cancelar",
-    "user_role": "Gerente de Calidad"
+    "user_role": "Gerente de Calidad",
+
+    // Charts
+    "active_stock_distribution": "Distribución del stock activo",
+    "last_6_months": "Últimos 6 meses",
+    "alerts_per_month": "Alertas por mes",
+    "temp_history": "Historial de Temperatura",
+    "temp_subtitle": "São Paulo A · Últimos 7 días",
+    "compliant": "conformes",
+    "in_alert_chart": "En alerta",
+    "expired_chart": "Caducado",
+    "mon": "Lun", "tue": "Mar", "wed": "Mié", "thu": "Jue", "fri": "Vie", "sat": "Sáb", "sun": "Dom",
+    "jan": "Ene", "feb": "Feb", "mar": "Mar", "apr": "Abr", "may": "May", "jun": "Jun",
+
+    // Alert Treatment Actions
+    "action_adjustment": "Ajuste de las condiciones de almacenamiento",
+    "action_ventilation": "Activación de la ventilación",
+    "action_move": "Reubicación física del lote",
+    "action_recalibrate": "Reemplazo / Recalibración del sensor",
+    "action_false_alarm": "Falsa alarma / Error de medición",
+    "resolution_placeholder": "Explique brevemente la acción tomada para resolver el incidente...",
+    "triggered": "Activada",
+    "out_of_bounds": "Fuera de límites",
+    "compliant_value": "Conforme",
+    "open_menu": "Abrir menú",
+    "search": "Buscar…",
+    "degraded": "degradados",
+    "vs_last_month": "↑ +4 pts vs mes anterior",
+    "fifo_target_180": "objetivo FIFO < 180 d"
   }
 };

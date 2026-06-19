@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import BarChart from '@/components/charts/BarChart';
 import AlertsAreaChart from '@/components/charts/AlertsAreaChart';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const container = {
   hidden: { opacity: 0 },
@@ -37,14 +38,18 @@ function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: stri
   return <>{val}{suffix}</>;
 }
 
-const METRICS = [
-  { label: 'Taux de conformité', value: 70, suffix: '%', color: '#2E7D32', trend: '↑ +4 pts vs mois dernier', trendColor: '#2E7D32' },
-  { label: 'Durée moy. stockage', value: 142, suffix: ' j', color: '#1E0F06', trend: 'cible FIFO < 180 j', trendColor: '#A08060' },
-  { label: 'Capteurs en ligne', value: 18, suffix: '/20', color: '#1E0F06', trend: '2 dégradés', trendColor: '#B45309' },
-  { label: 'Pertes évitées', value: 96, suffix: '%', color: '#1E0F06', trend: 'grâce aux alertes IoT', trendColor: '#2E7D32' },
-];
+
 
 export default function AnalytiquePage() {
+  const { t } = useLanguage();
+
+  const METRICS = [
+    { label: t('compliance_rate'), value: 70, suffix: '%', color: '#2E7D32', trend: t('vs_last_month'), trendColor: '#2E7D32' },
+    { label: t('avg_storage_duration'), value: 142, suffix: ' j', color: '#1E0F06', trend: t('fifo_target_180'), trendColor: '#A08060' },
+    { label: t('online_sensors'), value: 18, suffix: '/20', color: '#1E0F06', trend: '2 ' + t('degraded'), trendColor: '#B45309' },
+    { label: t('prevented_losses'), value: 96, suffix: '%', color: '#1E0F06', trend: t('alert_helps'), trendColor: '#2E7D32' },
+  ];
+
   return (
     <motion.div
       className="max-w-[1320px] mx-auto w-full flex flex-col gap-[18px]"
