@@ -174,7 +174,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "search": "Rechercher…",
     "degraded": "dégradés",
     "vs_last_month": "↑ +4 pts vs mois dernier",
-    "fifo_target_180": "cible FIFO < 180 j"
+    "fifo_target_180": "cible FIFO < 180 j",
+    "page_not_found": "Page non trouvée",
+    "error_404": "Erreur 404",
+    "back_to_dashboard": "Retour au tableau de bord",
+    "error_404_desc": "La page que vous recherchez n'existe pas ou a été déplacée."
   },
   en: {
     // Menu & Layout
@@ -349,7 +353,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "search": "Search…",
     "degraded": "degraded",
     "vs_last_month": "↑ +4 pts vs last month",
-    "fifo_target_180": "FIFO target < 180 d"
+    "fifo_target_180": "FIFO target < 180 d",
+    "page_not_found": "Page not found",
+    "error_404": "Error 404",
+    "back_to_dashboard": "Back to dashboard",
+    "error_404_desc": "The page you are looking for does not exist or has been moved."
   },
   es: {
     // Menu & Layout
@@ -524,6 +532,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "search": "Buscar…",
     "degraded": "degradados",
     "vs_last_month": "↑ +4 pts vs mes anterior",
-    "fifo_target_180": "objetivo FIFO < 180 d"
+    "fifo_target_180": "objetivo FIFO < 180 d",
+    "page_not_found": "Página no encontrada",
+    "error_404": "Error 404",
+    "back_to_dashboard": "Volver al panel",
+    "error_404_desc": "La página que busca no existe o ha sido movida."
   }
 };

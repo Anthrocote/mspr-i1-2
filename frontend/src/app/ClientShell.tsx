@@ -8,11 +8,11 @@ import { PAGE_META } from '@/types';
 import type { PageId } from '@/types';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 
-function pageIdFromPath(pathname: string): PageId {
+function pageIdFromPath(pathname: string): string {
   if (pathname === '/') return 'dashboard';
   const seg = pathname.split('/').filter(Boolean)[0];
-  if (seg && seg in PAGE_META) return seg as PageId;
-  return 'dashboard';
+  if (seg && seg in PAGE_META) return seg;
+  return 'not-found';
 }
 
 function InnerClientShell({ children }: { children: React.ReactNode }) {
@@ -21,8 +21,8 @@ function InnerClientShell({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const title = t(pageId);
-  const subtitle = t(`${pageId}_subtitle`);
+  const title = pageId === 'not-found' ? t('page_not_found') : t(pageId);
+  const subtitle = pageId === 'not-found' ? t('error_404') : t(`${pageId}_subtitle`);
 
   return (
     <div className="flex min-h-screen" style={{ background: '#EFE7DA' }}>
