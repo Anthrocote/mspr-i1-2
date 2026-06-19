@@ -47,7 +47,7 @@ const METRICS = [
 export default function AnalytiquePage() {
   return (
     <motion.div
-      className="max-w-[1320px] flex flex-col gap-[18px]"
+      className="max-w-[1320px] mx-auto w-full flex flex-col gap-[18px]"
       variants={container}
       initial="hidden"
       animate="show"

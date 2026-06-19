@@ -29,7 +29,7 @@ function valColor(isOk: boolean, isWarn: boolean) {
 export default function IoTPage() {
   return (
     <motion.div
-      className="max-w-[1320px] flex flex-col gap-[22px]"
+      className="max-w-[1320px] mx-auto w-full flex flex-col gap-[22px]"
       variants={container}
       initial="hidden"
       animate="show"

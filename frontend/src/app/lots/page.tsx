@@ -69,7 +69,7 @@ export default function LotsPage() {
   }
 
   return (
-    <div className="max-w-[1320px]">
+    <div className="max-w-[1320px] mx-auto w-full">
       {/* Filter bar */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-[10px] mb-5">
         <div className="flex items-center gap-[6px] sm:gap-[10px] flex-wrap">
@@ -275,7 +275,7 @@ export default function LotsPage() {
 function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
   return (
     <motion.div
-      className="max-w-[1100px]"
+      className="max-w-[1100px] mx-auto w-full"
       initial={{ opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' as const }}

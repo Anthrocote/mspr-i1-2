@@ -25,7 +25,7 @@ export default function AlertesPage() {
   const avertissements = ALERTS.filter((a) => a.severity === 'alerte').length;
 
   return (
-    <div className="max-w-[920px] flex flex-col gap-[14px]">
+    <div className="max-w-[920px] mx-auto w-full flex flex-col gap-[14px]">
       {/* Filter chips */}
       <div className="flex gap-[10px] mb-1.5 flex-wrap">
         <button

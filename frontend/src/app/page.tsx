@@ -22,7 +22,7 @@ export default function DashboardPage() {
 
   return (
     <motion.div
-      className="flex flex-col gap-[22px] max-w-[1320px]"
+      className="flex flex-col gap-[22px] max-w-[1320px] mx-auto w-full"
       variants={container}
       initial="hidden"
       animate="show"
