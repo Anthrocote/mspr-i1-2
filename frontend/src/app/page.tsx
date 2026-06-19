@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { WAREHOUSES, DASHBOARD_ALERTS } from '@/data/mock';
 import Badge from '@/components/ui/Badge';
@@ -110,7 +111,7 @@ export default function DashboardPage() {
         <motion.div variants={item} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-[18px]">
             <h3 className="font-display text-xl font-semibold text-[#1E0F06]">Entrepôts surveillés</h3>
-            <span className="text-xs text-[#1E5220] font-semibold cursor-pointer">Voir tout →</span>
+            <Link href="/iot" className="text-xs text-[#1E5220] font-semibold hover:underline">Voir tout →</Link>
           </div>
           <div className="flex flex-col gap-[11px]">
             {topWarehouses.map((w) => (
@@ -138,7 +139,7 @@ export default function DashboardPage() {
         <motion.div variants={item} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-[18px]">
             <h3 className="font-display text-xl font-semibold text-[#1E0F06]">Alertes récentes</h3>
-            <span className="text-xs text-[#1E5220] font-semibold cursor-pointer">Tout voir →</span>
+            <Link href="/alertes" className="text-xs text-[#1E5220] font-semibold hover:underline">Tout voir →</Link>
           </div>
           <div className="flex flex-col gap-[11px]">
             {DASHBOARD_ALERTS.map((a, i) => (
