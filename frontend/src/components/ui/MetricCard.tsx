@@ -76,7 +76,7 @@ export default function MetricCard({
         {icon}
       </div>
       <div className={`text-[11px] font-semibold uppercase tracking-[.08em] mb-[10px] ${cfg.label}`}>{label}</div>
-      <div className={`font-display text-[46px] font-bold leading-[.9] tracking-[-.02em] ${resolvedValueColor}`}>{value}</div>
+      <div className={`font-mono text-[38px] font-bold leading-[.9] tracking-tight ${resolvedValueColor}`}>{value}</div>
       <div className="flex items-center gap-[5px] mt-[10px] text-xs" style={{ color: trendColor }}>{trend}</div>
       <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ background: barGradient }} />
     </motion.div>

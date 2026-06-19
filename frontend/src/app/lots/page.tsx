@@ -385,12 +385,12 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[14px]">
               <div className="border border-[#E8D9C4] rounded-[13px] p-[18px] text-center bg-[#FDF9F4]">
                 <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-1.5">Température</div>
-                <div className="font-display text-[34px] font-bold text-[#1E0F06] leading-none">{lot.temp}</div>
+                <div className="font-mono text-[28px] font-bold text-[#1E0F06] leading-none">{lot.temp}</div>
                 <div className="text-[11px] text-[#A08060] mt-1.5">Idéal : {lot.idealTemp}</div>
               </div>
               <div className="border border-[#E8D9C4] rounded-[13px] p-[18px] text-center bg-[#FDF9F4]">
                 <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-1.5">Humidité</div>
-                <div className="font-display text-[34px] font-bold text-[#1E0F06] leading-none">{lot.hum}</div>
+                <div className="font-mono text-[28px] font-bold text-[#1E0F06] leading-none">{lot.hum}</div>
                 <div className="text-[11px] text-[#A08060] mt-1.5">Idéal : {lot.idealHum}</div>
               </div>
             </div>

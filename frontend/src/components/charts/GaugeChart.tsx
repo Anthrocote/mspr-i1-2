@@ -38,7 +38,7 @@ export default function GaugeChart({ value, unit = '', label, ideal, isOk, color
           transition={{ duration: 0.8, ease: 'easeOut' as const, delay: 0.2 }}
           d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke={fillColor} strokeWidth="14" strokeLinecap="round" strokeDasharray="226"
         />
-        <text x="90" y="84" textAnchor="middle" style={{ fontFamily: 'var(--font-display)', fontSize: '30px', fontWeight: 700, fill: valueColor }}>{displayValue}</text>
+        <text x="90" y="84" textAnchor="middle" style={{ fontFamily: 'var(--font-body)', fontSize: '28px', fontWeight: 700, fill: valueColor }}>{displayValue}</text>
       </svg>
       <div className="mt-2 text-xs text-parchment-700">
         {ideal} · <span style={{ color: statusColor }} className="font-semibold">{statusText}</span>

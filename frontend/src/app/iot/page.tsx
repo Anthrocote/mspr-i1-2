@@ -60,7 +60,7 @@ export default function IoTPage() {
                       Temp.
                     </div>
                     <div
-                      className="font-display text-[26px] font-bold leading-none"
+                      className="font-mono text-[22px] font-bold leading-none"
                       style={{ color: valColor(tOk, false) }}
                     >
                       {w.temp}
@@ -71,7 +71,7 @@ export default function IoTPage() {
                       Hum.
                     </div>
                     <div
-                      className="font-display text-[26px] font-bold leading-none"
+                      className="font-mono text-[22px] font-bold leading-none"
                       style={{ color: valColor(hOk, hWarn) }}
                     >
                       {w.hum}

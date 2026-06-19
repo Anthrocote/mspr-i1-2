@@ -64,7 +64,7 @@ export default function AnalytiquePage() {
               {m.label}
             </div>
             <div
-              className="font-display text-[38px] font-bold leading-none"
+              className="font-mono text-[32px] font-bold leading-none"
               style={{ color: m.color }}
             >
               <AnimatedNumber target={m.value} suffix={m.suffix} />

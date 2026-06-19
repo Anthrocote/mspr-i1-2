@@ -124,7 +124,7 @@ export default function DashboardPage() {
                   <div className="text-xs text-[#A08060]">{w.lots} lots · {w.country}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-display text-lg font-bold leading-none" style={{ color: w.statusVariant === 'err' ? '#9B1C1C' : w.statusVariant === 'warn' ? '#B45309' : '#1E0F06' }}>
+                  <div className="font-mono text-base font-bold leading-none" style={{ color: w.statusVariant === 'err' ? '#9B1C1C' : w.statusVariant === 'warn' ? '#B45309' : '#1E0F06' }}>
                      {w.temp}
                   </div>
                   <div className="text-[11px] text-[#A08060]">{w.hum} hum.</div>

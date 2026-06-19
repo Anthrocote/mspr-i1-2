@@ -182,7 +182,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         {!collapsed && (
           <div className="mt-auto rounded-[14px] p-4 border border-white/[.06] mb-4" style={{ background: 'linear-gradient(150deg, #3D2610, #1E0F06)' }}>
             <div className="text-xs text-espresso-300 mb-1">Conformité globale</div>
-            <div className="font-display text-[30px] font-bold text-parchment-100 leading-none">70%</div>
+            <div className="font-mono text-[26px] font-bold text-parchment-100 leading-none">70%</div>
             <div className="h-1.5 bg-white/10 rounded-full mt-[10px] overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}

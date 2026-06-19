@@ -60,6 +60,7 @@ body {
   color: var(--color-espresso-900);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 ::-webkit-scrollbar {

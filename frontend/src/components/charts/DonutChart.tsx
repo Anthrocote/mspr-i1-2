@@ -27,7 +27,7 @@ export default function DonutChart() {
             strokeDasharray="226" strokeDashoffset="158" transform="rotate(-90 50 50)"/>
           <circle cx="50" cy="50" r="36" fill="none" stroke="#9B1C1C" strokeWidth="16"
             strokeDasharray="226" strokeDashoffset="211" transform="rotate(-90 50 50)"/>
-          <text x="50" y="48" textAnchor="middle" style={{ fontFamily: 'var(--font-display)', fontSize: '19px', fontWeight: 700, fill: '#1E0F06' }}>70%</text>
+          <text x="50" y="48" textAnchor="middle" style={{ fontFamily: 'var(--font-body)', fontSize: '18px', fontWeight: 700, fill: '#1E0F06' }}>70%</text>
           <text x="50" y="61" textAnchor="middle" style={{ fontFamily: 'var(--font-body)', fontSize: '7px', fill: '#A0714F' }}>conformes</text>
         </svg>
         <div className="flex flex-col gap-3">
