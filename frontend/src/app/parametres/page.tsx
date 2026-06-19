@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { COUNTRIES } from '@/data/mock';
 import Toggle from '@/components/ui/Toggle';
@@ -20,19 +20,6 @@ export default function ParametresPage() {
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [fifoStrict, setFifoStrict] = useState(false);
   const [iotRealtime, setIotRealtime] = useState(true);
-  const [selectedLang, setSelectedLang] = useState(language);
-
-  useEffect(() => {
-    setSelectedLang(language);
-  }, [language]);
-
-  const handleSave = () => {
-    setLanguage(selectedLang);
-  };
-
-  const handleCancel = () => {
-    setSelectedLang(language);
-  };
 
   return (
     <motion.div
@@ -112,7 +99,7 @@ export default function ParametresPage() {
           <div>
             <div className="text-base font-semibold text-[#1E0F06]">Marina Joaquim</div>
             <div className="text-[13px] text-[#A08060]">
-              Responsable Qualité · marina.j@futurekawa.co
+              {t('user_role')} · marina.j@futurekawa.co
             </div>
           </div>
         </div>
@@ -128,8 +115,8 @@ export default function ParametresPage() {
           <div>
             <div className="text-[13px] font-medium text-[#5C3A1E] mb-1.5">{t('language')}</div>
             <select
-              value={selectedLang}
-              onChange={(e) => setSelectedLang(e.target.value as any)}
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as any)}
               className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-[10px] px-[14px] text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
             >
               <option value="fr">Français</option>
@@ -140,13 +127,11 @@ export default function ParametresPage() {
         </div>
         <div className="flex gap-[10px] mt-[22px]">
           <button
-            onClick={handleSave}
             className="inline-flex items-center gap-[7px] py-[10px] px-5 rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)] hover:bg-[#1E0F06]"
           >
             {t('save')}
           </button>
           <button
-            onClick={handleCancel}
             className="inline-flex items-center gap-[7px] py-[10px] px-5 rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]"
           >
             {t('cancel_btn')}

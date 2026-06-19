@@ -126,7 +126,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "full_name": "Nom complet",
     "language": "Langue",
     "save": "Enregistrer",
-    "cancel_btn": "Annuler"
+    "cancel_btn": "Annuler",
+    "user_role": "Responsable Qualité"
   },
   en: {
     // Menu & Layout
@@ -253,7 +254,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "full_name": "Full Name",
     "language": "Language",
     "save": "Save",
-    "cancel_btn": "Cancel"
+    "cancel_btn": "Cancel",
+    "user_role": "Quality Manager"
   },
   es: {
     // Menu & Layout
@@ -380,6 +382,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "full_name": "Nombre completo",
     "language": "Idioma",
     "save": "Guardar",
-    "cancel_btn": "Cancelar"
+    "cancel_btn": "Cancelar",
+    "user_role": "Gerente de Calidad"
   }
 };
