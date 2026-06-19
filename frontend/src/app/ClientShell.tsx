@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
@@ -17,13 +18,18 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const pageId = pageIdFromPath(pathname);
   const meta = PAGE_META[pageId];
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen" style={{ background: '#EFE7DA' }}>
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 min-w-0 flex flex-col">
-        <Topbar title={meta.title} subtitle={meta.subtitle} />
-        <main className="flex-1 p-[30px_32px_48px]">
+        <Topbar 
+          title={meta.title} 
+          subtitle={meta.subtitle} 
+          onMenuClick={() => setSidebarOpen(true)} 
+        />
+        <main className="flex-1 p-4 sm:p-6 lg:p-[30px_32px_48px]">
           {children}
         </main>
       </div>

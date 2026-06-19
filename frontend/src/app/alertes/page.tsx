@@ -70,25 +70,27 @@ export default function AlertesPage() {
             animate="show"
             exit="exit"
             layout
-            className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-[13px] p-4 px-5 flex items-start gap-[14px] shadow-[0_2px_8px_rgba(44,26,10,.06)]"
+            className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-[13px] p-4 px-5 flex flex-col sm:flex-row items-start gap-[14px] shadow-[0_2px_8px_rgba(44,26,10,.06)]"
             style={{ borderLeft: `4px solid ${a.borderColor}` }}
           >
-            <div
-              className="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center shrink-0 text-[15px]"
-              style={{ background: a.bgColor }}
-            >
-              {a.icon}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-[10px]">
-                <div className="text-sm font-semibold text-[#1E0F06]">{a.title}</div>
-                <Badge variant={a.variant}>{a.level}</Badge>
+            <div className="flex items-start gap-[14px] flex-1 w-full">
+              <div
+                className="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center shrink-0 text-[15px]"
+                style={{ background: a.bgColor }}
+              >
+                {a.icon}
               </div>
-              <div className="text-[13px] text-[#6B5540] mt-[3px]">{a.description}</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-[10px]">
+                  <div className="text-sm font-semibold text-[#1E0F06]">{a.title}</div>
+                  <Badge variant={a.variant}>{a.level}</Badge>
+                </div>
+                <div className="text-[13px] text-[#6B5540] mt-[3px]">{a.description}</div>
+              </div>
             </div>
-            <div className="text-right shrink-0">
+            <div className="text-left sm:text-right shrink-0 w-full sm:w-auto flex sm:flex-col justify-between sm:justify-start items-center sm:items-end mt-2 sm:mt-0 border-t border-dashed border-[#E8D9C4] sm:border-none pt-2 sm:pt-0">
               <div className="text-[11px] text-[#A08060]">{a.time}</div>
-              <span className="text-xs font-semibold text-[#1E5220] cursor-pointer">Traiter →</span>
+              <span className="text-xs font-semibold text-[#1E5220] cursor-pointer sm:mt-1">Traiter →</span>
             </div>
           </motion.div>
         ))}

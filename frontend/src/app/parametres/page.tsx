@@ -37,7 +37,7 @@ export default function ParametresPage() {
         {COUNTRIES.map((c) => (
           <div
             key={c.countryCode}
-            className="grid grid-cols-[1.2fr_1fr_1fr] gap-4 items-center py-[14px] border-b border-[#F0E6D8]"
+            className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr_1fr] gap-3 sm:gap-4 items-start sm:items-center py-[14px] border-b border-[#F0E6D8]"
           >
             <div className="text-sm font-semibold text-[#1E0F06]">
               {c.flag} {c.name}
@@ -101,7 +101,7 @@ export default function ParametresPage() {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <div className="text-[13px] font-medium text-[#5C3A1E] mb-1.5">Nom complet</div>
             <input

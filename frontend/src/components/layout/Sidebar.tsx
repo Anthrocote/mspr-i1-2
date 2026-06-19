@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MENU_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', href: '/', icon: (
@@ -36,17 +36,42 @@ function isActive(href: string, pathname: string): boolean {
   return pathname.startsWith(href);
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
 
-  return (
+  const handleLinkClick = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
+  const sidebarContent = (
     <motion.aside
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="w-[248px] shrink-0 bg-espresso-800 flex flex-col py-6 px-[18px] sticky top-0 h-screen"
+      className="w-[248px] h-full bg-espresso-800 flex flex-col py-6 px-[18px] relative overflow-y-auto"
       style={{ boxShadow: '0 8px 32px rgba(44,26,10,.18)' }}
     >
+      {/* Close button on mobile */}
+      <div className="flex justify-end lg:hidden mb-2">
+        <button
+          onClick={onClose}
+          className="p-1 rounded-md text-espresso-300 hover:text-parchment-100 hover:bg-white/10 transition-colors cursor-pointer"
+          aria-label="Fermer le menu"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
       {/* Logo */}
       <div className="flex items-center gap-3 mb-[34px] px-1.5">
         <div className="w-[38px] h-[38px] bg-white/10 border border-white/[.08] rounded-[9px] flex items-center justify-center">
@@ -70,6 +95,7 @@ export default function Sidebar() {
             <motion.div key={item.id} whileHover={{ scale: 1.01 }} transition={{ duration: 0.12 }}>
               <Link
                 href={item.href}
+                onClick={handleLinkClick}
                 className={`relative flex items-center gap-3 py-[10px] px-[13px] rounded-xl text-sm font-medium transition-all duration-150 ${
                   active
                     ? 'bg-white/10 text-parchment-100 border border-white/[.08]'
@@ -105,6 +131,7 @@ export default function Sidebar() {
             <motion.div key={item.id} whileHover={{ scale: 1.01 }} transition={{ duration: 0.12 }}>
               <Link
                 href={item.href}
+                onClick={handleLinkClick}
                 className={`relative flex items-center gap-3 py-[10px] px-[13px] rounded-xl text-sm font-medium transition-all duration-150 ${
                   active
                     ? 'bg-white/10 text-parchment-100 border border-white/[.08]'
@@ -141,5 +168,41 @@ export default function Sidebar() {
         </div>
       </div>
     </motion.aside>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar - hidden on screens under lg */}
+      <div className="hidden lg:block w-[248px] shrink-0 sticky top-0 h-screen">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile/Tablet Sidebar Drawer - uses overlay & slide-in animations */}
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            {/* Dark overlay backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={onClose}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            />
+            {/* Drawer sheet sliding from left */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative z-10 h-full"
+            >
+              {sidebarContent}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

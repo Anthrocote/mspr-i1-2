@@ -27,7 +27,7 @@ export default function DashboardPage() {
       animate="show"
     >
       {/* Metric row */}
-      <div className="grid grid-cols-4 gap-[18px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[18px]">
         <motion.div variants={item}>
           <MetricCard
             label="Total Lots"
@@ -95,7 +95,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-[1.6fr_1fr] gap-[18px]">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-[18px]">
         <motion.div variants={item}>
           <TemperatureLineChart />
         </motion.div>
@@ -105,7 +105,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-2 gap-[18px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[18px]">
         {/* Warehouses */}
         <motion.div variants={item} className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-[18px]">
@@ -124,7 +124,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <div className="font-display text-lg font-bold leading-none" style={{ color: w.statusVariant === 'err' ? '#9B1C1C' : w.statusVariant === 'warn' ? '#B45309' : '#1E0F06' }}>
-                    {w.temp}
+                     {w.temp}
                   </div>
                   <div className="text-[11px] text-[#A08060]">{w.hum} hum.</div>
                 </div>

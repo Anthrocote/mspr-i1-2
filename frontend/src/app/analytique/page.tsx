@@ -53,7 +53,7 @@ export default function AnalytiquePage() {
       animate="show"
     >
       {/* Metric cards */}
-      <div className="grid grid-cols-4 gap-[18px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[18px]">
         {METRICS.map((m) => (
           <motion.div
             key={m.label}
@@ -77,7 +77,7 @@ export default function AnalytiquePage() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-2 gap-[18px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[18px]">
         <motion.div variants={item}>
           <BarChart />
         </motion.div>

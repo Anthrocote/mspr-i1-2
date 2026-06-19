@@ -35,7 +35,7 @@ export default function IoTPage() {
       animate="show"
     >
       {/* Warehouse cards */}
-      <div className="grid grid-cols-3 gap-[18px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[18px]">
         {WAREHOUSES.map((w) => {
           const tOk = w.tempNum >= w.tempRange[0] && w.tempNum <= w.tempRange[1];
           const hOk = w.humNum >= w.humRange[0] && w.humNum <= w.humRange[1];
@@ -89,7 +89,7 @@ export default function IoTPage() {
       </div>
 
       {/* Gauges */}
-      <div className="grid grid-cols-3 gap-[18px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[18px]">
         <motion.div variants={card}>
           <GaugeChart value={29} unit="°C" label="Température · São Paulo A" ideal="Idéal 29°C ±3" isOk={true} color="#2E7D32" />
         </motion.div>

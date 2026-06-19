@@ -51,28 +51,30 @@ export default function LotsPage() {
   return (
     <div className="max-w-[1320px]">
       {/* Filter bar */}
-      <div className="flex items-center gap-[10px] flex-wrap mb-5">
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className={`inline-flex items-center gap-1.5 py-[7px] px-[14px] rounded-full text-xs font-semibold cursor-pointer transition-colors ${
-              filter === f.key
-                ? 'bg-[#2C1A0A] text-[#FAF4EC]'
-                : 'bg-[#FFFCF8] text-[#7A5235] border border-[#E8D9C4] hover:bg-[#F5EDE0]'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-        <div className="ml-auto flex gap-[10px]">
-          <button className="inline-flex items-center gap-[7px] py-[9px] px-4 rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-[10px] mb-5">
+        <div className="flex items-center gap-[6px] sm:gap-[10px] flex-wrap">
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`inline-flex items-center gap-1.5 py-[7px] px-[12px] sm:px-[14px] rounded-full text-xs font-semibold cursor-pointer transition-colors py-1 ${
+                filter === f.key
+                  ? 'bg-[#2C1A0A] text-[#FAF4EC]'
+                  : 'bg-[#FFFCF8] text-[#7A5235] border border-[#E8D9C4] hover:bg-[#F5EDE0]'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-[10px] w-full sm:w-auto sm:ml-auto justify-between sm:justify-start">
+          <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-4 rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             Filtrer
           </button>
-          <button className="inline-flex items-center gap-[7px] py-[9px] px-[18px] rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)]">
+          <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-[18px] rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)]">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
@@ -83,27 +85,28 @@ export default function LotsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4]">
-          {['ID Lot', 'Pays', 'Entrepôt', 'Stocké le', 'Durée', 'Statut', ''].map((h) => (
-            <div key={h} className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide">
-              {h}
-            </div>
-          ))}
-        </div>
-        {/* Rows */}
-        <motion.div variants={container} initial="hidden" animate="show">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((l) => (
-              <motion.div
-                key={l.id}
-                variants={row}
-                exit={{ opacity: 0, height: 0 }}
-                layout
-                onClick={() => setSelectedLotId(l.id)}
-                className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 items-center py-[15px] px-6 border-b border-[#F0E6D8] cursor-pointer hover:bg-[#FAF4EC] transition-colors"
-              >
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="min-w-[850px] bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-sm overflow-hidden mx-4 sm:mx-0">
+          {/* Header */}
+          <div className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4]">
+            {['ID Lot', 'Pays', 'Entrepôt', 'Stocké le', 'Durée', 'Statut', ''].map((h) => (
+              <div key={h} className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide">
+                {h}
+              </div>
+            ))}
+          </div>
+          {/* Rows */}
+          <motion.div variants={container} initial="hidden" animate="show">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((l) => (
+                <motion.div
+                  key={l.id}
+                  variants={row}
+                  exit={{ opacity: 0, height: 0 }}
+                  layout
+                  onClick={() => setSelectedLotId(l.id)}
+                  className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 items-center py-[15px] px-6 border-b border-[#F0E6D8] cursor-pointer hover:bg-[#FAF4EC] transition-colors"
+                >
                 <div>
                   <span className="font-mono text-xs font-bold text-[#3D2610] bg-[#F5EDE0] py-[3px] px-2 rounded border border-[#E8D9C4]">
                     {l.id}
@@ -131,6 +134,7 @@ export default function LotsPage() {
         </motion.div>
       </div>
     </div>
+  </div>
   );
 }
 
@@ -154,7 +158,7 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
         Retour aux lots
       </button>
 
-      <div className="grid grid-cols-[1.4fr_1fr] gap-[18px] items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-[18px] items-start">
         {/* Left – info */}
         <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-sm overflow-hidden">
           {/* Dark header */}
@@ -167,7 +171,7 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
           </div>
           {/* Body */}
           <div className="p-7">
-            <div className="grid grid-cols-2 gap-[18px] mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px] mb-6">
               <DetailField label="Pays / Exploitation" value={`${lot.flag} ${lot.country}`} />
               <DetailField label="Date de stockage" value={lot.storageDate} />
               <DetailField
@@ -182,7 +186,7 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
             <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-widest mb-[14px]">
               Conditions actuelles (IoT)
             </div>
-            <div className="grid grid-cols-2 gap-[14px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[14px]">
               <div className="border border-[#E8D9C4] rounded-[13px] p-[18px] text-center bg-[#FDF9F4]">
                 <div className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide mb-1.5">Température</div>
                 <div className="font-display text-[34px] font-bold text-[#1E0F06] leading-none">{lot.temp}</div>
