@@ -58,13 +58,13 @@ describe('DinoRunner', () => {
     renderGame();
     fireEvent.click(screen.getByRole('button', { name: 'dino-game' }));
     act(() => {
-      jest.advanceTimersByTime(1200);
+      jest.advanceTimersByTime(4000);
     });
     act(() => {
       fireEvent.keyDown(window, { code: 'Space' });
     });
     act(() => {
-      jest.advanceTimersByTime(300);
+      jest.advanceTimersByTime(700);
     });
     expect(screen.queryByText('Partie terminée')).not.toBeInTheDocument();
     (Math.random as jest.Mock).mockRestore();
