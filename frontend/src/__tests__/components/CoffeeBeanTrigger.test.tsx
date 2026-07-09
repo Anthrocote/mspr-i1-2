@@ -63,4 +63,20 @@ describe('CoffeeBeanTrigger', () => {
     fireEvent.click(bean);
     expect(pushMock).not.toHaveBeenCalled();
   });
+
+  it('does not navigate when 5 clicks are spread beyond the 1s window', () => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ path: '/iot', xPercent: 30, yPercent: 40 }));
+    mockPathname = '/iot';
+    const nowSpy = jest.spyOn(Date, 'now');
+    let currentTime = 0;
+    nowSpy.mockImplementation(() => currentTime);
+    render(<CoffeeBeanTrigger />);
+    const bean = screen.getByLabelText('coffee-bean');
+    [0, 300, 600, 900, 1200].forEach((time) => {
+      currentTime = time;
+      fireEvent.click(bean);
+    });
+    expect(pushMock).not.toHaveBeenCalled();
+    nowSpy.mockRestore();
+  });
 });
