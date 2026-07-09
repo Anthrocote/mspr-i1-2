@@ -2,6 +2,12 @@ export type Language = 'fr' | 'en' | 'es';
 
 export const translations: Record<Language, Record<string, string>> = {
   fr: {
+    // Secret game
+    "game_score": "Score",
+    "game_instructions": "Cliquez ou appuyez sur Espace pour sauter",
+    "game_over": "Partie terminée",
+    "game_best_score": "Meilleur score",
+
     // Menu & Layout
     "menu": "Menu",
     "general": "Général",
@@ -181,6 +187,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "error_404_desc": "La page que vous recherchez n'existe pas ou a été déplacée."
   },
   en: {
+    // Secret game
+    "game_score": "Score",
+    "game_instructions": "Click or press Space to jump",
+    "game_over": "Game over",
+    "game_best_score": "Best score",
+
     // Menu & Layout
     "menu": "Menu",
     "general": "General",
@@ -360,6 +372,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "error_404_desc": "The page you are looking for does not exist or has been moved."
   },
   es: {
+    // Secret game
+    "game_score": "Puntuación",
+    "game_instructions": "Haz clic o pulsa Espacio para saltar",
+    "game_over": "Fin de la partida",
+    "game_best_score": "Mejor puntuación",
+
     // Menu & Layout
     "menu": "Menú",
     "general": "General",
