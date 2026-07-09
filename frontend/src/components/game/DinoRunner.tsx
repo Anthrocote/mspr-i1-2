@@ -3,18 +3,28 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const TICK_MS = 100;
-const GAME_WIDTH = 600;
-const GAME_HEIGHT = 200;
+const CANVAS_WIDTH = 600;
+const CANVAS_HEIGHT = 200;
+const GROUND_Y = CANVAS_HEIGHT - 24;
 const DINO_X = 40;
-const DINO_SIZE = 28;
+const DINO_RADIUS = 14;
 const OBSTACLE_WIDTH = 18;
 const OBSTACLE_HEIGHT = 30;
-const BASE_SPEED = 16;
-const JUMP_DURATION_MS = 500;
-const MIN_SPAWN_TICKS = 8;
-const MAX_SPAWN_TICKS = 16;
+const BASE_SPEED = 160; // px/sec
+const SPEED_PER_100_SCORE = 40; // px/sec added per 100 points
+const JUMP_VELOCITY = -420; // px/sec
+const GRAVITY = 1400; // px/sec^2
+const MIN_SPAWN_MS = 800;
+const MAX_SPAWN_MS = 1600;
+const SCORE_PER_SECOND = 10;
+const MAX_DELTA_SECONDS = 0.05;
 const BEST_SCORE_KEY = 'dino-best-score';
+
+const COLOR_BG = '#FFFCF8'; // parchment-0
+const COLOR_GROUND = '#E8D9C4'; // parchment-400
+const COLOR_BEAN = '#3D2610'; // espresso-700
+const COLOR_BEAN_LINE = '#DFC0A0'; // parchment-200
+const COLOR_CUP = '#1E0F06'; // espresso-900
 
 interface Obstacle {
   id: number;
@@ -23,8 +33,8 @@ interface Obstacle {
 
 type Phase = 'ready' | 'playing' | 'gameover';
 
-function randomSpawnTicks(): number {
-  return MIN_SPAWN_TICKS + Math.floor(Math.random() * (MAX_SPAWN_TICKS - MIN_SPAWN_TICKS));
+function randomSpawnMs(): number {
+  return MIN_SPAWN_MS + Math.random() * (MAX_SPAWN_MS - MIN_SPAWN_MS);
 }
 
 function readBestScore(): number {
@@ -34,57 +44,158 @@ function readBestScore(): number {
 
 export default function DinoRunner() {
   const { t } = useLanguage();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<Phase>('ready');
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
-  const [obstacles, setObstacles] = useState<Obstacle[]>([]);
-  const [isJumping, setIsJumping] = useState(false);
+
+  // Simulation state lives in refs, not React state: it's mutated every
+  // animation frame, and re-rendering on every frame would defeat the
+  // point of moving to canvas. Only score/phase go through React state,
+  // since those drive the HUD text and are updated far less often.
+  const dinoY = useRef(0); // 0 = grounded, negative = above ground
+  const dinoVelocity = useRef(0);
+  const obstacles = useRef<Obstacle[]>([]);
   const nextObstacleId = useRef(0);
-  const ticksUntilSpawn = useRef(randomSpawnTicks());
-  const jumpTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const spawnTimerMs = useRef(randomSpawnMs());
+  const scoreAccumulator = useRef(0);
+  const scoreRef = useRef(0);
+  const rafId = useRef<number | null>(null);
+  const lastTime = useRef<number | null>(null);
 
   useEffect(() => {
     setBestScore(readBestScore());
   }, []);
 
-  useEffect(() => {
-    if (phase !== 'playing') return;
+  function draw() {
+    const ctx = canvasRef.current?.getContext('2d');
+    if (!ctx) return;
 
-    const interval = setInterval(() => {
-      setScore((prevScore) => {
-        const nextScore = prevScore + 1;
-        const speed = BASE_SPEED + Math.floor(nextScore / 100) * 4;
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    ctx.fillStyle = COLOR_BG;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        setObstacles((prevObstacles) => {
-          let next = prevObstacles
-            .map((o) => ({ ...o, x: o.x - speed }))
-            .filter((o) => o.x + OBSTACLE_WIDTH > 0);
+    ctx.strokeStyle = COLOR_GROUND;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, GROUND_Y + 4);
+    ctx.lineTo(CANVAS_WIDTH, GROUND_Y + 4);
+    ctx.stroke();
 
-          ticksUntilSpawn.current -= 1;
-          if (ticksUntilSpawn.current <= 0) {
-            next = [...next, { id: nextObstacleId.current++, x: GAME_WIDTH }];
-            ticksUntilSpawn.current = randomSpawnTicks();
-          }
-
-          return next;
-        });
-
-        return nextScore;
-      });
-    }, TICK_MS);
-
-    return () => clearInterval(interval);
-  }, [phase]);
-
-  useEffect(() => {
-    if (phase !== 'playing') return;
-    const collided = obstacles.some(
-      (o) => !isJumping && o.x < DINO_X + DINO_SIZE && o.x + OBSTACLE_WIDTH > DINO_X
+    // dino, drawn as a coffee bean
+    const beanCenterY = GROUND_Y - DINO_RADIUS + dinoY.current;
+    ctx.fillStyle = COLOR_BEAN;
+    ctx.beginPath();
+    ctx.ellipse(DINO_X + DINO_RADIUS, beanCenterY, DINO_RADIUS, DINO_RADIUS * 1.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = COLOR_BEAN_LINE;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(DINO_X + DINO_RADIUS, beanCenterY - DINO_RADIUS * 1.15);
+    ctx.quadraticCurveTo(
+      DINO_X + DINO_RADIUS - 5,
+      beanCenterY,
+      DINO_X + DINO_RADIUS,
+      beanCenterY + DINO_RADIUS * 1.15
     );
-    if (collided) {
-      setPhase('gameover');
+    ctx.stroke();
+
+    // obstacles, drawn as coffee cups
+    for (const o of obstacles.current) {
+      const top = GROUND_Y - OBSTACLE_HEIGHT;
+      ctx.fillStyle = COLOR_CUP;
+      ctx.beginPath();
+      ctx.moveTo(o.x, top + 6);
+      ctx.lineTo(o.x + OBSTACLE_WIDTH, top + 6);
+      ctx.lineTo(o.x + OBSTACLE_WIDTH - 2, top + OBSTACLE_HEIGHT);
+      ctx.quadraticCurveTo(
+        o.x + OBSTACLE_WIDTH / 2,
+        top + OBSTACLE_HEIGHT + 4,
+        o.x + 2,
+        top + OBSTACLE_HEIGHT
+      );
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = COLOR_CUP;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(o.x + OBSTACLE_WIDTH + 2, top + 14, 5, -Math.PI / 2, Math.PI / 2);
+      ctx.stroke();
     }
-  }, [obstacles, isJumping, phase]);
+  }
+
+  function isJumpingNow(): boolean {
+    return dinoY.current < -1;
+  }
+
+  function checkCollision(): boolean {
+    return obstacles.current.some(
+      (o) => !isJumpingNow() && o.x < DINO_X + DINO_RADIUS * 2 && o.x + OBSTACLE_WIDTH > DINO_X
+    );
+  }
+
+  /** Advances the simulation by dtSeconds. Returns false once the game is over. */
+  function step(dtSeconds: number): boolean {
+    const speed = BASE_SPEED + Math.floor(scoreRef.current / 100) * SPEED_PER_100_SCORE;
+
+    dinoVelocity.current += GRAVITY * dtSeconds;
+    dinoY.current += dinoVelocity.current * dtSeconds;
+    if (dinoY.current > 0) {
+      dinoY.current = 0;
+      dinoVelocity.current = 0;
+    }
+
+    obstacles.current = obstacles.current
+      .map((o) => ({ ...o, x: o.x - speed * dtSeconds }))
+      .filter((o) => o.x + OBSTACLE_WIDTH > 0);
+
+    spawnTimerMs.current -= dtSeconds * 1000;
+    if (spawnTimerMs.current <= 0) {
+      obstacles.current = [...obstacles.current, { id: nextObstacleId.current++, x: CANVAS_WIDTH }];
+      spawnTimerMs.current = randomSpawnMs();
+    }
+
+    scoreAccumulator.current += dtSeconds * SCORE_PER_SECOND;
+    const newScore = Math.floor(scoreAccumulator.current);
+    if (newScore !== scoreRef.current) {
+      scoreRef.current = newScore;
+      setScore(newScore);
+    }
+
+    if (checkCollision()) {
+      setPhase('gameover');
+      return false;
+    }
+    return true;
+  }
+
+  useEffect(() => {
+    if (phase !== 'playing') {
+      draw();
+      return;
+    }
+
+    lastTime.current = null;
+
+    function frame(time: number) {
+      if (lastTime.current == null) lastTime.current = time;
+      const dt = Math.min((time - lastTime.current) / 1000, MAX_DELTA_SECONDS);
+      lastTime.current = time;
+
+      const stillPlaying = step(dt);
+      draw();
+
+      if (stillPlaying) {
+        rafId.current = requestAnimationFrame(frame);
+      }
+    }
+
+    rafId.current = requestAnimationFrame(frame);
+    return () => {
+      if (rafId.current != null) cancelAnimationFrame(rafId.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   useEffect(() => {
     if (phase !== 'gameover') return;
@@ -97,30 +208,27 @@ export default function DinoRunner() {
     });
   }, [phase, score]);
 
-  useEffect(() => {
-    return () => {
-      if (jumpTimeout.current) clearTimeout(jumpTimeout.current);
-    };
-  }, []);
-
   function startGame() {
+    scoreAccumulator.current = 0;
+    scoreRef.current = 0;
     setScore(0);
-    setObstacles([]);
-    setIsJumping(false);
+    obstacles.current = [];
     nextObstacleId.current = 0;
-    ticksUntilSpawn.current = randomSpawnTicks();
+    spawnTimerMs.current = randomSpawnMs();
+    dinoY.current = 0;
+    dinoVelocity.current = 0;
     setPhase('playing');
   }
 
   function jump() {
-    setIsJumping(true);
-    if (jumpTimeout.current) clearTimeout(jumpTimeout.current);
-    jumpTimeout.current = setTimeout(() => setIsJumping(false), JUMP_DURATION_MS);
+    if (dinoY.current === 0) {
+      dinoVelocity.current = JUMP_VELOCITY;
+    }
   }
 
   function handleAction() {
     if (phase === 'playing') {
-      if (!isJumping) jump();
+      jump();
     } else {
       startGame();
     }
@@ -143,54 +251,15 @@ export default function DinoRunner() {
       aria-label="dino-game"
       tabIndex={0}
       onClick={handleAction}
-      className="relative mx-auto bg-parchment-0 border border-parchment-400 rounded-lg overflow-hidden select-none cursor-pointer"
-      style={{ width: GAME_WIDTH, height: GAME_HEIGHT, maxWidth: '100%' }}
+      className="relative mx-auto rounded-lg overflow-hidden select-none cursor-pointer border border-parchment-400"
+      style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT, maxWidth: '100%' }}
     >
-      <div
-        data-testid="dino"
-        className="absolute bottom-4 transition-transform"
-        style={{
-          left: DINO_X,
-          width: DINO_SIZE,
-          height: DINO_SIZE,
-          transform: isJumping ? 'translateY(-50px)' : 'translateY(0)',
-        }}
-      >
-        <svg width="100%" height="100%" viewBox="0 0 28 28" fill="none">
-          <ellipse cx="14" cy="14" rx="12" ry="13.5" fill="var(--color-espresso-700)" />
-          <path d="M14 2C10 9 10 19 14 26" stroke="var(--color-parchment-200)" strokeWidth="2" fill="none" />
-        </svg>
-      </div>
-      {obstacles.map((o) => (
-        <div
-          key={o.id}
-          data-testid="obstacle"
-          className="absolute bottom-4"
-          style={{ left: o.x, width: OBSTACLE_WIDTH, height: OBSTACLE_HEIGHT }}
-        >
-          <svg width="100%" height="100%" viewBox="0 0 18 30" fill="none">
-            <path
-              d="M6 4c0-2 2-2 2-4M12 4c0-2-2-2-2-4"
-              stroke="var(--color-espresso-700)"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              fill="none"
-              opacity="0.6"
-            />
-            <path
-              d="M2 10h11v9a5.5 5.5 0 01-5.5 5.5A5.5 5.5 0 012 19.5V10z"
-              fill="var(--color-espresso-900)"
-            />
-            <path
-              d="M13 12.5c2.5 0 4 1.5 4 3.5s-1.5 3.5-4 3.5"
-              stroke="var(--color-espresso-900)"
-              strokeWidth="1.5"
-              fill="none"
-            />
-            <ellipse cx="7.5" cy="27" rx="7" ry="1.8" fill="var(--color-espresso-900)" opacity="0.5" />
-          </svg>
-        </div>
-      ))}
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      />
       <div className="absolute top-2 right-3 font-body text-sm text-espresso-900">
         {t('game_score')}: {score}
       </div>
