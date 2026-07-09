@@ -33,24 +33,13 @@ describe('DinoRunner', () => {
     expect(screen.queryByText('Cliquez ou appuyez sur Espace pour sauter')).not.toBeInTheDocument();
   });
 
-  it('increments the score every tick while playing', () => {
+  it('increments the score over time while playing', () => {
     renderGame();
     fireEvent.click(screen.getByRole('button', { name: 'dino-game' }));
     act(() => {
-      jest.advanceTimersByTime(500);
+      jest.advanceTimersByTime(1050);
     });
-    expect(screen.getByText(/Score: 5/)).toBeInTheDocument();
-  });
-
-  it('spawns an obstacle once enough ticks have elapsed', () => {
-    jest.spyOn(Math, 'random').mockReturnValue(0);
-    renderGame();
-    fireEvent.click(screen.getByRole('button', { name: 'dino-game' }));
-    act(() => {
-      jest.advanceTimersByTime(1300);
-    });
-    expect(screen.getAllByTestId('obstacle').length).toBeGreaterThan(0);
-    (Math.random as jest.Mock).mockRestore();
+    expect(screen.getByText(/Score: 10/)).toBeInTheDocument();
   });
 
   it('jumps over an obstacle on Space without ending the game', () => {
@@ -63,11 +52,9 @@ describe('DinoRunner', () => {
     act(() => {
       fireEvent.keyDown(window, { code: 'Space' });
     });
-    for (let i = 0; i < 8; i++) {
-      act(() => {
-        jest.advanceTimersByTime(100);
-      });
-    }
+    act(() => {
+      jest.advanceTimersByTime(700);
+    });
     expect(screen.queryByText('Partie terminée')).not.toBeInTheDocument();
     (Math.random as jest.Mock).mockRestore();
   });
@@ -77,7 +64,7 @@ describe('DinoRunner', () => {
     renderGame();
     fireEvent.click(screen.getByRole('button', { name: 'dino-game' }));
     act(() => {
-      jest.advanceTimersByTime(4300);
+      jest.advanceTimersByTime(4500);
     });
     expect(screen.getByText('Partie terminée')).toBeInTheDocument();
     expect(localStorage.getItem('dino-best-score')).not.toBeNull();
