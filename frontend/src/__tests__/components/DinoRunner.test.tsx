@@ -63,9 +63,11 @@ describe('DinoRunner', () => {
     act(() => {
       fireEvent.keyDown(window, { code: 'Space' });
     });
-    act(() => {
-      jest.advanceTimersByTime(700);
-    });
+    for (let i = 0; i < 8; i++) {
+      act(() => {
+        jest.advanceTimersByTime(100);
+      });
+    }
     expect(screen.queryByText('Partie terminée')).not.toBeInTheDocument();
     (Math.random as jest.Mock).mockRestore();
   });
