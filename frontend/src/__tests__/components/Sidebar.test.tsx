@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import Sidebar from '@/components/layout/Sidebar';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 
 let mockPathname = '/';
@@ -13,17 +14,17 @@ describe('Sidebar', () => {
   });
 
   it('renders FutureKawa logo text', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('FutureKawa')).toBeInTheDocument();
   });
 
   it('renders Stock & IoT subtitle', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Stock & IoT')).toBeInTheDocument();
   });
 
   it('renders all menu navigation items', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Gestion des Lots')).toBeInTheDocument();
     expect(screen.getByText('Surveillance IoT')).toBeInTheDocument();
@@ -33,34 +34,34 @@ describe('Sidebar', () => {
   });
 
   it('renders Paramètres in the general section', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Paramètres')).toBeInTheDocument();
   });
 
   it('shows 248 badge on Gestion des Lots', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('248')).toBeInTheDocument();
   });
 
   it('shows 7 badge on Alertes', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('7')).toBeInTheDocument();
   });
 
   it('shows conformité globale 70% card', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Conformité globale')).toBeInTheDocument();
     expect(screen.getByText('70%')).toBeInTheDocument();
   });
 
   it('renders Menu and Général section headers', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Menu')).toBeInTheDocument();
     expect(screen.getByText('Général')).toBeInTheDocument();
   });
 
   it('renders navigation links with correct href', () => {
-    render(<Sidebar />);
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
     const dashboardLink = screen.getByText('Dashboard').closest('a');
     expect(dashboardLink).toHaveAttribute('href', '/');
 
