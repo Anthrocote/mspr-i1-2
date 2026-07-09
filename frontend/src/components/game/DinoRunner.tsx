@@ -148,21 +148,48 @@ export default function DinoRunner() {
     >
       <div
         data-testid="dino"
-        className="absolute bottom-4 bg-espresso-700 rounded-sm transition-transform"
+        className="absolute bottom-4 transition-transform"
         style={{
           left: DINO_X,
           width: DINO_SIZE,
           height: DINO_SIZE,
           transform: isJumping ? 'translateY(-50px)' : 'translateY(0)',
         }}
-      />
+      >
+        <svg width="100%" height="100%" viewBox="0 0 28 28" fill="none">
+          <ellipse cx="14" cy="14" rx="12" ry="13.5" fill="var(--color-espresso-700)" />
+          <path d="M14 2C10 9 10 19 14 26" stroke="var(--color-parchment-200)" strokeWidth="2" fill="none" />
+        </svg>
+      </div>
       {obstacles.map((o) => (
         <div
           key={o.id}
           data-testid="obstacle"
-          className="absolute bottom-4 bg-espresso-900"
+          className="absolute bottom-4"
           style={{ left: o.x, width: OBSTACLE_WIDTH, height: OBSTACLE_HEIGHT }}
-        />
+        >
+          <svg width="100%" height="100%" viewBox="0 0 18 30" fill="none">
+            <path
+              d="M6 4c0-2 2-2 2-4M12 4c0-2-2-2-2-4"
+              stroke="var(--color-espresso-700)"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.6"
+            />
+            <path
+              d="M2 10h11v9a5.5 5.5 0 01-5.5 5.5A5.5 5.5 0 012 19.5V10z"
+              fill="var(--color-espresso-900)"
+            />
+            <path
+              d="M13 12.5c2.5 0 4 1.5 4 3.5s-1.5 3.5-4 3.5"
+              stroke="var(--color-espresso-900)"
+              strokeWidth="1.5"
+              fill="none"
+            />
+            <ellipse cx="7.5" cy="27" rx="7" ry="1.8" fill="var(--color-espresso-900)" opacity="0.5" />
+          </svg>
+        </div>
       ))}
       <div className="absolute top-2 right-3 font-body text-sm text-espresso-900">
         {t('game_score')}: {score}
