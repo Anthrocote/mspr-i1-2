@@ -1,0 +1,18 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: FutureKawa Siège API
+            description: API REST du backend central — gestion des stocks café, synchronisation IoT et alertes
+            version: 1.0.0
+        components:
+            securitySchemes:
+                bearerAuth:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+        security:
+            - bearerAuth: []
+    areas:
+        path_patterns:
+            - ^/api
+        host_patterns: []
