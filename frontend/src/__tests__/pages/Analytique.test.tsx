@@ -1,5 +1,6 @@
 import { render, screen, act } from '@testing-library/react';
 import AnalytiquePage from '@/app/analytique/page';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 
 beforeEach(() => {
@@ -12,7 +13,7 @@ afterEach(() => {
 
 describe('AnalytiquePage', () => {
   it('renders metric labels', () => {
-    render(<AnalytiquePage />);
+    render(<LanguageProvider><AnalytiquePage /></LanguageProvider>);
     expect(screen.getByText('Taux de conformité')).toBeInTheDocument();
     expect(screen.getByText('Durée moy. stockage')).toBeInTheDocument();
     expect(screen.getByText('Capteurs en ligne')).toBeInTheDocument();
@@ -20,7 +21,7 @@ describe('AnalytiquePage', () => {
   });
 
   it('renders trend texts', () => {
-    render(<AnalytiquePage />);
+    render(<LanguageProvider><AnalytiquePage /></LanguageProvider>);
     expect(screen.getByText('↑ +4 pts vs mois dernier')).toBeInTheDocument();
     expect(screen.getByText('cible FIFO < 180 j')).toBeInTheDocument();
     expect(screen.getByText('2 dégradés')).toBeInTheDocument();
@@ -28,7 +29,7 @@ describe('AnalytiquePage', () => {
   });
 
   it('animated numbers reach target values after animation', () => {
-    render(<AnalytiquePage />);
+    render(<LanguageProvider><AnalytiquePage /></LanguageProvider>);
 
     act(() => {
       jest.advanceTimersByTime(1000);
