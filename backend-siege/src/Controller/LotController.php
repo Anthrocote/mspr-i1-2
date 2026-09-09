@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Pagination\Pagination;
 use App\Repository\LotRepository;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,20 +23,27 @@ class LotController extends AbstractController
     #[OA\Parameter(name: 'warehouse_id', in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'status',       in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'country_id',   in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Response(response: 200, description: 'List of lots')]
+    #[OA\Parameter(name: 'page',         in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit',        in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
+    #[OA\Response(response: 200, description: 'Paginated list of lots')]
     public function list(Request $request): JsonResponse
     {
         $entrepotUuid = $request->query->get('warehouse_id');
         $statut       = $request->query->get('status');
         $paysId       = $request->query->get('country_id');
+        $pagination   = Pagination::fromRequest($request);
 
-        $lots = $this->lotRepository->findFiltered(
+        $result = $this->lotRepository->findFiltered(
             $entrepotUuid,
             $statut,
-            $paysId !== null ? (int) $paysId : null
+            $paysId !== null ? (int) $paysId : null,
+            $pagination->getLimit(),
+            $pagination->getOffset(),
         );
 
-        return $this->json(array_map(fn ($l) => $this->serializeSummary($l), $lots));
+        $data = array_map(fn ($l) => $this->serializeSummary($l), $result['items']);
+
+        return $this->json($pagination->envelope($data, $result['total']));
     }
 
     #[Route('/{uuid}', name: 'show', methods: ['GET'])]

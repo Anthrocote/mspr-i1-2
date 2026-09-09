@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Lot;
+use App\Pagination\QueryPaginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,8 +14,8 @@ class LotRepository extends ServiceEntityRepository
         parent::__construct($registry, Lot::class);
     }
 
-    /** @return Lot[] Lots triés par date d'arrivée croissante (FIFO), avec filtres optionnels */
-    public function findFiltered(?string $entrepotUuid, ?string $statut, ?int $paysId): array
+    /** @return array{items: list<Lot>, total: int} Lots ordered by arrival date (FIFO), with optional filters */
+    public function findFiltered(?string $entrepotUuid, ?string $statut, ?int $paysId, int $limit, int $offset): array
     {
         $qb = $this->createQueryBuilder('l')
             ->join('l.produit', 'p')
@@ -32,10 +33,9 @@ class LotRepository extends ServiceEntityRepository
             $qb->andWhere('pays.id = :paysId')->setParameter('paysId', $paysId);
         }
 
-        return $qb
-            ->orderBy('hs.dateArrivee', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $qb->orderBy('hs.dateArrivee', 'ASC');
+
+        return QueryPaginator::paginate($qb, $limit, $offset, fetchJoinCollection: true);
     }
 
     /** @return Lot[] Lots dont la date d'arrivée dépasse 365 jours et statut non périmé */

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Pagination\Pagination;
 use App\Repository\AlerteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
@@ -24,18 +25,25 @@ class AlerteController extends AbstractController
     #[OA\Get(path: '/api/alerts', summary: 'List active (unresolved) alerts')]
     #[OA\Parameter(name: 'type',       in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'country_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Response(response: 200, description: 'List of alerts')]
+    #[OA\Parameter(name: 'page',       in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit',      in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
+    #[OA\Response(response: 200, description: 'Paginated list of alerts')]
     public function list(Request $request): JsonResponse
     {
-        $type   = $request->query->get('type');
-        $paysId = $request->query->get('country_id');
+        $type       = $request->query->get('type');
+        $paysId     = $request->query->get('country_id');
+        $pagination = Pagination::fromRequest($request);
 
-        $alertes = $this->alerteRepository->findActives(
+        $result = $this->alerteRepository->findActives(
             $type,
-            $paysId !== null ? (int) $paysId : null
+            $paysId !== null ? (int) $paysId : null,
+            $pagination->getLimit(),
+            $pagination->getOffset(),
         );
 
-        return $this->json(array_map(fn ($a) => $this->serialize($a), $alertes));
+        $data = array_map(fn ($a) => $this->serialize($a), $result['items']);
+
+        return $this->json($pagination->envelope($data, $result['total']));
     }
 
     #[Route('/{uuid}/resolve', name: 'resolve', methods: ['PATCH'])]

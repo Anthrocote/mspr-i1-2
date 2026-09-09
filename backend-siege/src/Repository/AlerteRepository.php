@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Alerte;
+use App\Pagination\QueryPaginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,8 +14,8 @@ class AlerteRepository extends ServiceEntityRepository
         parent::__construct($registry, Alerte::class);
     }
 
-    /** @return Alerte[] Alertes actives (non résolues), avec filtres optionnels */
-    public function findActives(?string $type = null, ?int $paysId = null): array
+    /** @return array{items: list<Alerte>, total: int} Active (unresolved) alerts, with optional filters */
+    public function findActives(?string $type, ?int $paysId, int $limit, int $offset): array
     {
         $qb = $this->createQueryBuilder('a')
             ->where('a.resolueLe IS NULL')
@@ -30,6 +31,6 @@ class AlerteRepository extends ServiceEntityRepository
                ->setParameter('paysId', $paysId);
         }
 
-        return $qb->getQuery()->getResult();
+        return QueryPaginator::paginate($qb, $limit, $offset);
     }
 }

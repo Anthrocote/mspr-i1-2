@@ -12,4 +12,13 @@ class ProduitRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Produit::class);
     }
+
+    /** @return array{items: list<Produit>, total: int} */
+    public function findPaginated(int $limit, int $offset): array
+    {
+        return [
+            'items' => $this->findBy([], ['nom' => 'ASC'], $limit, $offset),
+            'total' => $this->count([]),
+        ];
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Mesure;
+use App\Pagination\QueryPaginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,8 +14,8 @@ class MesureRepository extends ServiceEntityRepository
         parent::__construct($registry, Mesure::class);
     }
 
-    /** @return Mesure[] Historique de mesures d'un entrepôt, avec filtre optionnel de plage de dates */
-    public function findByEntrepot(string $entrepotUuid, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): array
+    /** @return array{items: list<Mesure>, total: int} Measurement history of a warehouse, with optional date range filter */
+    public function findByEntrepot(string $entrepotUuid, ?\DateTimeImmutable $from, ?\DateTimeImmutable $to, int $limit, int $offset): array
     {
         $qb = $this->createQueryBuilder('m')
             ->join('m.entrepot', 'e')
@@ -29,7 +30,7 @@ class MesureRepository extends ServiceEntityRepository
             $qb->andWhere('m.mesureLe <= :to')->setParameter('to', $to);
         }
 
-        return $qb->getQuery()->getResult();
+        return QueryPaginator::paginate($qb, $limit, $offset);
     }
 
     /** Dernière mesure connue d'un entrepôt */

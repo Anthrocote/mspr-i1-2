@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Message\SyncPaysMessage;
+use App\Pagination\Pagination;
 use App\Repository\PaysRepository;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -41,10 +43,13 @@ class SyncController extends AbstractController
 
     #[Route('/status', name: 'status', methods: ['GET'])]
     #[OA\Get(path: '/api/sync/status', summary: 'Sync status of all countries')]
-    #[OA\Response(response: 200, description: 'Status by country')]
-    public function status(): JsonResponse
+    #[OA\Parameter(name: 'page',  in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
+    #[OA\Response(response: 200, description: 'Paginated sync status by country')]
+    public function status(Request $request): JsonResponse
     {
-        $paysList = $this->paysRepository->findAll();
+        $pagination = Pagination::fromRequest($request);
+        $result = $this->paysRepository->findPaginated($pagination->getLimit(), $pagination->getOffset());
 
         $data = array_map(fn ($p) => [
             'id'           => $p->getId(),
@@ -52,8 +57,8 @@ class SyncController extends AbstractController
             'isoCode'      => $p->getCodeIso(),
             'configured'   => $p->getApiUrl() !== null,
             'lastSyncedAt' => $p->getLastSyncedAt()?->format(\DateTimeInterface::ATOM),
-        ], $paysList);
+        ], $result['items']);
 
-        return $this->json($data);
+        return $this->json($pagination->envelope($data, $result['total']));
     }
 }
