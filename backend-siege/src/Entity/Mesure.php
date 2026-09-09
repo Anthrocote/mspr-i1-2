@@ -19,7 +19,7 @@ class Mesure
     private ?Uuid $uuid = null;
 
     #[ORM\ManyToOne(targetEntity: Entrepot::class, inversedBy: 'mesures')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: false)]
     #[Assert\NotNull]
     private Entrepot $entrepot;
 

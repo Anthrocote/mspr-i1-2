@@ -11,13 +11,13 @@ class HistoriqueStockage
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Lot::class, inversedBy: 'historiqueStockages')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: false)]
     #[Assert\NotNull]
     private Lot $lot;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Entrepot::class, inversedBy: 'historiqueStockages')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: false)]
     #[Assert\NotNull]
     private Entrepot $entrepot;
 

@@ -27,11 +27,11 @@ class Alerte
     private string $type;
 
     #[ORM\ManyToOne(targetEntity: Lot::class)]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: true)]
     private ?Lot $lot = null;
 
     #[ORM\ManyToOne(targetEntity: Entrepot::class)]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: true)]
     private ?Entrepot $entrepot = null;
 
     #[ORM\Column]

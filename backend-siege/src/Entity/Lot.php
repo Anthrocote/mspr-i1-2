@@ -34,7 +34,7 @@ class Lot
     private float $quantite;
 
     #[ORM\ManyToOne(targetEntity: Produit::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: false)]
     #[Assert\NotNull]
     private Produit $produit;
 
