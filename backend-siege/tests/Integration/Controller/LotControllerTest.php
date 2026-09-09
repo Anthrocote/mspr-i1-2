@@ -45,7 +45,7 @@ class LotControllerTest extends WebTestCase
 
         $client->request(
             'GET',
-            '/api/lots?statut=conforme',
+            '/api/lots?status=compliant',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]

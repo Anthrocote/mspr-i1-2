@@ -93,7 +93,7 @@ final class Version20260709075720 extends AbstractMigration
                 produit_id UUID NOT NULL,
                 libelle VARCHAR(100) DEFAULT NULL,
                 quantite DOUBLE PRECISION NOT NULL,
-                statut VARCHAR(20) NOT NULL DEFAULT 'conforme',
+                statut VARCHAR(20) NOT NULL DEFAULT 'compliant',
                 synced_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
                 PRIMARY KEY(uuid)
             )

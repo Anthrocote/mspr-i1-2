@@ -23,7 +23,7 @@ class AlerteControllerTest extends WebTestCase
     public function testListWithoutTokenReturns401(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/alertes');
+        $client->request('GET', '/api/alerts');
         $this->assertResponseStatusCodeSame(401);
     }
 
@@ -32,7 +32,7 @@ class AlerteControllerTest extends WebTestCase
         $client = static::createClient();
         $token = $this->getToken();
 
-        $client->request('GET', '/api/alertes', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $client->request('GET', '/api/alerts', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertIsArray(json_decode($client->getResponse()->getContent(), true));
@@ -45,7 +45,7 @@ class AlerteControllerTest extends WebTestCase
 
         $client->request(
             'GET',
-            '/api/alertes?type=condition_hors_plage',
+            '/api/alerts?type=out_of_range',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
@@ -61,7 +61,7 @@ class AlerteControllerTest extends WebTestCase
 
         $client->request(
             'PATCH',
-            '/api/alertes/00000000-0000-0000-0000-000000000000/resolve',
+            '/api/alerts/00000000-0000-0000-0000-000000000000/resolve',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]

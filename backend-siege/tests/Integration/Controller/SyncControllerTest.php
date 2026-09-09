@@ -46,7 +46,7 @@ class SyncControllerTest extends WebTestCase
 
         $client->request(
             'POST',
-            '/api/sync/pays/9999',
+            '/api/sync/countries/9999',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]

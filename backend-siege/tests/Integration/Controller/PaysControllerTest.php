@@ -23,7 +23,7 @@ class PaysControllerTest extends WebTestCase
     public function testListWithoutTokenReturns401(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/pays');
+        $client->request('GET', '/api/countries');
         $this->assertResponseStatusCodeSame(401);
     }
 
@@ -32,7 +32,7 @@ class PaysControllerTest extends WebTestCase
         $client = static::createClient();
         $token = $this->getToken();
 
-        $client->request('GET', '/api/pays', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $client->request('GET', '/api/countries', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
 
         $this->assertResponseStatusCodeSame(200);
         $data = json_decode($client->getResponse()->getContent(), true);
@@ -44,7 +44,7 @@ class PaysControllerTest extends WebTestCase
         $client = static::createClient();
         $token = $this->getToken();
 
-        $client->request('GET', '/api/pays/9999', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $client->request('GET', '/api/countries/9999', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
 
         $this->assertResponseStatusCodeSame(404);
     }
