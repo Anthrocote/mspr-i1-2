@@ -133,7 +133,8 @@ class SyncService
 
             $alerte = (new Alerte())
                 ->setType($item['type'])
-                ->setEntrepot($entrepot);
+                ->setEntrepot($entrepot)
+                ->setDeclencheeLe(new \DateTimeImmutable($item['declenchee_le']));
 
             if (!empty($item['lot_uuid'])) {
                 $lot = $this->lotRepository->find($item['lot_uuid']);

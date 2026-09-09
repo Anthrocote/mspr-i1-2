@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service\Sync;
 
+use App\Entity\Alerte;
 use App\Entity\Pays;
 use App\Repository\AlerteRepository;
 use App\Repository\EntrepotRepository;
@@ -87,6 +88,48 @@ class SyncServiceTest extends TestCase
         $this->em->expects($this->once())->method('flush');
 
         $this->syncService->syncPays($pays);
+    }
+
+    public function testSyncAlertesUsesTriggerDateFromPayload(): void
+    {
+        $pays = (new Pays())
+            ->setNom('Colombie')
+            ->setCodeIso('COL')
+            ->setApiUrl('https://colombie.futurekawa.local')
+            ->setApiKey('secret');
+
+        $emptyResponse = $this->createMock(ResponseInterface::class);
+        $emptyResponse->method('toArray')->willReturn([]);
+
+        $alertesResponse = $this->createMock(ResponseInterface::class);
+        $alertesResponse->method('toArray')->willReturn([[
+            'uuid'          => 'a1b2c3d4-0000-0000-0000-000000000000',
+            'type'          => Alerte::TYPE_CONDITION_HORS_PLAGE,
+            'entrepot_uuid' => null,
+            'declenchee_le' => '2026-06-10T02:15:00+00:00',
+        ]]);
+
+        $this->httpClient->method('request')
+            ->willReturnCallback(function (string $method, string $url) use ($emptyResponse, $alertesResponse) {
+                return str_ends_with($url, '/sync/alertes') ? $alertesResponse : $emptyResponse;
+            });
+
+        $this->alerteRepository->method('find')->willReturn(null);
+
+        $persisted = [];
+        $this->em->method('persist')->willReturnCallback(function ($entity) use (&$persisted) {
+            if ($entity instanceof Alerte) {
+                $persisted[] = $entity;
+            }
+        });
+
+        $this->syncService->syncPays($pays);
+
+        $this->assertCount(1, $persisted);
+        $this->assertSame(
+            '2026-06-10T02:15:00+00:00',
+            $persisted[0]->getDeclencheeLe()->format(\DateTimeInterface::ATOM),
+        );
     }
 
     public function testSyncPaysLogsErrorOnHttpFailure(): void
