@@ -132,6 +132,72 @@ class SyncServiceTest extends TestCase
         );
     }
 
+    public function testSyncPaysAcksPersistedRecords(): void
+    {
+        $pays = (new Pays())
+            ->setNom('Brésil')
+            ->setCodeIso('BRA')
+            ->setApiUrl('https://bresil.futurekawa.local')
+            ->setApiKey('secret');
+
+        $emptyResponse = $this->createMock(ResponseInterface::class);
+        $emptyResponse->method('toArray')->willReturn([]);
+
+        $mesuresResponse = $this->createMock(ResponseInterface::class);
+        $mesuresResponse->method('toArray')->willReturn([[
+            'uuid'          => 'm1000000-0000-0000-0000-000000000000',
+            'entrepot_uuid' => 'e1000000-0000-0000-0000-000000000000',
+            'temperature'   => 28.4,
+            'humidite'      => 57.0,
+            'mesure_le'     => '2026-09-09T02:15:00+00:00',
+        ]]);
+
+        $calls = [];
+        $this->httpClient->method('request')
+            ->willReturnCallback(function (string $method, string $url, array $options = []) use (&$calls, $emptyResponse, $mesuresResponse) {
+                $calls[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
+                return str_ends_with($url, '/sync/mesures') ? $mesuresResponse : $emptyResponse;
+            });
+
+        $this->mesureRepository->method('find')->willReturn(null);
+        $this->entrepotRepository->method('find')->willReturn(null);
+
+        $this->syncService->syncPays($pays);
+
+        $ackCalls = array_values(array_filter($calls, fn ($c) => str_ends_with($c['url'], '/sync/ack')));
+        $this->assertCount(1, $ackCalls, 'un POST /sync/ack doit être émis');
+        $this->assertSame('POST', $ackCalls[0]['method']);
+        $this->assertContains(
+            'm1000000-0000-0000-0000-000000000000',
+            $ackCalls[0]['options']['json']['mesures'] ?? [],
+        );
+    }
+
+    public function testSyncPaysDoesNotAckWhenNothingSynced(): void
+    {
+        $pays = (new Pays())
+            ->setNom('Colombie')
+            ->setCodeIso('COL')
+            ->setApiUrl('https://colombie.futurekawa.local')
+            ->setApiKey('secret');
+
+        $emptyResponse = $this->createMock(ResponseInterface::class);
+        $emptyResponse->method('toArray')->willReturn([]);
+
+        $urls = [];
+        $this->httpClient->method('request')
+            ->willReturnCallback(function (string $method, string $url) use (&$urls, $emptyResponse) {
+                $urls[] = $url;
+
+                return $emptyResponse;
+            });
+
+        $this->syncService->syncPays($pays);
+
+        $this->assertNotContains('https://colombie.futurekawa.local/sync/ack', $urls);
+    }
+
     public function testSyncPaysLogsErrorOnHttpFailure(): void
     {
         $pays = (new Pays())
