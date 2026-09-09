@@ -51,9 +51,9 @@ class SyncService
         $headers = ['X-API-KEY' => $pays->getApiKey() ?? ''];
 
         try {
-            $this->syncLots($pays, $baseUrl, $headers);
-            $this->syncMesures($pays, $baseUrl, $headers);
-            $this->syncAlertes($pays, $baseUrl, $headers);
+            $lots     = $this->syncLots($pays, $baseUrl, $headers);
+            $mesures  = $this->syncMesures($pays, $baseUrl, $headers);
+            $alertes  = $this->syncAlertes($pays, $baseUrl, $headers);
 
             $pays->setLastSyncedAt(new \DateTimeImmutable());
             $this->em->flush();
@@ -64,14 +64,44 @@ class SyncService
                 'pays' => $pays->getNom(),
                 'msg'  => $e->getMessage(),
             ]);
+
+            return;
+        }
+
+        $this->ackSynced($baseUrl, $headers, $lots, $mesures, $alertes);
+    }
+
+    /**
+     * @param list<string> $lots
+     * @param list<string> $mesures
+     * @param list<string> $alertes
+     */
+    private function ackSynced(string $baseUrl, array $headers, array $lots, array $mesures, array $alertes): void
+    {
+        if ($lots === [] && $mesures === [] && $alertes === []) {
+            return;
+        }
+
+        try {
+            $this->httpClient->request('POST', $baseUrl . '/sync/ack', [
+                'headers' => $headers,
+                'json'    => ['lots' => $lots, 'mesures' => $mesures, 'alertes' => $alertes],
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Ack sync échoué vers {url} : {msg}', [
+                'url' => $baseUrl,
+                'msg' => $e->getMessage(),
+            ]);
         }
     }
 
-    private function syncLots(Pays $pays, string $baseUrl, array $headers): void
+    /** @return list<string> uuid des lots durablement persistés, à confirmer au local */
+    private function syncLots(Pays $pays, string $baseUrl, array $headers): array
     {
         $response = $this->httpClient->request('GET', $baseUrl . '/sync/lots', ['headers' => $headers]);
         $data = $response->toArray();
 
+        $synced = [];
         foreach ($data as $item) {
             $lot = $this->lotRepository->find($item['uuid']);
             if ($lot === null) {
@@ -91,16 +121,23 @@ class SyncService
             if ($entrepot !== null) {
                 $this->upsertHistoriqueStockage($lot, $entrepot, $item);
             }
+
+            $synced[] = $item['uuid'];
         }
+
+        return $synced;
     }
 
-    private function syncMesures(Pays $pays, string $baseUrl, array $headers): void
+    /** @return list<string> uuid des mesures durablement persistées, à confirmer au local */
+    private function syncMesures(Pays $pays, string $baseUrl, array $headers): array
     {
         $response = $this->httpClient->request('GET', $baseUrl . '/sync/mesures', ['headers' => $headers]);
         $data = $response->toArray();
 
+        $synced = [];
         foreach ($data as $item) {
             if ($this->mesureRepository->find($item['uuid']) !== null) {
+                $synced[] = $item['uuid'];
                 continue;
             }
 
@@ -116,15 +153,22 @@ class SyncService
                 ->setMesureLe(new \DateTimeImmutable($item['mesure_le']));
 
             $this->em->persist($mesure);
+            $synced[] = $item['uuid'];
         }
+
+        return $synced;
     }
 
-    private function syncAlertes(Pays $pays, string $baseUrl, array $headers): void
+    /** @return list<string> uuid des alertes durablement persistées, à confirmer au local */
+    private function syncAlertes(Pays $pays, string $baseUrl, array $headers): array
     {
         $response = $this->httpClient->request('GET', $baseUrl . '/sync/alertes', ['headers' => $headers]);
         $data = $response->toArray();
 
+        $synced = [];
         foreach ($data as $item) {
+            $synced[] = $item['uuid'];
+
             if ($this->alerteRepository->find($item['uuid']) !== null) {
                 continue;
             }
@@ -147,6 +191,8 @@ class SyncService
 
             $this->em->persist($alerte);
         }
+
+        return $synced;
     }
 
     private function upsertProduit(array $data): Produit
