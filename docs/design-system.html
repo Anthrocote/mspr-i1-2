@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FutureKawa — Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* =========================================================
+       DESIGN TOKENS — FutureKawa
+       Style : Caffiora (dominant) × Donezo (accent)
+       Fond parchemin chaud · Espresso profond · Vert action
+    ========================================================= */
+    :root {
+      /* ——— CAFÉ / ESPRESSO — identité principale ——— */
+      --fk-espresso-950: #120A04;
+      --fk-espresso-900: #1E0F06;
+      --fk-espresso-800: #2C1A0A;
+      --fk-espresso-700: #3D2610;
+      --fk-espresso-600: #5C3A1E;
+      --fk-espresso-500: #7A5235;
+      --fk-espresso-400: #A0714F;
+      --fk-espresso-300: #C49A78;
+      --fk-espresso-200: #DFC0A0;
+      --fk-espresso-100: #F0DFD0;
+
+      /* ——— CRÈME / PARCHEMIN — fonds et surfaces ——— */
+      --fk-parchment-950: #2A1A0E;
+      --fk-parchment-900: #4A3020;
+      --fk-parchment-800: #7A5C40;
+      --fk-parchment-700: #A08060;
+      --fk-parchment-600: #C4A882;
+      --fk-parchment-500: #D9C4A8;
+      --fk-parchment-400: #E8D9C4;
+      --fk-parchment-300: #F0E6D8;
+      --fk-parchment-200: #F5EDE0;
+      --fk-parchment-100: #FAF4EC;
+      --fk-parchment-50:  #FDF9F4;
+      --fk-parchment-0:   #FFFCF8;
+
+      /* ——— VERT — accent action (issu de Donezo) ——— */
+      --fk-green-900: #0D1F0F;
+      --fk-green-800: #1A3D1C;
+      --fk-green-700: #1E5220;
+      --fk-green-600: #2E7D32;
+      --fk-green-500: #3D9B41;
+      --fk-green-400: #5DB761;
+      --fk-green-300: #8ED492;
+      --fk-green-200: #C1EAC3;
+      --fk-green-100: #E8F5E9;
+      --fk-green-50:  #F4FBF4;
+
+      /* ——— SÉMANTIQUE ——— */
+      --fk-success:        #2E7D32;
+      --fk-success-bg:     #EDF7EE;
+      --fk-success-border: #A5D6A7;
+
+      --fk-warning:        #B45309;
+      --fk-warning-bg:     #FEF3E2;
+      --fk-warning-border: #F6CC7A;
+
+      --fk-danger:         #9B1C1C;
+      --fk-danger-bg:      #FEF2F2;
+      --fk-danger-border:  #FCA5A5;
+
+      --fk-info:           #1E4D8C;
+      --fk-info-bg:        #EFF6FF;
+      --fk-info-border:    #93C5FD;
+
+      /* ——— NEUTRES CHAUDS ——— */
+      --fk-neutral-900: #1C1410;
+      --fk-neutral-800: #2D2218;
+      --fk-neutral-700: #443524;
+      --fk-neutral-600: #6B5540;
+      --fk-neutral-500: #957260;
+      --fk-neutral-400: #BC9F88;
+      --fk-neutral-300: #D9C9B8;
+      --fk-neutral-200: #EAE0D4;
+      --fk-neutral-100: #F4EDE4;
+      --fk-neutral-50:  #FAF6F1;
+
+      /* ——— SURFACES ——— */
+      --fk-bg-page:    var(--fk-parchment-100);
+      --fk-bg-surface: var(--fk-parchment-0);
+      --fk-bg-muted:   var(--fk-parchment-200);
+      --fk-bg-sidebar: var(--fk-espresso-800);
+
+      /* ——— TEXTE ——— */
+      --fk-text-primary:   var(--fk-espresso-900);
+      --fk-text-secondary: var(--fk-espresso-500);
+      --fk-text-muted:     var(--fk-parchment-700);
+      --fk-text-inverse:   var(--fk-parchment-50);
+
+      /* ——— BORDURES ——— */
+      --fk-border:       var(--fk-parchment-400);
+      --fk-border-light: var(--fk-parchment-300);
+
+      /* ——— TYPOGRAPHIE ——— */
+      --font-display: 'Cormorant Garamond', 'Georgia', serif;
+      --font-body:    'DM Sans', -apple-system, sans-serif;
+
+      --text-xs:   0.75rem;
+      --text-sm:   0.875rem;
+      --text-base: 1rem;
+      --text-lg:   1.125rem;
+      --text-xl:   1.25rem;
+      --text-2xl:  1.5rem;
+      --text-3xl:  1.875rem;
+      --text-4xl:  2.25rem;
+      --text-5xl:  3rem;
+      --text-6xl:  3.75rem;
+
+      /* ——— ESPACEMENTS ——— */
+      --sp-1: .25rem;  --sp-2: .5rem;   --sp-3: .75rem;
+      --sp-4: 1rem;    --sp-5: 1.25rem; --sp-6: 1.5rem;
+      --sp-8: 2rem;    --sp-10: 2.5rem; --sp-12: 3rem;
+      --sp-16: 4rem;   --sp-20: 5rem;
+
+      /* ——— RAYONS ——— */
+      --r-xs:   4px;
+      --r-sm:   8px;
+      --r-md:   12px;
+      --r-lg:   18px;
+      --r-xl:   28px;
+      --r-full: 9999px;
+
+      /* ——— OMBRES ——— */
+      --shadow-xs: 0 1px 2px rgba(44,26,10,.06);
+      --shadow-sm: 0 2px 8px rgba(44,26,10,.08), 0 1px 2px rgba(44,26,10,.04);
+      --shadow-md: 0 4px 16px rgba(44,26,10,.10), 0 2px 4px rgba(44,26,10,.05);
+      --shadow-lg: 0 8px 32px rgba(44,26,10,.12), 0 4px 8px rgba(44,26,10,.06);
+      --shadow-xl: 0 16px 48px rgba(44,26,10,.14), 0 8px 16px rgba(44,26,10,.06);
+      --shadow-espresso: 0 4px 20px rgba(44,26,10,.20);
+      --shadow-green:    0 4px 16px rgba(46,125,50,.22);
+
+      /* ——— TRANSITIONS ——— */
+      --t-fast:   140ms ease;
+      --t-normal: 240ms ease;
+      --t-slow:   380ms ease;
+    }
+
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--fk-bg-page);
+      color: var(--fk-text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* =========================================================
+       LAYOUT DS
+    ========================================================= */
+    .ds-wrap { max-width: 1200px; margin: 0 auto; padding: var(--sp-8) var(--sp-6); }
+
+    .ds-header {
+      display: flex; align-items: center; gap: var(--sp-5);
+      padding: var(--sp-8) 0 var(--sp-10);
+      border-bottom: 1px solid var(--fk-border);
+      margin-bottom: var(--sp-12);
+    }
+
+    .ds-logo {
+      width: 52px; height: 52px;
+      background: var(--fk-espresso-800);
+      border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-espresso);
+    }
+
+    .ds-header h1 {
+      font-family: var(--font-display);
+      font-size: var(--text-4xl);
+      font-weight: 700;
+      color: var(--fk-espresso-900);
+      letter-spacing: -.01em;
+      line-height: 1.1;
+    }
+
+    .ds-header p { font-size: var(--text-sm); color: var(--fk-text-muted); margin-top: var(--sp-1); }
+
+    .ds-section { margin-bottom: var(--sp-16); }
+
+    .ds-section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl);
+      font-weight: 600;
+      color: var(--fk-espresso-900);
+      margin-bottom: var(--sp-1);
+      padding-bottom: var(--sp-3);
+      border-bottom: 1px solid var(--fk-border);
+      letter-spacing: -.01em;
+    }
+
+    .ds-subtitle {
+      font-size: var(--text-sm);
+      color: var(--fk-text-muted);
+      margin-bottom: var(--sp-8);
+      font-style: italic;
+    }
+
+    .ds-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--fk-parchment-700);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: var(--sp-3);
+    }
+
+    .ds-grid { display: grid; gap: var(--sp-4); }
+    .g2 { grid-template-columns: repeat(2, 1fr); }
+    .g3 { grid-template-columns: repeat(3, 1fr); }
+    .g4 { grid-template-columns: repeat(4, 1fr); }
+    .g5 { grid-template-columns: repeat(5, 1fr); }
+    .g6 { grid-template-columns: repeat(6, 1fr); }
+    .flex { display: flex; gap: var(--sp-3); flex-wrap: wrap; align-items: flex-start; }
+    .flex-c { display: flex; flex-direction: column; gap: var(--sp-3); }
+
+    .surface {
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: .85em;
+      background: var(--fk-parchment-200);
+      padding: 2px 7px;
+      border-radius: var(--r-xs);
+      color: var(--fk-espresso-700);
+    }
+
+    /* =========================================================
+       1. COULEURS
+    ========================================================= */
+    .swatch { border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-xs); }
+    .swatch__block { height: 68px; }
+    .swatch__info { background: var(--fk-bg-surface); padding: var(--sp-2) var(--sp-3); }
+    .swatch__name { font-size: var(--text-xs); font-weight: 600; color: var(--fk-neutral-700); }
+    .swatch__hex  { font-size: 11px; font-family: 'Courier New', monospace; color: var(--fk-neutral-500); }
+
+    /* =========================================================
+       2. TYPOGRAPHIE
+    ========================================================= */
+    .type-row { padding: var(--sp-4) 0; border-bottom: 1px solid var(--fk-border-light); }
+    .type-row:last-child { border-bottom: none; }
+    .type-meta { font-size: var(--text-xs); color: var(--fk-text-muted); margin-bottom: var(--sp-1); font-family: 'Courier New', monospace; }
+
+    /* =========================================================
+       3. BOUTONS
+    ========================================================= */
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: 10px var(--sp-5);
+      border-radius: var(--r-full);
+      font-family: var(--font-body);
+      font-size: var(--text-sm); font-weight: 600;
+      cursor: pointer; border: none;
+      transition: all var(--t-fast);
+      text-decoration: none; white-space: nowrap;
+      line-height: 1.4;
+    }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* Espresso — primaire */
+    .btn-primary {
+      background: var(--fk-espresso-800);
+      color: var(--fk-parchment-50);
+      box-shadow: var(--shadow-espresso);
+    }
+    .btn-primary:hover { background: var(--fk-espresso-900); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(44,26,10,.28); }
+
+    /* Vert — action secondaire */
+    .btn-action {
+      background: var(--fk-green-700);
+      color: #fff;
+      box-shadow: var(--shadow-green);
+    }
+    .btn-action:hover { background: var(--fk-green-800); transform: translateY(-1px); }
+
+    /* Outline espresso */
+    .btn-outline {
+      background: transparent;
+      color: var(--fk-espresso-800);
+      border: 1.5px solid var(--fk-espresso-300);
+    }
+    .btn-outline:hover { background: var(--fk-parchment-200); border-color: var(--fk-espresso-400); }
+
+    /* Ghost crème */
+    .btn-ghost {
+      background: var(--fk-parchment-200);
+      color: var(--fk-espresso-700);
+      border: 1px solid var(--fk-border);
+    }
+    .btn-ghost:hover { background: var(--fk-parchment-300); }
+
+    /* Danger */
+    .btn-danger { background: var(--fk-danger); color: #fff; }
+    .btn-danger:hover { background: #7F1D1D; transform: translateY(-1px); }
+
+    /* Tailles */
+    .btn-sm { padding: 6px var(--sp-4); font-size: var(--text-xs); }
+    .btn-lg { padding: 14px var(--sp-8); font-size: var(--text-base); }
+    .btn-icon { padding: 10px; border-radius: var(--r-md); }
+    .btn-icon svg { width: 18px; height: 18px; margin: 0; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+
+    /* =========================================================
+       4. BADGES & STATUTS
+    ========================================================= */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px;
+      border-radius: var(--r-full);
+      font-size: var(--text-xs); font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    .badge-ok      { background: var(--fk-success-bg); color: var(--fk-success); border-color: var(--fk-success-border); }
+    .badge-ok::before { background: var(--fk-success); }
+
+    .badge-warn    { background: var(--fk-warning-bg); color: var(--fk-warning); border-color: var(--fk-warning-border); }
+    .badge-warn::before { background: var(--fk-warning); }
+
+    .badge-err     { background: var(--fk-danger-bg); color: var(--fk-danger); border-color: var(--fk-danger-border); }
+    .badge-err::before { background: var(--fk-danger); }
+
+    .badge-info    { background: var(--fk-info-bg); color: var(--fk-info); border-color: var(--fk-info-border); }
+    .badge-info::before { background: var(--fk-info); }
+
+    .badge-neutral { background: var(--fk-parchment-200); color: var(--fk-parchment-800); border-color: var(--fk-border); }
+    .badge-neutral::before { background: var(--fk-parchment-500); }
+
+    .tag {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: var(--r-sm);
+      font-size: var(--text-xs); font-weight: 500; border: 1px solid;
+    }
+    .tag-br { background: #EFF7EF; color: #1A4D1C; border-color: #A5D6A7; }
+    .tag-ec { background: #FEF9E7; color: #7A4B00; border-color: #F6D860; }
+    .tag-co { background: #FEF0F0; color: #7A1E1E; border-color: #FCA5A5; }
+
+    /* =========================================================
+       5. CARDS
+    ========================================================= */
+    .card {
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--t-normal), transform var(--t-normal);
+    }
+    .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    /* ——— Metric card ——— */
+    .metric {
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-5) var(--sp-6);
+      box-shadow: var(--shadow-sm);
+      position: relative; overflow: hidden;
+      transition: all var(--t-normal);
+    }
+    .metric::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--fk-espresso-400), var(--fk-espresso-200));
+      border-radius: 0 0 var(--r-lg) var(--r-lg);
+    }
+    .metric:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    /* Variante espresso sombre */
+    .metric--dark {
+      background: var(--fk-espresso-800);
+      border-color: var(--fk-espresso-700);
+    }
+    .metric--dark::after { background: linear-gradient(90deg, var(--fk-green-400), var(--fk-green-200)); }
+    .metric--dark .m-label { color: var(--fk-espresso-300); }
+    .metric--dark .m-value { color: var(--fk-parchment-50); }
+    .metric--dark .m-change { color: var(--fk-espresso-300); }
+
+    /* Variante vert action */
+    .metric--green {
+      background: var(--fk-green-700);
+      border-color: var(--fk-green-600);
+    }
+    .metric--green::after { background: linear-gradient(90deg, var(--fk-green-300), transparent); }
+    .metric--green .m-label { color: var(--fk-green-200); }
+    .metric--green .m-value { color: #fff; }
+    .metric--green .m-change { color: var(--fk-green-200); }
+
+    .m-label  { font-size: var(--text-xs); font-weight: 600; color: var(--fk-text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: var(--sp-2); }
+    .m-value  { font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 700; color: var(--fk-espresso-900); line-height: 1; margin-bottom: var(--sp-2); letter-spacing: -.02em; }
+    .m-change { font-size: var(--text-xs); color: var(--fk-text-muted); display: flex; align-items: center; gap: var(--sp-1); }
+    .m-change.up   { color: var(--fk-success); }
+    .m-change.down { color: var(--fk-danger); }
+
+    .m-icon {
+      position: absolute; top: var(--sp-5); right: var(--sp-5);
+      width: 38px; height: 38px; border-radius: var(--r-md);
+      background: var(--fk-parchment-200);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .m-icon svg { width: 18px; height: 18px; color: var(--fk-espresso-600); }
+    .metric--dark .m-icon { background: rgba(255,255,255,.10); }
+    .metric--dark .m-icon svg { color: var(--fk-parchment-300); }
+    .metric--green .m-icon { background: rgba(255,255,255,.15); }
+    .metric--green .m-icon svg { color: #fff; }
+
+    /* ——— Alert strip ——— */
+    .alert-strip {
+      border-radius: var(--r-md);
+      padding: var(--sp-4) var(--sp-5);
+      display: flex; align-items: flex-start; gap: var(--sp-3);
+      border-left: 4px solid;
+    }
+    .alert-strip--ok   { background: var(--fk-success-bg); border-color: var(--fk-success); }
+    .alert-strip--warn { background: var(--fk-warning-bg); border-color: var(--fk-warning); }
+    .alert-strip--err  { background: var(--fk-danger-bg);  border-color: var(--fk-danger); }
+    .alert-strip--info { background: var(--fk-info-bg);    border-color: var(--fk-info); }
+
+    .alert-strip__icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; }
+    .alert-strip--ok   .alert-strip__icon { color: var(--fk-success); }
+    .alert-strip--warn .alert-strip__icon { color: var(--fk-warning); }
+    .alert-strip--err  .alert-strip__icon { color: var(--fk-danger); }
+    .alert-strip--info .alert-strip__icon { color: var(--fk-info); }
+
+    .alert-strip__title { font-size: var(--text-sm); font-weight: 600; margin-bottom: 2px; }
+    .alert-strip__desc  { font-size: var(--text-xs); opacity: .8; }
+
+    /* ——— Entrepôt card ——— */
+    .entrepot-card {
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--t-normal);
+    }
+    .entrepot-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    .entrepot-card__header {
+      background: var(--fk-espresso-800);
+      padding: var(--sp-4) var(--sp-5);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .entrepot-card__title { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--fk-parchment-100); letter-spacing: .01em; }
+    .entrepot-card__body  { padding: var(--sp-5); }
+
+    .iot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+
+    .iot-cell {
+      border-radius: var(--r-md); padding: var(--sp-3); text-align: center;
+      background: var(--fk-parchment-100);
+      border: 1px solid var(--fk-border-light);
+    }
+    .iot-cell--ok   { background: var(--fk-success-bg); border-color: var(--fk-success-border); }
+    .iot-cell--warn { background: var(--fk-warning-bg); border-color: var(--fk-warning-border); }
+    .iot-cell--err  { background: var(--fk-danger-bg);  border-color: var(--fk-danger-border); }
+
+    .iot-cell__label { font-size: var(--text-xs); font-weight: 600; color: var(--fk-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+    .iot-cell__val   { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 700; color: var(--fk-espresso-900); letter-spacing: -.01em; }
+    .iot-cell--ok   .iot-cell__val { color: var(--fk-success); }
+    .iot-cell--warn .iot-cell__val { color: var(--fk-warning); }
+    .iot-cell--err  .iot-cell__val { color: var(--fk-danger); }
+
+    /* =========================================================
+       6. FORMULAIRES
+    ========================================================= */
+    .form-group { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+    .form-label { font-size: var(--text-sm); font-weight: 500; color: var(--fk-espresso-700); }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 10px var(--sp-4);
+      border: 1.5px solid var(--fk-border);
+      border-radius: var(--r-md);
+      font-family: var(--font-body); font-size: var(--text-sm);
+      color: var(--fk-text-primary);
+      background: var(--fk-bg-surface);
+      transition: all var(--t-fast); outline: none;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--fk-neutral-400); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--fk-espresso-400);
+      box-shadow: 0 0 0 3px rgba(160,113,79,.14);
+    }
+    .form-input--err { border-color: var(--fk-danger); }
+    .form-input--err:focus { box-shadow: 0 0 0 3px rgba(155,28,28,.12); }
+
+    .form-hint  { font-size: var(--text-xs); color: var(--fk-text-muted); }
+    .form-error { font-size: var(--text-xs); color: var(--fk-danger); font-weight: 500; }
+    .form-textarea { resize: vertical; min-height: 90px; }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237A5235' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 40px; cursor: pointer;
+    }
+
+    .toggle-wrap { display: flex; align-items: center; gap: var(--sp-3); cursor: pointer; }
+    .toggle { width: 44px; height: 24px; background: var(--fk-neutral-300); border-radius: var(--r-full); position: relative; transition: background var(--t-fast); flex-shrink: 0; }
+    .toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: transform var(--t-fast); box-shadow: var(--shadow-xs); }
+    .toggle.on { background: var(--fk-espresso-600); }
+    .toggle.on::after { transform: translateX(20px); }
+    .toggle-label { font-size: var(--text-sm); font-weight: 500; color: var(--fk-espresso-700); }
+
+    /* =========================================================
+       7. TABLEAU
+    ========================================================= */
+    .table-wrap { background: var(--fk-bg-surface); border: 1px solid var(--fk-border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .table-head-bar { padding: var(--sp-4) var(--sp-6); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--fk-border); background: var(--fk-parchment-50); }
+    .table-head-title { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; color: var(--fk-espresso-900); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--fk-parchment-100); }
+    th { padding: var(--sp-3) var(--sp-5); text-align: left; font-size: var(--text-xs); font-weight: 600; color: var(--fk-parchment-700); text-transform: uppercase; letter-spacing: .07em; border-bottom: 1px solid var(--fk-border); white-space: nowrap; }
+    td { padding: var(--sp-4) var(--sp-5); font-size: var(--text-sm); color: var(--fk-neutral-700); border-bottom: 1px solid var(--fk-border-light); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background var(--t-fast); }
+    tbody tr:hover { background: var(--fk-parchment-50); }
+
+    .lot-id {
+      font-family: 'Courier New', monospace; font-size: var(--text-xs); font-weight: 700;
+      color: var(--fk-espresso-700); background: var(--fk-parchment-200);
+      padding: 3px 8px; border-radius: var(--r-xs); display: inline-block;
+      border: 1px solid var(--fk-border);
+    }
+
+    /* =========================================================
+       8. SIDEBAR
+    ========================================================= */
+    .sidebar {
+      background: var(--fk-espresso-800);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      width: 234px; min-height: 500px; flex-shrink: 0;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar-brand { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-8); }
+
+    .sidebar-logo-wrap {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.10);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .sidebar-brand-name {
+      font-family: var(--font-display);
+      font-size: var(--text-xl); font-weight: 600;
+      color: var(--fk-parchment-100);
+      letter-spacing: .02em;
+    }
+
+    .sidebar-sep { font-size: var(--text-xs); font-weight: 600; color: var(--fk-espresso-400); text-transform: uppercase; letter-spacing: .12em; margin-bottom: var(--sp-2); padding: 0 var(--sp-3); }
+
+    .sidebar-nav { list-style: none; margin-bottom: var(--sp-6); }
+
+    .sidebar-nav li a {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: 9px var(--sp-3); border-radius: var(--r-md);
+      font-size: var(--text-sm); font-weight: 500;
+      color: var(--fk-espresso-300); text-decoration: none;
+      transition: all var(--t-fast); position: relative;
+    }
+    .sidebar-nav li a svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .sidebar-nav li a:hover { background: rgba(255,255,255,.07); color: var(--fk-parchment-100); }
+
+    .sidebar-nav li.active a {
+      background: rgba(255,255,255,.10);
+      color: var(--fk-parchment-50);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .sidebar-nav li.active a::before {
+      content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
+      background: var(--fk-parchment-400);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .s-badge {
+      margin-left: auto; background: var(--fk-danger); color: white;
+      font-size: 10px; font-weight: 700; padding: 1px 6px;
+      border-radius: var(--r-full); min-width: 18px; text-align: center;
+    }
+
+    /* =========================================================
+       9. TOPBAR
+    ========================================================= */
+    .topbar {
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-4) var(--sp-6);
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 700; color: var(--fk-espresso-900); line-height: 1.1; }
+    .topbar-sub   { font-size: var(--text-xs); color: var(--fk-text-muted); margin-top: 2px; }
+
+    .topbar-right { display: flex; align-items: center; gap: var(--sp-3); }
+
+    .topbar-search {
+      display: flex; align-items: center; gap: var(--sp-2);
+      background: var(--fk-parchment-100); border-radius: var(--r-full);
+      padding: 8px var(--sp-4); color: var(--fk-text-muted);
+      font-size: var(--text-sm); border: 1.5px solid var(--fk-border);
+      transition: all var(--t-fast); cursor: text;
+    }
+    .topbar-search:hover { border-color: var(--fk-espresso-300); background: var(--fk-parchment-50); }
+    .topbar-search svg { width: 15px; height: 15px; }
+
+    .topbar-btn {
+      position: relative; width: 38px; height: 38px;
+      border-radius: var(--r-md);
+      background: var(--fk-parchment-100);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: 1px solid var(--fk-border);
+      transition: all var(--t-fast); color: var(--fk-espresso-600);
+    }
+    .topbar-btn:hover { background: var(--fk-parchment-200); }
+    .topbar-btn svg { width: 17px; height: 17px; }
+
+    .topbar-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: var(--fk-danger); border-radius: 50%; border: 2px solid var(--fk-bg-surface); }
+
+    .topbar-avatar {
+      width: 38px; height: 38px; border-radius: var(--r-full);
+      background: linear-gradient(135deg, var(--fk-espresso-700), var(--fk-espresso-400));
+      display: flex; align-items: center; justify-content: center;
+      color: var(--fk-parchment-100); font-weight: 700; font-size: var(--text-sm);
+      cursor: pointer; border: 2px solid var(--fk-bg-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* =========================================================
+       10. JAUGE IoT
+    ========================================================= */
+    .gauge-card {
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+    .gauge-title { font-size: var(--text-sm); font-weight: 600; color: var(--fk-text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: var(--sp-4); }
+    .gauge-meta  { margin-top: var(--sp-3); font-size: var(--text-xs); color: var(--fk-text-muted); }
+
+    /* =========================================================
+       11. TOAST
+    ========================================================= */
+    .toast {
+      display: flex; align-items: flex-start; gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md);
+      box-shadow: var(--shadow-lg); max-width: 360px;
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-left: 4px solid;
+    }
+    .toast--ok   { border-left-color: var(--fk-success); }
+    .toast--warn { border-left-color: var(--fk-warning); }
+    .toast--err  { border-left-color: var(--fk-danger);  }
+
+    .toast__icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; }
+    .toast--ok   .toast__icon { color: var(--fk-success); }
+    .toast--warn .toast__icon { color: var(--fk-warning); }
+    .toast--err  .toast__icon { color: var(--fk-danger); }
+
+    .toast__title { font-size: var(--text-sm); font-weight: 600; margin-bottom: 2px; color: var(--fk-text-primary); }
+    .toast__desc  { font-size: var(--text-xs); color: var(--fk-text-muted); }
+    .toast__close { margin-left: auto; color: var(--fk-neutral-400); cursor: pointer; font-size: var(--text-lg); background: none; border: none; padding: 0; line-height: 1; }
+
+    /* =========================================================
+       12. AVATARS
+    ========================================================= */
+    .av { border-radius: var(--r-full); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
+    .av-sm { width: 30px; height: 30px; font-size: var(--text-xs); }
+    .av-md { width: 38px; height: 38px; font-size: var(--text-sm); }
+    .av-lg { width: 52px; height: 52px; font-size: var(--text-lg); }
+    .av-xl { width: 68px; height: 68px; font-size: var(--text-2xl); }
+
+    .av-espresso { background: linear-gradient(135deg, var(--fk-espresso-700), var(--fk-espresso-400)); }
+    .av-green    { background: linear-gradient(135deg, var(--fk-green-700), var(--fk-green-400)); }
+    .av-br  { background: linear-gradient(135deg, #1B5E20, #388E3C); }
+    .av-ec  { background: linear-gradient(135deg, #7A4B00, #D4A017); }
+    .av-co  { background: linear-gradient(135deg, #7A1E1E, #C62828); }
+
+    .av-cluster { display: flex; }
+    .av-cluster .av { border: 2px solid var(--fk-bg-surface); margin-left: -8px; }
+    .av-cluster .av:first-child { margin-left: 0; }
+
+    /* =========================================================
+       13. GRAPHIQUES
+    ========================================================= */
+    .chart-card {
+      background: var(--fk-bg-surface);
+      border: 1px solid var(--fk-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      box-shadow: var(--shadow-sm);
+    }
+    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-5); }
+    .chart-title  { font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; color: var(--fk-espresso-900); }
+    .chart-legend { display: flex; gap: var(--sp-4); }
+    .leg { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--text-xs); color: var(--fk-text-muted); }
+    .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .mini-bars { display: flex; align-items: flex-end; gap: 8px; height: 80px; margin-top: var(--sp-2); }
+    .mini-bar  { flex: 1; border-radius: var(--r-xs) var(--r-xs) 0 0; cursor: pointer; transition: opacity var(--t-fast); }
+    .mini-bar:hover { opacity: .75; }
+
+    /* =========================================================
+       UTILITY
+    ========================================================= */
+    .divider { height: 1px; background: var(--fk-border-light); margin: var(--sp-6) 0; }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: var(--sp-1);
+      padding: 2px 10px; border-radius: var(--r-full);
+      font-size: var(--text-xs); font-weight: 500;
+      background: var(--fk-parchment-200); color: var(--fk-espresso-700);
+      border: 1px solid var(--fk-border);
+    }
+  </style>
+</head>
+<body>
+<div class="ds-wrap">
+
+  <!-- ——— EN-TÊTE ——— -->
+  <header class="ds-header">
+    <div class="ds-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M17 8C8 10 5.9 16.17 3.82 20.54L5.71 21.39C6 20.84 6.26 20.29 6.57 19.76C8.58 20.56 10.81 20.47 12.75 19.49C15.12 18.3 16.59 15.86 16.99 13.17L17.5 13C18.5 12.5 20 12 20 12C20 12 21 12 21 11C21 10 20 10 20 10L17 8Z" fill="#C49A78"/>
+        <path d="M2 12C2 12 3 9 6 9C9 9 9 12 12 12C15 12 15 9 18 9" stroke="#E8D9C4" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>FutureKawa — Design System</h1>
+      <p>v2.0 · Style Caffiora (dominant) × Donezo (accent vert) · EPSI I1 MSPR 2025–2026</p>
+    </div>
+  </header>
+
+  <!-- =====================================================
+       01 — COULEURS
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">01 — Couleurs</h2>
+    <p class="ds-subtitle">Crème/Espresso = identité principale. Vert = accent action uniquement.</p>
+
+    <div class="ds-label">Espresso — couleur principale (texte, sidebar, titres)</div>
+    <div class="ds-grid g6" style="margin-bottom:var(--sp-8)">
+      <div class="swatch"><div class="swatch__block" style="background:#120A04"></div><div class="swatch__info"><div class="swatch__name">950</div><div class="swatch__hex">#120A04</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#1E0F06"></div><div class="swatch__info"><div class="swatch__name">900</div><div class="swatch__hex">#1E0F06</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#2C1A0A"></div><div class="swatch__info"><div class="swatch__name">800 ★</div><div class="swatch__hex">#2C1A0A</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#5C3A1E"></div><div class="swatch__info"><div class="swatch__name">600</div><div class="swatch__hex">#5C3A1E</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#A0714F"></div><div class="swatch__info"><div class="swatch__name">400</div><div class="swatch__hex">#A0714F</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#F0DFD0; border:1px solid #E8D9C4"></div><div class="swatch__info"><div class="swatch__name">100</div><div class="swatch__hex">#F0DFD0</div></div></div>
+    </div>
+
+    <div class="ds-label">Parchemin — fonds, surfaces, bordures</div>
+    <div class="ds-grid g6" style="margin-bottom:var(--sp-8)">
+      <div class="swatch"><div class="swatch__block" style="background:#4A3020"></div><div class="swatch__info"><div class="swatch__name">900</div><div class="swatch__hex">#4A3020</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#C4A882"></div><div class="swatch__info"><div class="swatch__name">600</div><div class="swatch__hex">#C4A882</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#E8D9C4; border:1px solid #D9C9B8"></div><div class="swatch__info"><div class="swatch__name">400 ★</div><div class="swatch__hex">#E8D9C4</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#F0E6D8; border:1px solid #E8D9C4"></div><div class="swatch__info"><div class="swatch__name">300</div><div class="swatch__hex">#F0E6D8</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#FAF4EC; border:1px solid #F0E6D8"></div><div class="swatch__info"><div class="swatch__name">100 ★</div><div class="swatch__hex">#FAF4EC</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#FFFCF8; border:1px solid #F5EDE0"></div><div class="swatch__info"><div class="swatch__name">0 (surface)</div><div class="swatch__hex">#FFFCF8</div></div></div>
+    </div>
+
+    <div class="ds-label">Vert — accent action (boutons, active, IoT OK)</div>
+    <div class="ds-grid g5" style="margin-bottom:var(--sp-8)">
+      <div class="swatch"><div class="swatch__block" style="background:#0D1F0F"></div><div class="swatch__info"><div class="swatch__name">900</div><div class="swatch__hex">#0D1F0F</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#1E5220"></div><div class="swatch__info"><div class="swatch__name">700 ★</div><div class="swatch__hex">#1E5220</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#2E7D32"></div><div class="swatch__info"><div class="swatch__name">600</div><div class="swatch__hex">#2E7D32</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#5DB761"></div><div class="swatch__info"><div class="swatch__name">400</div><div class="swatch__hex">#5DB761</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#E8F5E9; border:1px solid #C1EAC3"></div><div class="swatch__info"><div class="swatch__name">100</div><div class="swatch__hex">#E8F5E9</div></div></div>
+    </div>
+
+    <div class="ds-label">Sémantique</div>
+    <div class="ds-grid g4">
+      <div class="swatch"><div class="swatch__block" style="background:#2E7D32"></div><div class="swatch__info"><div class="swatch__name">Conforme / OK</div><div class="swatch__hex">#2E7D32</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#B45309"></div><div class="swatch__info"><div class="swatch__name">Alerte / Warn</div><div class="swatch__hex">#B45309</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#9B1C1C"></div><div class="swatch__info"><div class="swatch__name">Danger / Périmé</div><div class="swatch__hex">#9B1C1C</div></div></div>
+      <div class="swatch"><div class="swatch__block" style="background:#1E4D8C"></div><div class="swatch__info"><div class="swatch__name">Info</div><div class="swatch__hex">#1E4D8C</div></div></div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       02 — TYPOGRAPHIE
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">02 — Typographie</h2>
+    <p class="ds-subtitle">Cormorant Garamond (display · élégance café) + DM Sans (UI · lisibilité dashboard).</p>
+
+    <div class="surface">
+      <div class="type-row">
+        <div class="type-meta">Cormorant Garamond · Bold 60px · hero / page title</div>
+        <div style="font-family:var(--font-display);font-size:60px;font-weight:700;color:var(--fk-espresso-900);line-height:1.05;letter-spacing:-.02em">FutureKawa</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Cormorant Garamond · SemiBold 36px · section title</div>
+        <div style="font-family:var(--font-display);font-size:36px;font-weight:600;color:var(--fk-espresso-900);letter-spacing:-.01em">Gestion des Stocks</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Cormorant Garamond · Italic 30px · display / sous-titre</div>
+        <div style="font-family:var(--font-display);font-size:30px;font-weight:400;font-style:italic;color:var(--fk-espresso-600)">De la graine à la récolte</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">DM Sans · SemiBold 20px · heading</div>
+        <div style="font-family:var(--font-body);font-size:20px;font-weight:600;color:var(--fk-espresso-900)">Surveillance IoT — São Paulo A</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">DM Sans · Medium 16px / subheading</div>
+        <div style="font-family:var(--font-body);font-size:16px;font-weight:500;color:var(--fk-espresso-800)">Température hors plage détectée</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">DM Sans · Regular 14px / body</div>
+        <div style="font-size:14px;color:var(--fk-neutral-700);max-width:480px">Température actuelle : 29°C — dans la plage idéale. Dernière mesure il y a 3 minutes via capteur MQTT.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">DM Sans · Medium 12px / label / caption</div>
+        <div style="font-size:12px;font-weight:600;color:var(--fk-parchment-700);text-transform:uppercase;letter-spacing:.1em">Statut du lot · Dernière mise à jour</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">Courier New / mono — IDs techniques</div>
+        <div style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;color:var(--fk-espresso-700);background:var(--fk-parchment-200);display:inline-block;padding:4px 10px;border-radius:var(--r-xs);border:1px solid var(--fk-border)">LOT-BR-2024-00342</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       03 — BOUTONS
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">03 — Boutons</h2>
+    <p class="ds-subtitle">Espresso = primaire (identité). Vert = action secondaire (confirmer, valider). Ghost crème = neutre.</p>
+
+    <div class="surface">
+      <div class="ds-label">Variantes</div>
+      <div class="flex" style="margin-bottom:var(--sp-6)">
+        <button class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nouveau Lot
+        </button>
+        <button class="btn btn-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Valider Conforme
+        </button>
+        <button class="btn btn-outline">Importer CSV</button>
+        <button class="btn btn-ghost">Filtrer</button>
+        <button class="btn btn-danger">Supprimer</button>
+      </div>
+
+      <div class="ds-label">Tailles</div>
+      <div class="flex" style="margin-bottom:var(--sp-6); align-items:center">
+        <button class="btn btn-primary btn-sm">Petit</button>
+        <button class="btn btn-primary">Normal</button>
+        <button class="btn btn-primary btn-lg">Grand</button>
+      </div>
+
+      <div class="ds-label">Icônes seuls</div>
+      <div class="flex">
+        <button class="btn btn-primary btn-icon" title="Ajouter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-icon" title="Filtrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-icon" title="Exporter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-icon" title="Actualiser">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        </button>
+        <button class="btn btn-ghost btn-icon btn-danger" title="Supprimer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       04 — BADGES & STATUTS
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">04 — Badges & Statuts</h2>
+    <p class="ds-subtitle">Palette chaude pour les statuts — l'orange remplace le vert criard pour les alertes.</p>
+
+    <div class="surface">
+      <div class="ds-label">Statuts Lots</div>
+      <div class="flex" style="margin-bottom:var(--sp-6)">
+        <span class="badge badge-ok">Conforme</span>
+        <span class="badge badge-warn">En Alerte</span>
+        <span class="badge badge-err">Périmé</span>
+        <span class="badge badge-info">En Transit</span>
+        <span class="badge badge-neutral">Inactif</span>
+      </div>
+
+      <div class="ds-label">Tags Pays</div>
+      <div class="flex" style="margin-bottom:var(--sp-6)">
+        <span class="tag tag-br">🇧🇷 Brésil</span>
+        <span class="tag tag-ec">🇪🇨 Équateur</span>
+        <span class="tag tag-co">🇨🇴 Colombie</span>
+      </div>
+
+      <div class="ds-label">Statut IoT Capteurs</div>
+      <div class="flex" style="margin-bottom:var(--sp-6)">
+        <span class="badge badge-ok">● Connecté</span>
+        <span class="badge badge-err">● Hors ligne</span>
+        <span class="badge badge-warn">● Dégradé</span>
+        <span class="badge badge-neutral">● Non configuré</span>
+      </div>
+
+      <div class="ds-label">Chips filtre</div>
+      <div class="flex">
+        <span class="chip">Tous les pays</span>
+        <span class="chip">30 derniers jours</span>
+        <span class="chip">FIFO prioritaire</span>
+        <span class="chip">Alertes actives</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       05 — CARDS
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">05 — Cards</h2>
+    <p class="ds-subtitle">Metric cards (dashboard) · Alert strips · Cards entrepôt.</p>
+
+    <div class="ds-label">Metric Cards</div>
+    <div class="ds-grid g4" style="margin-bottom:var(--sp-8)">
+      <div class="metric metric--dark">
+        <div class="m-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        </div>
+        <div class="m-label">Total Lots</div>
+        <div class="m-value">248</div>
+        <div class="m-change up">↑ +12 ce mois</div>
+      </div>
+      <div class="metric">
+        <div class="m-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="m-label">En Alerte</div>
+        <div class="m-value" style="color:var(--fk-warning)">7</div>
+        <div class="m-change down">↑ +3 depuis hier</div>
+      </div>
+      <div class="metric">
+        <div class="m-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="m-label">Lots Périmés</div>
+        <div class="m-value" style="color:var(--fk-danger)">2</div>
+        <div class="m-change">Dépassement FIFO</div>
+      </div>
+      <div class="metric metric--green">
+        <div class="m-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div class="m-label">En Transit</div>
+        <div class="m-value">14</div>
+        <div class="m-change up">↑ +2 aujourd'hui</div>
+      </div>
+    </div>
+
+    <div class="ds-label">Alert Strips</div>
+    <div class="flex-c" style="margin-bottom:var(--sp-8)">
+      <div class="alert-strip alert-strip--ok">
+        <svg class="alert-strip__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <div><div class="alert-strip__title">Lot LOT-BR-2024-00342 — Conforme</div><div class="alert-strip__desc">29°C / 55% — dans la plage idéale pour le Brésil.</div></div>
+      </div>
+      <div class="alert-strip alert-strip--warn">
+        <svg class="alert-strip__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div><div class="alert-strip__title">Température hors plage — Entrepôt Quito B</div><div class="alert-strip__desc">34°C relevé (seuil Équateur : 31°C ±3). Email envoyé au responsable.</div></div>
+      </div>
+      <div class="alert-strip alert-strip--err">
+        <svg class="alert-strip__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div><div class="alert-strip__title">Lot périmé — LOT-CO-2023-00018</div><div class="alert-strip__desc">387 jours de stockage. Dépassement FIFO de 22 jours. Action urgente requise.</div></div>
+      </div>
+    </div>
+
+    <div class="ds-label">Cards Entrepôt</div>
+    <div class="ds-grid g3">
+      <div class="entrepot-card">
+        <div class="entrepot-card__header">
+          <div class="entrepot-card__title">São Paulo A</div>
+          <span class="tag tag-br">🇧🇷 Brésil</span>
+        </div>
+        <div class="entrepot-card__body">
+          <div class="iot-grid">
+            <div class="iot-cell iot-cell--ok">
+              <div class="iot-cell__label">Temp.</div>
+              <div class="iot-cell__val">29°C</div>
+            </div>
+            <div class="iot-cell iot-cell--ok">
+              <div class="iot-cell__label">Hum.</div>
+              <div class="iot-cell__val">55%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="badge badge-ok">Conforme</span>
+            <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">48 lots</span>
+          </div>
+        </div>
+      </div>
+      <div class="entrepot-card">
+        <div class="entrepot-card__header">
+          <div class="entrepot-card__title">Quito B</div>
+          <span class="tag tag-ec">🇪🇨 Équateur</span>
+        </div>
+        <div class="entrepot-card__body">
+          <div class="iot-grid">
+            <div class="iot-cell iot-cell--err">
+              <div class="iot-cell__label">Temp.</div>
+              <div class="iot-cell__val">34°C</div>
+            </div>
+            <div class="iot-cell iot-cell--ok">
+              <div class="iot-cell__label">Hum.</div>
+              <div class="iot-cell__val">61%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="badge badge-warn">En Alerte</span>
+            <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">37 lots</span>
+          </div>
+        </div>
+      </div>
+      <div class="entrepot-card">
+        <div class="entrepot-card__header">
+          <div class="entrepot-card__title">Bogotá C</div>
+          <span class="tag tag-co">🇨🇴 Colombie</span>
+        </div>
+        <div class="entrepot-card__body">
+          <div class="iot-grid">
+            <div class="iot-cell iot-cell--ok">
+              <div class="iot-cell__label">Temp.</div>
+              <div class="iot-cell__val">26°C</div>
+            </div>
+            <div class="iot-cell iot-cell--warn">
+              <div class="iot-cell__label">Hum.</div>
+              <div class="iot-cell__val">83%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="badge badge-warn">En Alerte</span>
+            <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">29 lots</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       06 — FORMULAIRES
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">06 — Formulaires</h2>
+    <p class="ds-subtitle">Focus espresso chaud. Fond surface ivoire. Bordures parchemin.</p>
+
+    <div class="surface">
+      <div class="ds-grid g2" style="margin-bottom:var(--sp-6)">
+        <div class="form-group">
+          <label class="form-label">ID du Lot</label>
+          <input type="text" class="form-input" placeholder="LOT-BR-2024-XXXXX" />
+          <span class="form-hint">Format : LOT-{PAYS}-{ANNÉE}-{NUMÉRO}</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pays / Exploitation</label>
+          <select class="form-select">
+            <option value="">Sélectionner un pays...</option>
+            <option>🇧🇷 Brésil</option>
+            <option>🇪🇨 Équateur</option>
+            <option>🇨🇴 Colombie</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date de stockage</label>
+          <input type="date" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Champ avec erreur</label>
+          <input type="text" class="form-input form-input--err" value="valeur incorrecte" />
+          <span class="form-error">Ce champ est requis et doit être valide.</span>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" placeholder="Observations sur le lot..."></textarea>
+        </div>
+      </div>
+
+      <div class="ds-label">Toggles</div>
+      <div class="flex-c">
+        <label class="toggle-wrap">
+          <div class="toggle on"></div>
+          <span class="toggle-label">Alertes email activées</span>
+        </label>
+        <label class="toggle-wrap">
+          <div class="toggle"></div>
+          <span class="toggle-label">Mode FIFO strict</span>
+        </label>
+        <label class="toggle-wrap">
+          <div class="toggle on"></div>
+          <span class="toggle-label">Surveillance IoT temps réel</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       07 — TABLEAU DES LOTS
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">07 — Tableau des Lots</h2>
+    <p class="ds-subtitle">Fond thead parchemin · lignes ivoire · hover chaud · IDs monospace.</p>
+
+    <div class="table-wrap">
+      <div class="table-head-bar">
+        <span class="table-head-title">Lots en Stock — Vue Globale</span>
+        <div class="flex">
+          <button class="btn btn-ghost btn-sm">Filtrer</button>
+          <button class="btn btn-primary btn-sm">+ Nouveau Lot</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID Lot</th>
+            <th>Pays</th>
+            <th>Entrepôt</th>
+            <th>Stocké le</th>
+            <th>Durée</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="lot-id">LOT-BR-2023-00018</span></td>
+            <td><span class="tag tag-br">🇧🇷 Brésil</span></td>
+            <td>São Paulo A</td>
+            <td>12 jan. 2023</td>
+            <td style="color:var(--fk-danger);font-weight:600">387 j ⚠</td>
+            <td><span class="badge badge-err">Périmé</span></td>
+            <td><button class="btn btn-ghost btn-sm">Voir</button></td>
+          </tr>
+          <tr>
+            <td><span class="lot-id">LOT-EC-2024-00107</span></td>
+            <td><span class="tag tag-ec">🇪🇨 Équateur</span></td>
+            <td>Quito B</td>
+            <td>3 mars 2024</td>
+            <td style="color:var(--fk-warning);font-weight:600">240 j</td>
+            <td><span class="badge badge-warn">En Alerte</span></td>
+            <td><button class="btn btn-ghost btn-sm">Voir</button></td>
+          </tr>
+          <tr>
+            <td><span class="lot-id">LOT-CO-2024-00342</span></td>
+            <td><span class="tag tag-co">🇨🇴 Colombie</span></td>
+            <td>Bogotá C</td>
+            <td>18 juin 2024</td>
+            <td>134 j</td>
+            <td><span class="badge badge-ok">Conforme</span></td>
+            <td><button class="btn btn-ghost btn-sm">Voir</button></td>
+          </tr>
+          <tr>
+            <td><span class="lot-id">LOT-BR-2024-00891</span></td>
+            <td><span class="tag tag-br">🇧🇷 Brésil</span></td>
+            <td>Rio C</td>
+            <td>2 oct. 2024</td>
+            <td>90 j</td>
+            <td><span class="badge badge-ok">Conforme</span></td>
+            <td><button class="btn btn-ghost btn-sm">Voir</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       08 — NAVIGATION
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">08 — Navigation</h2>
+    <p class="ds-subtitle">Sidebar espresso sombre · indicateur actif parchemin · topbar ivoire.</p>
+
+    <div style="display:flex;gap:var(--sp-4);align-items:flex-start">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-logo-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M17 8C8 10 5.9 16.17 3.82 20.54L5.71 21.39C6 20.84 6.26 20.29 6.57 19.76C8.58 20.56 10.81 20.47 12.75 19.49C15.12 18.3 16.59 15.86 16.99 13.17L17.5 13C18.5 12.5 20 12 20 12C20 12 21 12 21 11C21 10 20 10 20 10L17 8Z" fill="#C49A78"/>
+            </svg>
+          </div>
+          <span class="sidebar-brand-name">FutureKawa</span>
+        </div>
+
+        <div class="sidebar-sep">Menu</div>
+        <ul class="sidebar-nav">
+          <li class="active"><a href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a></li>
+          <li><a href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Gestion des Lots
+            <span class="s-badge">248</span>
+          </a></li>
+          <li><a href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6v6l4 2"/></svg>
+            Surveillance IoT
+          </a></li>
+          <li><a href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Alertes
+            <span class="s-badge">7</span>
+          </a></li>
+          <li><a href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
+            Exploitations
+          </a></li>
+          <li><a href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Analytique
+          </a></li>
+        </ul>
+
+        <div class="sidebar-sep">Général</div>
+        <ul class="sidebar-nav">
+          <li><a href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2m0 18v-2m10-8h-2M4 12H2m15.07 7.07l-1.41-1.41M6.34 17.66l-1.41 1.41"/></svg>
+            Paramètres
+          </a></li>
+        </ul>
+      </div>
+
+      <!-- TOPBAR + preview page -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:var(--sp-4)">
+        <div class="topbar">
+          <div>
+            <div class="topbar-title">Dashboard</div>
+            <div class="topbar-sub">Vue globale · 3 pays · 248 lots</div>
+          </div>
+          <div class="topbar-right">
+            <div class="topbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Rechercher un lot...
+            </div>
+            <div class="topbar-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <div class="topbar-dot"></div>
+            </div>
+            <div class="topbar-avatar">MJ</div>
+          </div>
+        </div>
+
+        <div class="ds-grid g2" style="gap:var(--sp-3)">
+          <div class="metric metric--dark" style="padding:var(--sp-4)">
+            <div class="m-label">Total Lots</div>
+            <div class="m-value" style="font-size:var(--text-3xl)">248</div>
+            <div class="m-change up">↑ +12 ce mois</div>
+          </div>
+          <div class="metric" style="padding:var(--sp-4)">
+            <div class="m-label">En Alerte</div>
+            <div class="m-value" style="font-size:var(--text-3xl);color:var(--fk-warning)">7</div>
+            <div class="m-change down">↑ +3 depuis hier</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       09 — JAUGES IoT
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">09 — Jauges IoT</h2>
+    <p class="ds-subtitle">Semi-circulaires — plage idéale en surbrillance · vert = OK · rouge = hors plage.</p>
+
+    <div class="ds-grid g3">
+      <div class="gauge-card">
+        <div class="gauge-title">Température · São Paulo</div>
+        <svg display="block" width="180" height="110" viewBox="0 0 180 110" style="margin:0 auto;overflow:visible">
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#E8D9C4" stroke-width="14" stroke-linecap="round"/>
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#C1EAC3" stroke-width="14" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="68"/>
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#2E7D32" stroke-width="14" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="113"/>
+          <text x="90" y="84" text-anchor="middle" style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;fill:#1E0F06">29°C</text>
+          <text x="18" y="109" text-anchor="start" style="font-size:9px;fill:#A0714F">0°</text>
+          <text x="162" y="109" text-anchor="end"  style="font-size:9px;fill:#A0714F">50°</text>
+        </svg>
+        <div class="gauge-meta">Idéal Brésil : 29°C ±3 · <span style="color:var(--fk-success);font-weight:600">✓ Conforme</span></div>
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-title">Humidité · São Paulo</div>
+        <svg display="block" width="180" height="110" viewBox="0 0 180 110" style="margin:0 auto;overflow:visible">
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#E8D9C4" stroke-width="14" stroke-linecap="round"/>
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#C1EAC3" stroke-width="14" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="60"/>
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#A0714F" stroke-width="14" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="102"/>
+          <text x="90" y="84" text-anchor="middle" style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;fill:#1E0F06">55%</text>
+          <text x="18" y="109" text-anchor="start" style="font-size:9px;fill:#A0714F">0%</text>
+          <text x="162" y="109" text-anchor="end"  style="font-size:9px;fill:#A0714F">100%</text>
+        </svg>
+        <div class="gauge-meta">Idéal Brésil : 55% ±2 · <span style="color:var(--fk-success);font-weight:600">✓ Conforme</span></div>
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-title">Température · Quito</div>
+        <svg display="block" width="180" height="110" viewBox="0 0 180 110" style="margin:0 auto;overflow:visible">
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#E8D9C4" stroke-width="14" stroke-linecap="round"/>
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#C1EAC3" stroke-width="14" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="68"/>
+          <path d="M18 95 A72 72 0 0 1 162 95" fill="none" stroke="#9B1C1C" stroke-width="14" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="74"/>
+          <text x="90" y="84" text-anchor="middle" style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;fill:#9B1C1C">34°C</text>
+          <text x="18" y="109" text-anchor="start" style="font-size:9px;fill:#A0714F">0°</text>
+          <text x="162" y="109" text-anchor="end"  style="font-size:9px;fill:#A0714F">50°</text>
+        </svg>
+        <div class="gauge-meta">Idéal Équateur : 31°C ±3 · <span style="color:var(--fk-danger);font-weight:600">⚠ Hors plage</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       10 — TOASTS
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">10 — Notifications Toast</h2>
+    <p class="ds-subtitle">Fond surface ivoire · bordure gauche colorée · apparition coin supérieur droit.</p>
+
+    <div class="flex-c" style="max-width:380px">
+      <div class="toast toast--ok">
+        <svg class="toast__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="toast__content" style="flex:1">
+          <div class="toast__title">Lot ajouté avec succès</div>
+          <div class="toast__desc">LOT-BR-2024-00992 enregistré dans São Paulo A.</div>
+        </div>
+        <button class="toast__close">×</button>
+      </div>
+      <div class="toast toast--warn">
+        <svg class="toast__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="toast__content" style="flex:1">
+          <div class="toast__title">Dérive température — Quito B</div>
+          <div class="toast__desc">34°C relevé. Seuil Équateur : 31°C ±3. Email envoyé.</div>
+        </div>
+        <button class="toast__close">×</button>
+      </div>
+      <div class="toast toast--err">
+        <svg class="toast__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div class="toast__content" style="flex:1">
+          <div class="toast__title">Lot périmé — Action requise</div>
+          <div class="toast__desc">LOT-CO-2023-00018 dépasse 365 jours. Expédition urgente.</div>
+        </div>
+        <button class="toast__close">×</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       11 — AVATARS
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">11 — Avatars & Équipes</h2>
+    <div class="surface">
+      <div class="ds-label">Tailles</div>
+      <div class="flex" style="align-items:center;margin-bottom:var(--sp-6)">
+        <div class="av av-sm av-espresso">MJ</div>
+        <div class="av av-md av-espresso">MJ</div>
+        <div class="av av-lg av-espresso">MJ</div>
+        <div class="av av-xl av-espresso">MJ</div>
+      </div>
+
+      <div class="ds-label">Par Pays</div>
+      <div class="flex" style="margin-bottom:var(--sp-6)">
+        <div style="text-align:center">
+          <div class="av av-lg av-br" style="margin:0 auto var(--sp-2)">BR</div>
+          <div style="font-size:var(--text-xs);color:var(--fk-text-muted)">Brésil</div>
+        </div>
+        <div style="text-align:center">
+          <div class="av av-lg av-ec" style="margin:0 auto var(--sp-2)">EC</div>
+          <div style="font-size:var(--text-xs);color:var(--fk-text-muted)">Équateur</div>
+        </div>
+        <div style="text-align:center">
+          <div class="av av-lg av-co" style="margin:0 auto var(--sp-2)">CO</div>
+          <div style="font-size:var(--text-xs);color:var(--fk-text-muted)">Colombie</div>
+        </div>
+      </div>
+
+      <div class="ds-label">Cluster</div>
+      <div class="av-cluster">
+        <div class="av av-md av-br">AB</div>
+        <div class="av av-md av-ec">CE</div>
+        <div class="av av-md av-co">DC</div>
+        <div class="av av-md" style="background:var(--fk-parchment-300);color:var(--fk-espresso-700);font-size:11px">+4</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       12 — GRAPHIQUES
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">12 — Graphiques</h2>
+    <p class="ds-subtitle">Courbes espresso/parchemin sur fond ivoire · zone OK verte translucide.</p>
+
+    <div class="ds-grid g2">
+      <!-- Bar chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Lots par Pays</div>
+          <div class="chart-legend">
+            <div class="leg"><div class="leg-dot" style="background:#2C1A0A"></div>Brésil</div>
+            <div class="leg"><div class="leg-dot" style="background:#B45309"></div>Équateur</div>
+            <div class="leg"><div class="leg-dot" style="background:#9B1C1C"></div>Colombie</div>
+          </div>
+        </div>
+        <div class="mini-bars">
+          <div class="mini-bar" style="height:88%;background:linear-gradient(to top, #2C1A0A, #7A5235)"></div>
+          <div class="mini-bar" style="height:60%;background:linear-gradient(to top, #B45309, #D97706)"></div>
+          <div class="mini-bar" style="height:40%;background:linear-gradient(to top, #9B1C1C, #DC2626)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:var(--sp-2)">
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted);flex:1;text-align:center">🇧🇷 BR</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted);flex:1;text-align:center">🇪🇨 EC</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted);flex:1;text-align:center">🇨🇴 CO</span>
+        </div>
+      </div>
+
+      <!-- Donut -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Statut des Lots</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--sp-6)">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#E8D9C4" stroke-width="18"/>
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#2C1A0A" stroke-width="18"
+              stroke-dasharray="220" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#B45309" stroke-width="18"
+              stroke-dasharray="220" stroke-dashoffset="154" transform="rotate(-90 50 50)"/>
+            <circle cx="50" cy="50" r="35" fill="none" stroke="#9B1C1C" stroke-width="18"
+              stroke-dasharray="220" stroke-dashoffset="205" transform="rotate(-90 50 50)"/>
+            <text x="50" y="54" text-anchor="middle" style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;fill:#1E0F06">70%</text>
+          </svg>
+          <div class="flex-c" style="gap:var(--sp-2)">
+            <div class="leg"><div class="leg-dot" style="background:#2C1A0A;width:10px;height:10px"></div>Conforme · 174</div>
+            <div class="leg"><div class="leg-dot" style="background:#B45309;width:10px;height:10px"></div>En alerte · 72</div>
+            <div class="leg"><div class="leg-dot" style="background:#9B1C1C;width:10px;height:10px"></div>Périmé · 2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line chart -->
+      <div class="chart-card" style="grid-column:1/-1">
+        <div class="chart-header">
+          <div class="chart-title">Historique Température — São Paulo A</div>
+          <div class="flex">
+            <button class="btn btn-ghost btn-sm">24h</button>
+            <button class="btn btn-primary btn-sm">7j</button>
+            <button class="btn btn-ghost btn-sm">30j</button>
+          </div>
+        </div>
+        <svg width="100%" height="110" viewBox="0 0 600 110" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2C1A0A" stop-opacity=".15"/>
+              <stop offset="100%" stop-color="#2C1A0A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Zone idéale -->
+          <rect x="0" y="18" width="600" height="54" fill="#EDF7EE" rx="2"/>
+          <!-- Ligne idéale -->
+          <line x1="0" y1="45" x2="600" y2="45" stroke="#A5D6A7" stroke-width="1.5" stroke-dasharray="6 3"/>
+          <!-- Courbe -->
+          <polyline points="0,52 80,50 160,47 240,45 320,55 400,64 480,56 560,47 600,49"
+            fill="none" stroke="#2C1A0A" stroke-width="2.5" stroke-linejoin="round"/>
+          <polygon points="0,52 80,50 160,47 240,45 320,55 400,64 480,56 560,47 600,49 600,110 0,110"
+            fill="url(#areaGrad)"/>
+          <!-- Points -->
+          <circle cx="400" cy="64" r="4" fill="#9B1C1C" stroke="white" stroke-width="2"/>
+          <text x="400" y="58" text-anchor="middle" style="font-size:9px;fill:#9B1C1C;font-weight:600">34°C ⚠</text>
+          <!-- Labels Y -->
+          <text x="4" y="22"  style="font-size:9px;fill:#A0714F">32°C</text>
+          <text x="4" y="72"  style="font-size:9px;fill:#A0714F">26°C</text>
+        </svg>
+        <div style="display:flex;justify-content:space-between;margin-top:var(--sp-2)">
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">Lun</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">Mar</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">Mer</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">Jeu</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">Ven</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">Sam</span>
+          <span style="font-size:var(--text-xs);color:var(--fk-text-muted)">Dim</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       13 — TOKENS RÉFÉRENCE
+  ====================================================== -->
+  <section class="ds-section">
+    <h2 class="ds-section-title">13 — Tokens CSS — Référence rapide</h2>
+    <p class="ds-subtitle">Variables à utiliser dans tout le projet via <code>var(--fk-*)</code>.</p>
+
+    <div class="surface">
+      <div class="ds-label" style="margin-bottom:var(--sp-3)">Rayons</div>
+      <div class="flex" style="margin-bottom:var(--sp-6);align-items:flex-end">
+        <div style="text-align:center"><div style="width:40px;height:40px;background:var(--fk-parchment-300);border-radius:4px;margin:0 auto var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">r-xs<br>4px</div></div>
+        <div style="text-align:center"><div style="width:40px;height:40px;background:var(--fk-parchment-300);border-radius:8px;margin:0 auto var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">r-sm<br>8px</div></div>
+        <div style="text-align:center"><div style="width:40px;height:40px;background:var(--fk-parchment-300);border-radius:12px;margin:0 auto var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">r-md<br>12px</div></div>
+        <div style="text-align:center"><div style="width:40px;height:40px;background:var(--fk-parchment-300);border-radius:18px;margin:0 auto var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">r-lg<br>18px</div></div>
+        <div style="text-align:center"><div style="width:40px;height:40px;background:var(--fk-parchment-300);border-radius:28px;margin:0 auto var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">r-xl<br>28px</div></div>
+        <div style="text-align:center"><div style="width:40px;height:40px;background:var(--fk-parchment-300);border-radius:9999px;margin:0 auto var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">r-full<br>pill</div></div>
+      </div>
+
+      <div class="ds-label" style="margin-bottom:var(--sp-3)">Ombres</div>
+      <div class="flex" style="margin-bottom:var(--sp-6)">
+        <div style="text-align:center;flex:1"><div style="background:var(--fk-bg-surface);height:52px;border-radius:var(--r-lg);box-shadow:var(--shadow-xs);margin-bottom:var(--sp-2);border:1px solid var(--fk-border-light)"></div><div style="font-size:10px;color:var(--fk-text-muted)">shadow-xs</div></div>
+        <div style="text-align:center;flex:1"><div style="background:var(--fk-bg-surface);height:52px;border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">shadow-sm</div></div>
+        <div style="text-align:center;flex:1"><div style="background:var(--fk-bg-surface);height:52px;border-radius:var(--r-lg);box-shadow:var(--shadow-md);margin-bottom:var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">shadow-md</div></div>
+        <div style="text-align:center;flex:1"><div style="background:var(--fk-bg-surface);height:52px;border-radius:var(--r-lg);box-shadow:var(--shadow-lg);margin-bottom:var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">shadow-lg</div></div>
+        <div style="text-align:center;flex:1"><div style="background:var(--fk-espresso-800);height:52px;border-radius:var(--r-lg);box-shadow:var(--shadow-espresso);margin-bottom:var(--sp-2)"></div><div style="font-size:10px;color:var(--fk-text-muted)">shadow-espresso</div></div>
+      </div>
+
+      <div class="ds-label" style="margin-bottom:var(--sp-3)">Surfaces</div>
+      <div class="flex">
+        <div style="text-align:center">
+          <div style="width:80px;height:40px;background:var(--fk-bg-page);border-radius:var(--r-md);margin-bottom:var(--sp-2);border:1px solid var(--fk-border)"></div>
+          <div style="font-size:10px;color:var(--fk-text-muted)">bg-page<br>#FAF4EC</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:80px;height:40px;background:var(--fk-bg-surface);border-radius:var(--r-md);margin-bottom:var(--sp-2);border:1px solid var(--fk-border)"></div>
+          <div style="font-size:10px;color:var(--fk-text-muted)">bg-surface<br>#FFFCF8</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:80px;height:40px;background:var(--fk-bg-muted);border-radius:var(--r-md);margin-bottom:var(--sp-2);border:1px solid var(--fk-border)"></div>
+          <div style="font-size:10px;color:var(--fk-text-muted)">bg-muted<br>#F0E6D8</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:80px;height:40px;background:var(--fk-bg-sidebar);border-radius:var(--r-md);margin-bottom:var(--sp-2)"></div>
+          <div style="font-size:10px;color:var(--fk-text-muted)">bg-sidebar<br>#2C1A0A</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="text-align:center;padding:var(--sp-8) 0;border-top:1px solid var(--fk-border);color:var(--fk-text-muted);font-size:var(--text-xs);font-style:italic">
+    FutureKawa Design System v2.0 · Caffiora × Donezo · EPSI I1 MSPR 2025–2026
+  </footer>
+</div>
+</body>
+</html>
