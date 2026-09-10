@@ -1,0 +1,18 @@
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  subscriber:
+    image: python:3.12-slim
+    depends_on:
+      - broker
+    environment:
+      - MQTT_BROKER=broker
+    volumes:
+      - ./subscriber.py:/app/subscriber.py:ro
+    working_dir: /app
+    command: sh -c "pip install --quiet paho-mqtt==2.1.0 && python subscriber.py"

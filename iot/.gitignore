@@ -1,0 +1,6 @@
+gateway/config.py
+__pycache__/
+*.pyc
+firmware/**/build/
+.pytest_cache/
+.venv/
