@@ -1,0 +1,47 @@
+# Default English translations
+# Add new keys here first, then duplicate to other language files
+
+# Validation
+validation:
+    not_blank: "This field is required."
+    invalid_email: "Please enter a valid email address."
+    invalid_choice: "Invalid value selected."
+    positive: "This value must be positive."
+    length_max: "This value is too long ({{ limit }} characters max)."
+
+# HTTP errors
+error:
+    not_found: "Resource not found."
+    unauthorized: "Authentication required."
+    forbidden: "You do not have permission to access this resource."
+    conflict: "This resource already exists or is in a conflicting state."
+    internal: "An unexpected error occurred."
+
+# Auth
+auth:
+    login_success: "Login successful."
+    login_failure: "Invalid credentials."
+    token_expired: "Your session has expired. Please log in again."
+
+# Lots
+lot:
+    not_found: "Lot not found."
+    status:
+        conforme: "Compliant"
+        en_alerte: "Alert"
+        perime: "Expired"
+
+# Alerts
+alerte:
+    not_found: "Alert not found."
+    already_resolved: "This alert has already been resolved."
+    type:
+        condition_hors_plage: "Out-of-range storage conditions"
+        lot_perime: "Lot exceeds maximum storage duration"
+
+# Sync
+sync:
+    triggered: "Sync triggered for {{ pays }}."
+    pays_not_found: "Country not found."
+    success: "Sync completed successfully for {{ pays }}."
+    failure: "Sync failed for {{ pays }}. Last known data is displayed."
