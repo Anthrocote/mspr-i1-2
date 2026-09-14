@@ -39,7 +39,7 @@ describe('LotsPage', () => {
     const lotRow = screen.getByText('LOT-BR-2023-00018').closest('[class*="cursor-pointer"]');
     if (lotRow) fireEvent.click(lotRow);
     expect(screen.getByText('Retour aux lots')).toBeInTheDocument();
-    expect(screen.getByText('Traçabilité FIFO')).toBeInTheDocument();
+    expect(screen.getByText('Parcours du lot')).toBeInTheDocument();
   });
 
   it('detail view shows lot IoT conditions', () => {

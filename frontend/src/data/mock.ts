@@ -23,17 +23,17 @@ export const LOTS: Lot[] = [
 ];
 
 export const ALERTS: Alert[] = [
-  { id: 'a1', severity: 'critique', level: 'Critique', icon: '⛔', variant: 'err',  title: 'Lot périmé — LOT-CO-2023-00018', description: '387 j de stockage · dépassement FIFO de 22 j · expédition urgente requise', time: 'il y a 5 min',  bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
+  { id: 'a1', severity: 'critique', level: 'Critique', icon: '⛔', variant: 'err',  title: 'Lot périmé — LOT-CO-2023-00018', description: '387 j de stockage · 22 j au-delà du seuil de 365 j · expédition urgente requise', time: 'il y a 5 min',  bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
   { id: 'a2', severity: 'critique', level: 'Critique', icon: '⛔', variant: 'err',  title: 'Lot périmé — LOT-EC-2023-00045', description: '372 j de stockage · seuil 365 j dépassé',                                     time: 'il y a 40 min', bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
   { id: 'a3', severity: 'alerte',   level: 'Alerte',   icon: '🌡️', variant: 'warn', title: 'Température hors plage — Quito B', description: '34°C relevé · seuil Équateur 31°C ±3 · email envoyé au responsable',     time: 'il y a 18 min', bgColor: '#FEF3E2', borderColor: '#B45309' },
   { id: 'a4', severity: 'alerte',   level: 'Alerte',   icon: '💧', variant: 'warn', title: 'Humidité élevée — Bogotá C',       description: '83% relevé · seuil Colombie 80% ±3',                                     time: 'il y a 1 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
-  { id: 'a5', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Approche FIFO — LOT-CO-2023-00077', description: '360 j de stockage · 5 j avant péremption',                                time: 'il y a 2 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
-  { id: 'a6', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Approche FIFO — LOT-BR-2024-00760', description: '128 j · température ponctuellement à 32°C',                               time: 'il y a 3 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
+  { id: 'a5', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Péremption imminente — LOT-CO-2023-00077', description: '360 j de stockage · 5 j avant péremption',                                time: 'il y a 2 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
+  { id: 'a6', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Stockage prolongé — LOT-BR-2024-00760', description: '128 j · température ponctuellement à 32°C',                               time: 'il y a 3 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
   { id: 'a7', severity: 'alerte',   level: 'Alerte',   icon: '📡', variant: 'warn', title: 'Capteur dégradé — Guayaquil A',     description: 'Latence MQTT élevée · dernière mesure il y a 22 min',                     time: 'il y a 4 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
 ];
 
 export const DASHBOARD_ALERTS: DashboardAlert[] = [
-  { title: 'Lot périmé — LOT-CO-2023-00018',       description: '387 j de stockage · dépassement FIFO de 22 j', time: 'il y a 5 min',  bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
+  { title: 'Lot périmé — LOT-CO-2023-00018',       description: '387 j de stockage · 22 j au-delà du seuil de 365 j', time: 'il y a 5 min',  bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
   { title: 'Température hors plage — Quito B',      description: '34°C relevé · seuil Équateur 31°C ±3',         time: 'il y a 18 min', bgColor: '#FEF3E2', borderColor: '#B45309' },
   { title: 'Humidité élevée — Bogotá C',            description: '83% relevé · seuil Colombie 80% ±3',           time: 'il y a 1 h',    bgColor: '#FEF3E2', borderColor: '#B45309' },
 ];

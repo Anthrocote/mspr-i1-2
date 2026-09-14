@@ -23,7 +23,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Page Subtitles
     "dashboard_subtitle": "Vue globale · 3 pays · 248 lots en stock",
-    "lots_subtitle": "Traçabilité & conformité FIFO",
+    "lots_subtitle": "Traçabilité & rotation des stocks",
     "iot_subtitle": "Capteurs température & humidité en temps réel",
     "alertes_subtitle": "7 alertes actives nécessitant une action",
     "exploitations_subtitle": "Brésil · Équateur · Colombie",
@@ -37,7 +37,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "in_transit": "En Transit",
     "trend_lots": "↑ +12 ce mois",
     "trend_alert": "↑ +3 depuis hier",
-    "trend_fifo_delay": "Dépassement FIFO",
+    "trend_fifo_delay": "Stockage > 365 j",
     "trend_transit": "↑ +2 aujourd'hui",
 
     // Dashboard Sections
@@ -87,7 +87,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "back_to_lots": "Retour aux lots",
     "current_conditions": "Conditions actuelles (IoT)",
     "ideal": "Idéal",
-    "fifo_traceability": "Traçabilité FIFO",
+    "fifo_traceability": "Parcours du lot",
     "harvested": "Récolté",
     "stored": "Stocké",
     "monitoring_ongoing": "Surveillance en cours",
@@ -134,7 +134,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "avg_storage_duration": "Durée moy. stockage",
     "online_sensors": "Capteurs en ligne",
     "prevented_losses": "Pertes évitées",
-    "fifo_target": "cible FIFO",
+    "fifo_target": "cible de rotation",
     "alert_helps": "grâce aux alertes IoT",
 
     // Settings Page
@@ -143,7 +143,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "notifications_rules": "Notifications & règles",
     "email_alerts_label": "Alertes email",
     "email_alerts_desc": "Envoyer un email au responsable lors d'une dérive",
-    "strict_fifo_label": "Mode FIFO strict",
+    "strict_fifo_label": "Rotation stricte du stock",
     "strict_fifo_desc": "Bloquer toute sortie ne respectant pas l'ordre d'entrée",
     "realtime_iot_label": "Surveillance IoT temps réel",
     "realtime_iot_desc": "Rafraîchir les capteurs MQTT toutes les 3 min",
@@ -180,7 +180,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "search": "Rechercher…",
     "degraded": "dégradés",
     "vs_last_month": "↑ +4 pts vs mois dernier",
-    "fifo_target_180": "cible FIFO < 180 j",
+    "fifo_target_180": "cible de rotation < 180 j",
     "page_not_found": "Page non trouvée",
     "error_404": "Erreur 404",
     "back_to_dashboard": "Retour au tableau de bord",
@@ -208,7 +208,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Page Subtitles
     "dashboard_subtitle": "Global view · 3 countries · 248 lots in stock",
-    "lots_subtitle": "FIFO traceability & compliance",
+    "lots_subtitle": "Traceability & stock rotation",
     "iot_subtitle": "Real-time temperature & humidity sensors",
     "alertes_subtitle": "7 active alerts requiring action",
     "exploitations_subtitle": "Brazil · Ecuador · Colombia",
@@ -222,7 +222,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "in_transit": "In Transit",
     "trend_lots": "↑ +12 this month",
     "trend_alert": "↑ +3 since yesterday",
-    "trend_fifo_delay": "FIFO Exceeded",
+    "trend_fifo_delay": "Storage > 365 d",
     "trend_transit": "↑ +2 today",
 
     // Dashboard Sections
@@ -272,7 +272,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "back_to_lots": "Back to lots",
     "current_conditions": "Current conditions (IoT)",
     "ideal": "Ideal",
-    "fifo_traceability": "FIFO Traceability",
+    "fifo_traceability": "Lot journey",
     "harvested": "Harvested",
     "stored": "Stored",
     "monitoring_ongoing": "Monitoring in progress",
@@ -319,7 +319,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "avg_storage_duration": "Avg. storage duration",
     "online_sensors": "Online sensors",
     "prevented_losses": "Prevented losses",
-    "fifo_target": "FIFO target",
+    "fifo_target": "rotation target",
     "alert_helps": "thanks to IoT alerts",
 
     // Settings Page
@@ -328,7 +328,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "notifications_rules": "Notifications & Rules",
     "email_alerts_label": "Email Alerts",
     "email_alerts_desc": "Send an email to the manager on drift detection",
-    "strict_fifo_label": "Strict FIFO Mode",
+    "strict_fifo_label": "Strict stock rotation",
     "strict_fifo_desc": "Block any dispatch not respecting entry order",
     "realtime_iot_label": "Real-time IoT Monitoring",
     "realtime_iot_desc": "Refresh MQTT sensors every 3 min",
@@ -365,7 +365,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "search": "Search…",
     "degraded": "degraded",
     "vs_last_month": "↑ +4 pts vs last month",
-    "fifo_target_180": "FIFO target < 180 d",
+    "fifo_target_180": "rotation target < 180 d",
     "page_not_found": "Page not found",
     "error_404": "Error 404",
     "back_to_dashboard": "Back to dashboard",
@@ -393,7 +393,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Page Subtitles
     "dashboard_subtitle": "Vista global · 3 países · 248 lotes en stock",
-    "lots_subtitle": "Trazabilidad FIFO & cumplimiento",
+    "lots_subtitle": "Trazabilidad y rotación de stock",
     "iot_subtitle": "Sensores de temperatura y humedad en tiempo real",
     "alertes_subtitle": "7 alertas activas que requieren acción",
     "exploitations_subtitle": "Brasil · Ecuador · Colombia",
@@ -407,7 +407,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "in_transit": "En Tránsito",
     "trend_lots": "↑ +12 este mes",
     "trend_alert": "↑ +3 desde ayer",
-    "trend_fifo_delay": "Exceso FIFO",
+    "trend_fifo_delay": "Almacenaje > 365 d",
     "trend_transit": "↑ +2 hoy",
 
     // Dashboard Sections
@@ -457,7 +457,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "back_to_lots": "Volver a los lotes",
     "current_conditions": "Condiciones actuales (IoT)",
     "ideal": "Ideal",
-    "fifo_traceability": "Trazabilidad FIFO",
+    "fifo_traceability": "Recorrido del lote",
     "harvested": "Cosechado",
     "stored": "Almacenado",
     "monitoring_ongoing": "Monitoreo en curso",
@@ -504,7 +504,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "avg_storage_duration": "Duración prom. almacenamiento",
     "online_sensors": "Sensores en línea",
     "prevented_losses": "Pérdidas evitadas",
-    "fifo_target": "objetivo FIFO",
+    "fifo_target": "objetivo de rotación",
     "alert_helps": "gracias a las alertas IoT",
 
     // Settings Page
@@ -513,7 +513,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "notifications_rules": "Notificaciones & Reglas",
     "email_alerts_label": "Alertas por Email",
     "email_alerts_desc": "Enviar un email al responsable en caso de desviación",
-    "strict_fifo_label": "Modo FIFO estricto",
+    "strict_fifo_label": "Rotación estricta de stock",
     "strict_fifo_desc": "Bloquear cualquier salida que no respete el orden de entrada",
     "realtime_iot_label": "Monitoreo IoT en tiempo real",
     "realtime_iot_desc": "Actualizar sensores MQTT cada 3 min",
@@ -550,7 +550,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "search": "Buscar…",
     "degraded": "degradados",
     "vs_last_month": "↑ +4 pts vs mes anterior",
-    "fifo_target_180": "objetivo FIFO < 180 d",
+    "fifo_target_180": "objetivo de rotación < 180 d",
     "page_not_found": "Página no encontrada",
     "error_404": "Error 404",
     "back_to_dashboard": "Volver al panel",

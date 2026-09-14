@@ -37,7 +37,7 @@ describe('ParametresPage', () => {
   it('shows 3 toggle rows', () => {
     render(<LanguageProvider><ParametresPage /></LanguageProvider>);
     expect(screen.getByText('Alertes email')).toBeInTheDocument();
-    expect(screen.getByText('Mode FIFO strict')).toBeInTheDocument();
+    expect(screen.getByText('Rotation stricte du stock')).toBeInTheDocument();
     expect(screen.getByText('Surveillance IoT temps réel')).toBeInTheDocument();
   });
 
