@@ -24,29 +24,19 @@ describe('Topbar', () => {
     expect(screen.getByText('Vue globale')).toBeInTheDocument();
   });
 
-  it('renders search input', () => {
+  it('keeps the functional search input', () => {
     renderTopbar('Test', 'Sub');
     expect(screen.getByPlaceholderText('Rechercher…')).toBeInTheDocument();
   });
 
-  it('renders notification bell button', () => {
+  it('renders the mobile menu button', () => {
     renderTopbar('Test', 'Sub');
-    const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBeGreaterThan(0);
+    expect(screen.getByLabelText('Ouvrir le menu')).toBeInTheDocument();
   });
 
-  it('renders user name Marina Joaquim', () => {
+  it('drops the decorative bell and the fake user', () => {
     renderTopbar('Test', 'Sub');
-    expect(screen.getByText('Marina Joaquim')).toBeInTheDocument();
-  });
-
-  it('renders user role', () => {
-    renderTopbar('Test', 'Sub');
-    expect(screen.getByText('Responsable Qualité')).toBeInTheDocument();
-  });
-
-  it('renders user initials MJ', () => {
-    renderTopbar('Test', 'Sub');
-    expect(screen.getByText('MJ')).toBeInTheDocument();
+    expect(screen.queryByText('Marina Joaquim')).not.toBeInTheDocument();
+    expect(screen.queryByText('MJ')).not.toBeInTheDocument();
   });
 });
