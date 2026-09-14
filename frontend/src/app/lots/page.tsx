@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LOTS } from '@/data/mock';
-import type { Lot, CountryCode } from '@/types';
+import { LOTS, FARMS } from '@/data/mock';
+import type { Lot, CountryCode, BadgeVariant } from '@/types';
 import Badge from '@/components/ui/Badge';
 import CountryTag from '@/components/ui/CountryTag';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSearch } from '@/contexts/SearchContext';
 
 const container = {
   hidden: { opacity: 0 },
@@ -17,19 +18,45 @@ const row = {
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' as const } },
 };
 
-import { useSearch } from '@/contexts/SearchContext';
-
-type Filter = 'all' | CountryCode | 'alertes';
-type SortField = 'id' | 'country' | 'warehouse' | 'storageDate' | 'durationDays' | 'status';
+type StatusFilter = 'all' | BadgeVariant;
+type SortField = 'id' | 'country' | 'warehouse' | 'durationDays' | 'status';
 type SortOrder = 'asc' | 'desc';
+type AgeFilter = 'all' | 'lt90' | '90_180' | '180_365' | 'gt365';
 
-const FILTERS: { key: Filter }[] = [
-  { key: 'all' },
-  { key: 'br' },
-  { key: 'ec' },
-  { key: 'co' },
-  { key: 'alertes' },
+// Location is a single hierarchy (country > warehouse), so country and warehouse
+// can't be set to a contradictory pair.
+const LOCATIONS: { code: CountryCode; warehouses: string[] }[] = [
+  { code: 'br', warehouses: ['São Paulo A', 'Rio C'] },
+  { code: 'ec', warehouses: ['Quito B', 'Guayaquil A'] },
+  { code: 'co', warehouses: ['Bogotá C', 'Medellín D'] },
 ];
+
+const STATUS_OPTIONS: { value: StatusFilter; key: string }[] = [
+  { value: 'all', key: 'all_statuses' },
+  { value: 'ok', key: 'status_ok' },
+  { value: 'warn', key: 'status_warn' },
+  { value: 'err', key: 'status_err' },
+];
+
+const AGE_OPTIONS: { value: AgeFilter; key: string }[] = [
+  { value: 'all', key: 'age_all' },
+  { value: 'lt90', key: 'age_lt90' },
+  { value: '90_180', key: 'age_90_180' },
+  { value: '180_365', key: 'age_180_365' },
+  { value: 'gt365', key: 'age_gt365' },
+];
+
+function matchAge(days: number, f: AgeFilter): boolean {
+  switch (f) {
+    case 'lt90': return days < 90;
+    case '90_180': return days >= 90 && days < 180;
+    case '180_365': return days >= 180 && days < 365;
+    case 'gt365': return days >= 365;
+    default: return true;
+  }
+}
+
+const PAGE_SIZE = 8;
 
 function durationColor(v: string) {
   if (v === 'err') return 'text-[#9B1C1C]';
@@ -40,23 +67,47 @@ function durationColor(v: string) {
 export default function LotsPage() {
   const { t } = useLanguage();
   const { searchQuery } = useSearch();
-  const [lotsList, setLotsList] = useState<Lot[]>(LOTS);
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<Filter>('all');
 
-  // Advanced Filtering States
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [warehouseFilter, setWarehouseFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [ageFilter, setAgeFilter] = useState<AgeFilter>('all');
 
-  // Creation Modal State
-  const [showAddLotModal, setShowAddLotModal] = useState(false);
-
-  // Sorting States
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
-  const selectedLot = lotsList.find((l) => l.id === selectedLotId) ?? null;
+  const [page, setPage] = useState(1);
+
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Close the filter popover on outside click or Escape.
+  useEffect(() => {
+    if (!showFilterMenu) return;
+    const onPointer = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setShowFilterMenu(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowFilterMenu(false);
+    };
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [showFilterMenu]);
+
+  const activeFilters =
+    (locationFilter !== 'all' ? 1 : 0) +
+    (statusFilter !== 'all' ? 1 : 0) +
+    (ageFilter !== 'all' ? 1 : 0);
+
+  // Filters and sort change the result set, so return to the first page.
+  const setLocation = (v: string) => { setLocationFilter(v); setPage(1); };
+  const setStatus = (v: StatusFilter) => { setStatusFilter(v); setPage(1); };
+  const setAge = (v: AgeFilter) => { setAgeFilter(v); setPage(1); };
+  const resetFilters = () => { setLocationFilter('all'); setStatusFilter('all'); setAgeFilter('all'); setPage(1); };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -65,30 +116,23 @@ export default function LotsPage() {
       setSortField(field);
       setSortOrder('asc');
     }
+    setPage(1);
   };
 
-  const filtered = lotsList.filter((l) => {
-    // 1. Quick Filters (Country / Alert indicator)
-    if (filter !== 'all') {
-      if (filter === 'alertes') {
-        if (l.statusVariant === 'ok') return false;
-      } else if (l.countryCode !== filter) {
-        return false;
-      }
-    }
-    // 2. Warehouse Filter
-    if (warehouseFilter !== 'all' && l.warehouse !== warehouseFilter) return false;
-    // 3. Status Filter
+  const filtered = LOTS.filter((l) => {
+    if (locationFilter.startsWith('country:') && l.countryCode !== locationFilter.slice(8)) return false;
+    if (locationFilter.startsWith('wh:') && l.warehouse !== locationFilter.slice(3)) return false;
     if (statusFilter !== 'all' && l.statusVariant !== statusFilter) return false;
+    if (!matchAge(l.durationDays, ageFilter)) return false;
 
-    // 4. Global Search Filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      const matchId = l.id.toLowerCase().includes(q);
-      const matchCountry = l.country.toLowerCase().includes(q);
-      const matchWarehouse = l.warehouse.toLowerCase().includes(q);
-      const matchStatus = l.status.toLowerCase().includes(q);
-      if (!matchId && !matchCountry && !matchWarehouse && !matchStatus) return false;
+      const match =
+        l.id.toLowerCase().includes(q) ||
+        l.country.toLowerCase().includes(q) ||
+        l.warehouse.toLowerCase().includes(q) ||
+        l.status.toLowerCase().includes(q);
+      if (!match) return false;
     }
 
     return true;
@@ -96,62 +140,38 @@ export default function LotsPage() {
 
   const sorted = [...filtered].sort((a, b) => {
     if (!sortField) return 0;
-
-    let aVal: any = a[sortField];
-    let bVal: any = b[sortField];
-
-    if (sortField === 'storageDate') {
-      aVal = a.durationDays;
-      bVal = b.durationDays;
-      return sortOrder === 'asc' ? bVal - aVal : aVal - bVal;
+    const aVal = a[sortField];
+    const bVal = b[sortField];
+    if (typeof aVal === 'string' && typeof bVal === 'string') {
+      return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
     }
-
-    if (typeof aVal === 'string') {
-      return sortOrder === 'asc'
-        ? aVal.localeCompare(bVal)
-        : bVal.localeCompare(aVal);
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
     }
-
-    if (typeof aVal === 'number') {
-      return sortOrder === 'asc'
-        ? aVal - bVal
-        : bVal - aVal;
-    }
-
     return 0;
   });
 
-  if (selectedLot) {
-    return <LotDetail lot={selectedLot} onBack={() => setSelectedLotId(null)} />;
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const pageClamped = Math.min(page, totalPages);
+  const paged = sorted.slice((pageClamped - 1) * PAGE_SIZE, pageClamped * PAGE_SIZE);
+
+  if (selectedLotId) {
+    const selectedLot = LOTS.find((l) => l.id === selectedLotId);
+    if (selectedLot) return <LotDetail lot={selectedLot} onBack={() => setSelectedLotId(null)} />;
   }
 
   return (
     <div className="max-w-[1320px] mx-auto w-full">
       {/* Filter bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-[10px] mb-5">
-        <div className="flex items-center gap-[6px] sm:gap-[10px] flex-wrap">
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`inline-flex items-center gap-1.5 py-[7px] px-[12px] sm:px-[14px] rounded-full text-xs font-semibold cursor-pointer transition-colors ${
-                filter === f.key
-                  ? 'bg-[#2C1A0A] text-[#FAF4EC]'
-                  : 'bg-[#FFFCF8] text-[#7A5235] border border-[#E8D9C4] hover:bg-[#F5EDE0]'
-              }`}
-            >
-              {t('filter_' + f.key)}
-            </button>
-          ))}
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <div className="text-[13px] text-[#A08060]">
+          {sorted.length} {t('lots_count')}
         </div>
-        <div className="flex gap-[10px] w-full sm:w-auto sm:ml-auto justify-between sm:justify-start relative">
+        <div className="relative" ref={filterRef}>
           <button
-            onClick={() => {
-              setShowFilterMenu(!showFilterMenu);
-              setShowAddLotModal(false);
-            }}
-            className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-4 rounded-full text-[13px] font-semibold border cursor-pointer transition-colors ${
-              showFilterMenu
+            onClick={() => setShowFilterMenu((v) => !v)}
+            className={`inline-flex items-center justify-center gap-[7px] py-[9px] px-4 rounded-full text-[13px] font-semibold border cursor-pointer transition-colors ${
+              showFilterMenu || activeFilters > 0
                 ? 'bg-[#2C1A0A] text-[#FAF4EC] border-transparent shadow-[0_2px_8px_rgba(44,26,10,.15)]'
                 : 'bg-[#F5EDE0] text-[#5C3A1E] border-[#E8D9C4] hover:bg-[#EDE0D0]'
             }`}
@@ -160,69 +180,72 @@ export default function LotsPage() {
               <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
             </svg>
             {t('filter')}
+            {activeFilters > 0 && (
+              <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-[#FAF4EC] text-[#2C1A0A] text-[10px] font-bold px-1">
+                {activeFilters}
+              </span>
+            )}
           </button>
 
-          {/* Filter Popover Menu */}
-          {showFilterMenu && (
-            <div className="absolute right-0 top-12 z-30 bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-5 shadow-lg min-w-[280px] flex flex-col gap-4 text-left">
-              <div>
-                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">{t('warehouse')}</h4>
-                <select
-                  value={warehouseFilter}
-                  onChange={(e) => setWarehouseFilter(e.target.value)}
-                  className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
-                >
-                  <option value="all">{t('all_warehouses')}</option>
-                  <option value="São Paulo A">🇧🇷 São Paulo A</option>
-                  <option value="Rio C">🇧🇷 Rio C</option>
-                  <option value="Quito B">🇪🇨 Quito B</option>
-                  <option value="Guayaquil A">🇪🇨 Guayaquil A</option>
-                  <option value="Bogotá C">🇨🇴 Bogotá C</option>
-                  <option value="Medellín D">🇨🇴 Medellín D</option>
-                </select>
-              </div>
+          {/* Filter popover — all filters live here */}
+          <AnimatePresence>
+            {showFilterMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-12 z-30 bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-5 shadow-lg min-w-[280px] flex flex-col gap-4 text-left"
+              >
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider">{t('filters_title')}</h4>
+                  <button
+                    onClick={() => setShowFilterMenu(false)}
+                    aria-label={t('close_filters')}
+                    className="p-1 -mr-1 rounded-md text-[#A08060] hover:text-[#5C3A1E] hover:bg-[#F5EDE0] transition-colors cursor-pointer"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
 
-              <div>
-                <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">{t('status')}</h4>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
-                >
-                  <option value="all">{t('all_statuses')}</option>
-                  <option value="ok">{t('status_ok')}</option>
-                  <option value="warn">{t('status_warn')}</option>
-                  <option value="err">{t('status_err')}</option>
-                </select>
-              </div>
+                <FilterSelect label={t('location')} value={locationFilter} onChange={setLocation}>
+                  <option value="all">{t('all_locations')}</option>
+                  {LOCATIONS.map((c) => (
+                    <optgroup key={c.code} label={`${LOTS.find((l) => l.countryCode === c.code)?.flag ?? ''} ${t(c.code)}`}>
+                      <option value={`country:${c.code}`}>{t(c.code)} {t('location_all_suffix')}</option>
+                      {c.warehouses.map((w) => (
+                        <option key={w} value={`wh:${w}`}>{w}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </FilterSelect>
 
-              {(warehouseFilter !== 'all' || statusFilter !== 'all') && (
-                <button
-                  onClick={() => {
-                    setWarehouseFilter('all');
-                    setStatusFilter('all');
-                  }}
-                  className="text-xs font-semibold text-[#9B1C1C] hover:underline text-left cursor-pointer"
-                >
-                  {t('reset_filters')}
-                </button>
-              )}
-            </div>
-          )}
+                <FilterSelect label={t('status')} value={statusFilter} onChange={(v) => setStatus(v as StatusFilter)}>
+                  {STATUS_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{t(o.key)}</option>
+                  ))}
+                </FilterSelect>
 
-          <button
-            onClick={() => {
-              setShowAddLotModal(true);
-              setShowFilterMenu(false);
-            }}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-[7px] py-[9px] px-[18px] rounded-full text-[13px] font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer shadow-[0_4px_20px_rgba(44,26,10,.20)] hover:bg-[#1E0F06]"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            {t('new_lot')}
-          </button>
+                <FilterSelect label={t('age')} value={ageFilter} onChange={(v) => setAge(v as AgeFilter)}>
+                  {AGE_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{t(o.key)}</option>
+                  ))}
+                </FilterSelect>
+
+                {activeFilters > 0 && (
+                  <button
+                    onClick={resetFilters}
+                    className="text-xs font-semibold text-[#9B1C1C] hover:underline text-left cursor-pointer"
+                  >
+                    {t('reset_filters')}
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -235,14 +258,12 @@ export default function LotsPage() {
               { label: t('id_lot'), field: 'id' as SortField },
               { label: t('country'), field: 'country' as SortField },
               { label: t('warehouse'), field: 'warehouse' as SortField },
-              { label: t('stored_on'), field: 'storageDate' as SortField },
+              { label: t('constituted_on'), field: null },
               { label: t('duration'), field: 'durationDays' as SortField },
               { label: t('status'), field: 'status' as SortField },
-              { label: '', field: null }
+              { label: '', field: null },
             ].map((h, i) => {
-              if (!h.field) {
-                return <div key={i} />;
-              }
+              if (!h.field) return <div key={i} className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide">{h.label}</div>;
               const isSorted = sortField === h.field;
               return (
                 <button
@@ -251,17 +272,15 @@ export default function LotsPage() {
                   className="flex items-center gap-1 text-[11px] font-semibold text-[#A08060] uppercase tracking-wide hover:text-[#5C3A1E] transition-colors cursor-pointer text-left outline-none border-none bg-transparent"
                 >
                   {h.label}
-                  {isSorted && (
-                    <span className="text-[9px] text-[#A0714F]">{sortOrder === 'asc' ? '▲' : '▼'}</span>
-                  )}
+                  {isSorted && <span className="text-[9px] text-[#A0714F]">{sortOrder === 'asc' ? '▲' : '▼'}</span>}
                 </button>
               );
             })}
           </div>
           {/* Rows */}
-          <motion.div variants={container} initial="hidden" animate="show">
+          <motion.div key={`${locationFilter}-${statusFilter}-${ageFilter}-${pageClamped}`} variants={container} initial="hidden" animate="show">
             <AnimatePresence mode="popLayout">
-              {sorted.map((l) => (
+              {paged.map((l) => (
                 <motion.div
                   key={l.id}
                   variants={row}
@@ -281,10 +300,8 @@ export default function LotsPage() {
                     </CountryTag>
                   </div>
                   <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
-                  <div className="text-[13px] text-[#443524]">{l.storageDate}</div>
-                  <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>
-                    {l.duration}
-                  </div>
+                  <div className="text-[13px] text-[#443524]">{l.constitutedAt}</div>
+                  <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>{l.duration}</div>
                   <div>
                     <Badge variant={l.statusVariant}>{t('status_' + l.statusVariant)}</Badge>
                   </div>
@@ -294,64 +311,58 @@ export default function LotsPage() {
                 </motion.div>
               ))}
             </AnimatePresence>
+            {paged.length === 0 && (
+              <div className="py-12 text-center text-sm text-[#A08060]">{t('no_lots_match')}</div>
+            )}
           </motion.div>
         </div>
       </div>
 
-      {/* Creation Modal - Nouveau Lot */}
-      <AnimatePresence>
-        {showAddLotModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Overlay backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setShowAddLotModal(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            {/* Modal sheet card dialog */}
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="relative z-10 w-full max-w-md bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-xl overflow-hidden"
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4 px-1">
+          <span className="text-xs text-[#A08060]">{t('page_word')} {pageClamped} / {totalPages}</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={pageClamped === 1}
+              className="py-[7px] px-4 rounded-full text-xs font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0] disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {/* Header */}
-              <div className="bg-[#2C1A0A] p-5 py-4 flex items-center justify-between text-[#FAF4EC]">
-                <h3 className="font-display text-lg font-semibold">{t('add_new_lot')}</h3>
-                <button
-                  onClick={() => setShowAddLotModal(false)}
-                  className="p-1 rounded-md text-espresso-300 hover:text-parchment-100 hover:bg-white/10 transition-colors cursor-pointer"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              </div>
-
-              {/* Form component */}
-              <AddLotForm
-                onAdd={(newLot) => {
-                  setLotsList([newLot, ...lotsList]);
-                  setShowAddLotModal(false);
-                }}
-                onCancel={() => setShowAddLotModal(false)}
-              />
-            </motion.div>
+              {t('prev_page')}
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={pageClamped === totalPages}
+              className="py-[7px] px-4 rounded-full text-xs font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {t('next_page')}
+            </button>
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }
 
-/* ── Lot Detail ── */
+function FilterSelect({ label, value, onChange, children }: { label: string; value: string; onChange: (v: string) => void; children: React.ReactNode }) {
+  return (
+    <div>
+      <h4 className="text-xs font-bold text-[#A08060] uppercase tracking-wider mb-2">{label}</h4>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
+/* ── Lot Detail (read-only) ── */
 function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
   const { t } = useLanguage();
+  const exploitation = FARMS.find((e) => e.id === lot.exploitationId);
   return (
     <motion.div
       className="max-w-[1100px] mx-auto w-full"
@@ -384,10 +395,10 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
           {/* Body */}
           <div className="p-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px] mb-6">
-              <DetailField label={`${t('country')} / Exploitation`} value={`${lot.flag} ${t(lot.countryCode)}`} />
-              <DetailField label={t('stored_on')} value={lot.storageDate} />
+              <DetailField label={t('exploitation')} value={exploitation ? `${exploitation.flag} ${exploitation.name}` : `${lot.flag} ${t(lot.countryCode)}`} />
+              <DetailField label={t('constituted_on')} value={lot.constitutedAt} />
               <DetailField
-                label="Durée en stock"
+                label={t('duration_in_stock')}
                 value={lot.duration}
                 valueColor={lot.durationVariant === 'err' ? '#9B1C1C' : lot.durationVariant === 'warn' ? '#B45309' : '#1E0F06'}
                 bold
@@ -413,28 +424,20 @@ function LotDetail({ lot, onBack }: { lot: Lot; onBack: () => void }) {
           </div>
         </div>
 
-        {/* Right – timeline + actions */}
-        <div className="flex flex-col gap-[18px]">
-          {/* Timeline */}
-          <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
-            <h3 className="font-display text-[19px] font-semibold text-[#1E0F06] mb-[18px]">{t('fifo_traceability')}</h3>
-            <div className="flex flex-col">
-              <TimelineStep color="#2E7D32" title={t('harvested')} desc={`Exploitation · ${t(lot.countryCode)}`} hasLine />
-              <TimelineStep color="#2E7D32" title={t('stored')} desc={`${lot.warehouse} · ${lot.storageDate}`} hasLine />
-              <TimelineStep color="#C49A78" title={t('monitoring_ongoing')} desc={`${lot.duration} en stock`} hasLine={false} />
-            </div>
-          </div>
-          {/* Actions */}
-          <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-[22px] shadow-sm flex flex-col gap-[10px]">
-            <button className="w-full inline-flex items-center justify-center gap-2 py-[11px] rounded-full text-[13px] font-semibold bg-[#1E5220] text-white border-none cursor-pointer shadow-[0_4px_16px_rgba(46,125,50,.22)]">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              {t('validate_conforming')}
-            </button>
-            <button className="w-full inline-flex items-center justify-center gap-2 py-[11px] rounded-full text-[13px] font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer">
-              {t('mark_in_transit')}
-            </button>
+        {/* Right – traceability timeline with the warehouse-stay history (read-only) */}
+        <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
+          <h3 className="font-display text-[19px] font-semibold text-[#1E0F06] mb-[18px]">{t('lot_journey')}</h3>
+          <div className="flex flex-col">
+            <TimelineStep color="#2E7D32" title={t('constituted_step')} desc={`${t(lot.countryCode)} · ${lot.constitutedAt}`} hasLine />
+            {lot.stays.map((s, i) => (
+              <TimelineStep
+                key={`${s.warehouse}-${i}`}
+                color={s.sortie ? '#A0714F' : '#B45309'}
+                title={`${t('stored_step')} · ${s.warehouse}`}
+                desc={`${s.entree} → ${s.sortie ?? t('in_progress')}`}
+                hasLine={i < lot.stays.length - 1}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -465,175 +468,5 @@ function TimelineStep({ color, title, desc, hasLine }: { color: string; title: s
         <div className="text-xs text-[#A08060]">{desc}</div>
       </div>
     </div>
-  );
-}
-
-// ── Form and Mock Data for New Lot Creation ──
-
-const WAREHOUSES_BY_COUNTRY = {
-  br: [
-    { name: 'São Paulo A', temp: '29°C', hum: '55%' },
-    { name: 'Rio C', temp: '27°C', hum: '58%' }
-  ],
-  ec: [
-    { name: 'Quito B', temp: '31°C', hum: '60%' },
-    { name: 'Guayaquil A', temp: '30°C', hum: '64%' }
-  ],
-  co: [
-    { name: 'Bogotá C', temp: '26°C', hum: '82%' },
-    { name: 'Medellín D', temp: '25°C', hum: '78%' }
-  ]
-};
-
-const COUNTRY_NAMES = {
-  br: { name: 'br', flag: '🇧🇷' },
-  ec: { name: 'ec', flag: '🇪🇨' },
-  co: { name: 'co', flag: '🇨🇴' }
-};
-
-interface AddLotFormProps {
-  onAdd: (newLot: Lot) => void;
-  onCancel: () => void;
-}
-
-function AddLotForm({ onAdd, onCancel }: AddLotFormProps) {
-  const { t } = useLanguage();
-  const [countryCode, setCountryCode] = useState<'br' | 'ec' | 'co'>('br');
-  const [warehouse, setWarehouse] = useState('São Paulo A');
-  const [temp, setTemp] = useState('29');
-  const [hum, setHum] = useState('55');
-
-  const handleCountryChange = (cc: 'br' | 'ec' | 'co') => {
-    setCountryCode(cc);
-    const whs = WAREHOUSES_BY_COUNTRY[cc];
-    setWarehouse(whs[0].name);
-    setTemp(whs[0].temp.replace('°C', ''));
-    setHum(whs[0].hum.replace('%', ''));
-  };
-
-  const handleWarehouseChange = (whName: string) => {
-    setWarehouse(whName);
-    const whs = WAREHOUSES_BY_COUNTRY[countryCode];
-    const match = whs.find(w => w.name === whName);
-    if (match) {
-      setTemp(match.temp.replace('°C', ''));
-      setHum(match.hum.replace('%', ''));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cInfo = COUNTRY_NAMES[countryCode];
-    const rand = Math.floor(100 + Math.random() * 900);
-    const id = `LOT-${countryCode.toUpperCase()}-2026-00${rand}`;
-
-    let idealTemp = '29°C ±3';
-    let idealHum = '55% ±2';
-    if (countryCode === 'ec') {
-      idealTemp = '31°C ±3';
-      idealHum = '60% ±3';
-    } else if (countryCode === 'co') {
-      idealTemp = '26°C ±3';
-      idealHum = '80% ±3';
-    }
-
-    const newLot: Lot = {
-      id,
-      countryCode,
-      country: t(cInfo.name),
-      flag: cInfo.flag,
-      warehouse,
-      storageDate: '19 juin 2026',
-      duration: '0 j',
-      durationDays: 0,
-      status: t('status_ok'),
-      statusVariant: 'ok',
-      durationVariant: '',
-      temp: `${temp}°C`,
-      hum: `${hum}%`,
-      idealTemp,
-      idealHum
-    };
-
-    onAdd(newLot);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 text-left">
-      <div>
-        <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-          {t('origin_country')}
-        </label>
-        <select
-          value={countryCode}
-          onChange={(e) => handleCountryChange(e.target.value as any)}
-          className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
-        >
-          <option value="br">🇧🇷 {t('br')}</option>
-          <option value="ec">🇪🇨 {t('ec')}</option>
-          <option value="co">🇨🇴 {t('co')}</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-          {t('storage_warehouse')}
-        </label>
-        <select
-          value={warehouse}
-          onChange={(e) => handleWarehouseChange(e.target.value)}
-          className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
-        >
-          {WAREHOUSES_BY_COUNTRY[countryCode].map((w) => (
-            <option key={w.name} value={w.name}>
-              {w.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-            {t('temperature')} (°C)
-          </label>
-          <input
-            type="number"
-            value={temp}
-            onChange={(e) => setTemp(e.target.value)}
-            required
-            className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
-          />
-        </div>
-        <div>
-          <label className="block text-[11px] font-semibold text-[#A08060] uppercase tracking-wider mb-1.5">
-            {t('humidity')} (%)
-          </label>
-          <input
-            type="number"
-            value={hum}
-            onChange={(e) => setHum(e.target.value)}
-            required
-            className="w-full border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors"
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-2 justify-end mt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="py-2 px-4 rounded-full text-xs font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0]"
-        >
-          {t('cancel')}
-        </button>
-        <button
-          type="submit"
-          className="py-2 px-5 rounded-full text-xs font-semibold bg-[#2C1A0A] text-[#FAF4EC] border-none cursor-pointer hover:bg-[#1E0F06]"
-        >
-          {t('add_lot_btn')}
-        </button>
-      </div>
-    </form>
   );
 }

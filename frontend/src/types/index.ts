@@ -22,13 +22,27 @@ export interface Warehouse {
   lots: number;
 }
 
+// One warehouse stay in a lot's history. `sortie` is null while the lot is
+// still in that warehouse. The read-only siège consults this history; the
+// entries themselves are recorded by the local country tier.
+export interface WarehouseStay {
+  warehouse: string;
+  entree: string;
+  sortie: string | null;
+}
+
 export interface Lot {
   id: string;
   countryCode: CountryCode;
   country: string;
   flag: string;
   warehouse: string;
+  exploitationId: string;
+  // Date the lot was constituted at the exploitation. Distinct from a warehouse
+  // entry date: duration is counted from here, not from the current storage.
+  constitutedAt: string;
   storageDate: string;
+  stays: WarehouseStay[];
   duration: string;
   durationDays: number;
   status: string;
@@ -69,6 +83,7 @@ export interface Country {
 }
 
 export interface Farm {
+  id: string;
   name: string;
   countryCode: CountryCode;
   country: string;
