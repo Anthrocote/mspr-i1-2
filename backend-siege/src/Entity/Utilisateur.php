@@ -45,7 +45,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private Role $role;
 
     #[ORM\ManyToOne(targetEntity: Entrepot::class)]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: true)]
     private ?Entrepot $entrepot = null;
 
     public function getUuid(): ?Uuid { return $this->uuid; }
