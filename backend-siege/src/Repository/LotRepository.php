@@ -14,14 +14,19 @@ class LotRepository extends ServiceEntityRepository
         parent::__construct($registry, Lot::class);
     }
 
-    /** @return array{items: list<Lot>, total: int} Lots ordered by arrival date (FIFO), with optional filters */
+    /**
+     * @return array{items: list<Lot>, total: int} Lots en FIFO : triés par date de
+     *   PREMIÈRE arrivée (le plus ancien historique de stockage), avec filtres optionnels
+     */
     public function findFiltered(?string $entrepotUuid, ?string $statut, ?int $paysId, int $limit, int $offset): array
     {
         $qb = $this->createQueryBuilder('l')
+            ->addSelect('MIN(hs.dateArrivee) AS HIDDEN firstArrival')
             ->join('l.produit', 'p')
             ->leftJoin('l.historiqueStockages', 'hs')
             ->leftJoin('hs.entrepot', 'e')
-            ->leftJoin('e.pays', 'pays');
+            ->leftJoin('e.pays', 'pays')
+            ->groupBy('l.uuid');
 
         if ($statut !== null) {
             $qb->andWhere('l.statut = :statut')->setParameter('statut', $statut);
@@ -33,7 +38,7 @@ class LotRepository extends ServiceEntityRepository
             $qb->andWhere('pays.id = :paysId')->setParameter('paysId', $paysId);
         }
 
-        $qb->orderBy('hs.dateArrivee', 'ASC');
+        $qb->orderBy('firstArrival', 'ASC');
 
         return QueryPaginator::paginate($qb, $limit, $offset, fetchJoinCollection: true);
     }
