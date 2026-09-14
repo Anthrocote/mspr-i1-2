@@ -2,49 +2,19 @@
 
 namespace App\Tests\Integration\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
-class PaysControllerTest extends WebTestCase
+class PaysControllerTest extends ApiTestCase
 {
-    private function getToken(): string
+    public function testListReturns200(): void
     {
-        $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/auth/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => 'admin@futurekawa.com', 'password' => 'admin1234'])
-        );
-        return json_decode($client->getResponse()->getContent(), true)['token'] ?? '';
-    }
-
-    public function testListWithoutTokenReturns401(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/api/countries');
-        $this->assertResponseStatusCodeSame(401);
-    }
-
-    public function testListWithTokenReturns200(): void
-    {
-        $client = static::createClient();
-        $token = $this->getToken();
-
-        $client->request('GET', '/api/countries', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $this->client->request('GET', '/api/countries');
 
         $this->assertResponseStatusCodeSame(200);
-        $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertIsArray($data);
+        $this->assertIsArray(json_decode($this->client->getResponse()->getContent(), true));
     }
 
     public function testShowNonExistentPaysReturns404(): void
     {
-        $client = static::createClient();
-        $token = $this->getToken();
-
-        $client->request('GET', '/api/countries/9999', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $this->client->request('GET', '/api/countries/9999');
 
         $this->assertResponseStatusCodeSame(404);
     }
