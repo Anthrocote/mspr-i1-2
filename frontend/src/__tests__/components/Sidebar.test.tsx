@@ -30,7 +30,7 @@ describe('Sidebar', () => {
     expect(screen.getByText('Suivi des entrepôts')).toBeInTheDocument();
     expect(screen.getByText('Alertes')).toBeInTheDocument();
     expect(screen.getByText('Exploitations')).toBeInTheDocument();
-    expect(screen.getByText('Analytique')).toBeInTheDocument();
+    expect(screen.queryByText('Analytique')).not.toBeInTheDocument();
   });
 
   it('renders Paramètres in the general section', () => {

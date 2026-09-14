@@ -22,9 +22,6 @@ const MENU_ITEMS = [
   { id: 'exploitations', label: 'Exploitations', href: '/exploitations', icon: (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
   )},
-  { id: 'analytique', label: 'Analytique', href: '/analytique', icon: (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-  )},
 ];
 
 const GENERAL_ITEMS = [
