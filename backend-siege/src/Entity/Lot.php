@@ -14,9 +14,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: LotRepository::class)]
 class Lot
 {
-    public const STATUT_CONFORME  = 'conforme';
-    public const STATUT_EN_ALERTE = 'en_alerte';
-    public const STATUT_PERIME    = 'perime';
+    public const STATUT_CONFORME  = 'compliant';
+    public const STATUT_EN_ALERTE = 'in_alert';
+    public const STATUT_PERIME    = 'expired';
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]

@@ -23,7 +23,7 @@ class EntrepotControllerTest extends WebTestCase
     public function testListWithoutTokenReturns401(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/entrepots');
+        $client->request('GET', '/api/warehouses');
         $this->assertResponseStatusCodeSame(401);
     }
 
@@ -32,7 +32,7 @@ class EntrepotControllerTest extends WebTestCase
         $client = static::createClient();
         $token = $this->getToken();
 
-        $client->request('GET', '/api/entrepots', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $client->request('GET', '/api/warehouses', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertIsArray(json_decode($client->getResponse()->getContent(), true));
@@ -43,7 +43,7 @@ class EntrepotControllerTest extends WebTestCase
         $client = static::createClient();
         $token = $this->getToken();
 
-        $client->request('GET', '/api/entrepots?pays_id=1', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
+        $client->request('GET', '/api/warehouses?country_id=1', [], [], ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
 
         $this->assertResponseStatusCodeSame(200);
     }
@@ -55,7 +55,7 @@ class EntrepotControllerTest extends WebTestCase
 
         $client->request(
             'GET',
-            '/api/entrepots/00000000-0000-0000-0000-000000000000',
+            '/api/warehouses/00000000-0000-0000-0000-000000000000',
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]

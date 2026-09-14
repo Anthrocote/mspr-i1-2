@@ -85,7 +85,7 @@ class SyncService
         try {
             $this->httpClient->request('POST', $baseUrl . '/sync/ack', [
                 'headers' => $headers,
-                'json'    => ['lots' => $lots, 'mesures' => $mesures, 'alertes' => $alertes],
+                'json'    => ['lots' => $lots, 'measurements' => $mesures, 'alerts' => $alertes],
             ]);
         } catch (\Throwable $e) {
             $this->logger->warning('Ack sync échoué vers {url} : {msg}', [
@@ -109,13 +109,13 @@ class SyncService
                 $this->em->persist($lot);
             }
 
-            $produit = $this->upsertProduit($item['produit']);
-            $entrepot = $this->resolveEntrepot($pays, $item['entrepot_uuid'] ?? null);
+            $produit = $this->upsertProduit($item['product']);
+            $entrepot = $this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null);
 
-            $lot->setLibelle($item['libelle'] ?? null)
-                ->setQuantite((float) $item['quantite'])
+            $lot->setLibelle($item['label'] ?? null)
+                ->setQuantite((float) $item['quantity'])
                 ->setProduit($produit)
-                ->setStatut($item['statut'] ?? Lot::STATUT_CONFORME)
+                ->setStatut($item['status'] ?? Lot::STATUT_CONFORME)
                 ->setSyncedAt(new \DateTimeImmutable());
 
             if ($entrepot !== null) {
@@ -131,7 +131,7 @@ class SyncService
     /** @return list<string> uuid des mesures durablement persistées, à confirmer au local */
     private function syncMesures(Pays $pays, string $baseUrl, array $headers): array
     {
-        $response = $this->httpClient->request('GET', $baseUrl . '/sync/mesures', ['headers' => $headers]);
+        $response = $this->httpClient->request('GET', $baseUrl . '/sync/measurements', ['headers' => $headers]);
         $data = $response->toArray();
 
         $synced = [];
@@ -141,7 +141,7 @@ class SyncService
                 continue;
             }
 
-            $entrepot = $this->resolveEntrepot($pays, $item['entrepot_uuid'] ?? null);
+            $entrepot = $this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null);
             if ($entrepot === null) {
                 continue;
             }
@@ -149,8 +149,8 @@ class SyncService
             $mesure = (new Mesure())
                 ->setEntrepot($entrepot)
                 ->setTemperature((float) $item['temperature'])
-                ->setHumidite((float) $item['humidite'])
-                ->setMesureLe(new \DateTimeImmutable($item['mesure_le']));
+                ->setHumidite((float) $item['humidity'])
+                ->setMesureLe(new \DateTimeImmutable($item['measured_at']));
 
             $this->em->persist($mesure);
             $synced[] = $item['uuid'];
@@ -162,7 +162,7 @@ class SyncService
     /** @return list<string> uuid des alertes durablement persistées, à confirmer au local */
     private function syncAlertes(Pays $pays, string $baseUrl, array $headers): array
     {
-        $response = $this->httpClient->request('GET', $baseUrl . '/sync/alertes', ['headers' => $headers]);
+        $response = $this->httpClient->request('GET', $baseUrl . '/sync/alerts', ['headers' => $headers]);
         $data = $response->toArray();
 
         $synced = [];
@@ -173,20 +173,20 @@ class SyncService
                 continue;
             }
 
-            $entrepot = $this->resolveEntrepot($pays, $item['entrepot_uuid'] ?? null);
+            $entrepot = $this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null);
 
             $alerte = (new Alerte())
                 ->setType($item['type'])
                 ->setEntrepot($entrepot)
-                ->setDeclencheeLe(new \DateTimeImmutable($item['declenchee_le']));
+                ->setDeclencheeLe(new \DateTimeImmutable($item['triggered_at']));
 
             if (!empty($item['lot_uuid'])) {
                 $lot = $this->lotRepository->find($item['lot_uuid']);
                 $alerte->setLot($lot);
             }
 
-            if (!empty($item['resolue_le'])) {
-                $alerte->setResolueLe(new \DateTimeImmutable($item['resolue_le']));
+            if (!empty($item['resolved_at'])) {
+                $alerte->setResolueLe(new \DateTimeImmutable($item['resolved_at']));
             }
 
             $this->em->persist($alerte);
@@ -203,9 +203,9 @@ class SyncService
             $this->em->persist($produit);
         }
 
-        $produit->setNom($data['nom'])
+        $produit->setNom($data['name'])
             ->setDescription($data['description'] ?? '')
-            ->setVariete($data['variete'] ?? null);
+            ->setVariete($data['variety'] ?? null);
 
         return $produit;
     }
@@ -242,10 +242,10 @@ class SyncService
         $hs = (new HistoriqueStockage())
             ->setLot($lot)
             ->setEntrepot($entrepot)
-            ->setDateArrivee(new \DateTimeImmutable($item['date_arrivee'] ?? 'now'));
+            ->setDateArrivee(new \DateTimeImmutable($item['arrived_at'] ?? 'now'));
 
-        if (!empty($item['date_depart'])) {
-            $hs->setDateDepart(new \DateTimeImmutable($item['date_depart']));
+        if (!empty($item['departed_at'])) {
+            $hs->setDateDepart(new \DateTimeImmutable($item['departed_at']));
         }
 
         $this->em->persist($hs);

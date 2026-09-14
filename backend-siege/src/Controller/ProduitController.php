@@ -8,8 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/produits', name: 'api_produits_')]
-#[OA\Tag(name: 'Produits')]
+#[Route('/api/products', name: 'api_produits_')]
+#[OA\Tag(name: 'Products')]
 class ProduitController extends AbstractController
 {
     public function __construct(private readonly ProduitRepository $produitRepository)
@@ -17,8 +17,8 @@ class ProduitController extends AbstractController
     }
 
     #[Route('', name: 'list', methods: ['GET'])]
-    #[OA\Get(path: '/api/produits', summary: 'Liste tous les produits')]
-    #[OA\Response(response: 200, description: 'Liste des produits')]
+    #[OA\Get(path: '/api/products', summary: 'List all products')]
+    #[OA\Response(response: 200, description: 'List of products')]
     public function list(): JsonResponse
     {
         $produits = $this->produitRepository->findAll();
@@ -27,14 +27,14 @@ class ProduitController extends AbstractController
     }
 
     #[Route('/{uuid}', name: 'show', methods: ['GET'])]
-    #[OA\Get(path: '/api/produits/{uuid}', summary: 'Détail d\'un produit')]
-    #[OA\Response(response: 200, description: 'Produit trouvé')]
-    #[OA\Response(response: 404, description: 'Produit non trouvé')]
+    #[OA\Get(path: '/api/products/{uuid}', summary: 'Product detail')]
+    #[OA\Response(response: 200, description: 'Product found')]
+    #[OA\Response(response: 404, description: 'Product not found')]
     public function show(string $uuid): JsonResponse
     {
         $produit = $this->produitRepository->find($uuid);
         if ($produit === null) {
-            return $this->json(['error' => 'Produit non trouvé'], 404);
+            return $this->json(['error' => 'Product not found'], 404);
         }
 
         return $this->json($this->serialize($produit));
@@ -44,13 +44,13 @@ class ProduitController extends AbstractController
     {
         return [
             'uuid'        => (string) $p->getUuid(),
-            'nom'         => $p->getNom(),
+            'name'        => $p->getNom(),
             'description' => $p->getDescription(),
-            'variete'     => $p->getVariete(),
-            'intensite'   => $p->getIntensite(),
-            'amertume'    => $p->getAmertume(),
-            'acidite'     => $p->getAcidite(),
-            'corps'       => $p->getCorps(),
+            'variety'     => $p->getVariete(),
+            'intensity'   => $p->getIntensite(),
+            'bitterness'  => $p->getAmertume(),
+            'acidity'     => $p->getAcidite(),
+            'body'        => $p->getCorps(),
         ];
     }
 }

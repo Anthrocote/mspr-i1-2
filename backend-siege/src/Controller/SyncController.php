@@ -20,36 +20,36 @@ class SyncController extends AbstractController
     ) {
     }
 
-    #[Route('/pays/{id}', name: 'pays', methods: ['POST'])]
-    #[OA\Post(path: '/api/sync/pays/{id}', summary: 'Déclenche manuellement la sync d\'un pays (ROLE_ADMIN)')]
-    #[OA\Response(response: 202, description: 'Sync déclenchée')]
-    #[OA\Response(response: 404, description: 'Pays non trouvé')]
+    #[Route('/countries/{id}', name: 'pays', methods: ['POST'])]
+    #[OA\Post(path: '/api/sync/countries/{id}', summary: 'Manually trigger the sync of a country (ROLE_ADMIN)')]
+    #[OA\Response(response: 202, description: 'Sync triggered')]
+    #[OA\Response(response: 404, description: 'Country not found')]
     public function syncPays(int $id): JsonResponse
     {
         $pays = $this->paysRepository->find($id);
         if ($pays === null) {
-            return $this->json(['error' => 'Pays non trouvé'], 404);
+            return $this->json(['error' => 'Country not found'], 404);
         }
         if ($pays->getApiUrl() === null) {
-            return $this->json(['error' => 'Ce pays n\'a pas d\'URL de synchronisation configurée'], 422);
+            return $this->json(['error' => 'This country has no configured sync URL'], 422);
         }
 
         $this->bus->dispatch(new SyncPaysMessage($id));
 
-        return $this->json(['message' => 'Synchronisation déclenchée pour ' . $pays->getNom()], 202);
+        return $this->json(['message' => 'Sync triggered for ' . $pays->getNom()], 202);
     }
 
     #[Route('/status', name: 'status', methods: ['GET'])]
-    #[OA\Get(path: '/api/sync/status', summary: 'Statut de synchronisation de tous les pays')]
-    #[OA\Response(response: 200, description: 'Statut par pays')]
+    #[OA\Get(path: '/api/sync/status', summary: 'Sync status of all countries')]
+    #[OA\Response(response: 200, description: 'Status by country')]
     public function status(): JsonResponse
     {
         $paysList = $this->paysRepository->findAll();
 
         $data = array_map(fn ($p) => [
             'id'           => $p->getId(),
-            'nom'          => $p->getNom(),
-            'codeIso'      => $p->getCodeIso(),
+            'name'         => $p->getNom(),
+            'isoCode'      => $p->getCodeIso(),
             'configured'   => $p->getApiUrl() !== null,
             'lastSyncedAt' => $p->getLastSyncedAt()?->format(\DateTimeInterface::ATOM),
         ], $paysList);

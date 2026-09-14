@@ -103,15 +103,15 @@ class SyncServiceTest extends TestCase
 
         $alertesResponse = $this->createMock(ResponseInterface::class);
         $alertesResponse->method('toArray')->willReturn([[
-            'uuid'          => 'a1b2c3d4-0000-0000-0000-000000000000',
-            'type'          => Alerte::TYPE_CONDITION_HORS_PLAGE,
-            'entrepot_uuid' => null,
-            'declenchee_le' => '2026-06-10T02:15:00+00:00',
+            'uuid'           => 'a1b2c3d4-0000-0000-0000-000000000000',
+            'type'           => Alerte::TYPE_CONDITION_HORS_PLAGE,
+            'warehouse_uuid' => null,
+            'triggered_at'   => '2026-06-10T02:15:00+00:00',
         ]]);
 
         $this->httpClient->method('request')
             ->willReturnCallback(function (string $method, string $url) use ($emptyResponse, $alertesResponse) {
-                return str_ends_with($url, '/sync/alertes') ? $alertesResponse : $emptyResponse;
+                return str_ends_with($url, '/sync/alerts') ? $alertesResponse : $emptyResponse;
             });
 
         $this->alerteRepository->method('find')->willReturn(null);
@@ -145,11 +145,11 @@ class SyncServiceTest extends TestCase
 
         $mesuresResponse = $this->createMock(ResponseInterface::class);
         $mesuresResponse->method('toArray')->willReturn([[
-            'uuid'          => 'm1000000-0000-0000-0000-000000000000',
-            'entrepot_uuid' => 'e1000000-0000-0000-0000-000000000000',
-            'temperature'   => 28.4,
-            'humidite'      => 57.0,
-            'mesure_le'     => '2026-09-09T02:15:00+00:00',
+            'uuid'           => 'm1000000-0000-0000-0000-000000000000',
+            'warehouse_uuid' => 'e1000000-0000-0000-0000-000000000000',
+            'temperature'    => 28.4,
+            'humidity'       => 57.0,
+            'measured_at'    => '2026-09-09T02:15:00+00:00',
         ]]);
 
         $calls = [];
@@ -157,7 +157,7 @@ class SyncServiceTest extends TestCase
             ->willReturnCallback(function (string $method, string $url, array $options = []) use (&$calls, $emptyResponse, $mesuresResponse) {
                 $calls[] = ['method' => $method, 'url' => $url, 'options' => $options];
 
-                return str_ends_with($url, '/sync/mesures') ? $mesuresResponse : $emptyResponse;
+                return str_ends_with($url, '/sync/measurements') ? $mesuresResponse : $emptyResponse;
             });
 
         $this->mesureRepository->method('find')->willReturn(null);
@@ -170,7 +170,7 @@ class SyncServiceTest extends TestCase
         $this->assertSame('POST', $ackCalls[0]['method']);
         $this->assertContains(
             'm1000000-0000-0000-0000-000000000000',
-            $ackCalls[0]['options']['json']['mesures'] ?? [],
+            $ackCalls[0]['options']['json']['measurements'] ?? [],
         );
     }
 

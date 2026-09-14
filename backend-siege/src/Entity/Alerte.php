@@ -12,8 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AlerteRepository::class)]
 class Alerte
 {
-    public const TYPE_CONDITION_HORS_PLAGE = 'condition_hors_plage';
-    public const TYPE_LOT_PERIME           = 'lot_perime';
+    public const TYPE_CONDITION_HORS_PLAGE = 'out_of_range';
+    public const TYPE_LOT_PERIME           = 'expired_lot';
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
