@@ -59,9 +59,12 @@ describe('AlertesPage', () => {
     expect(alerteBadges.length).toBe(5);
   });
 
-  it('shows Traiter action on each alert', () => {
+  it('exposes no write action (read-only siège view)', () => {
     render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    const traiterLinks = screen.getAllByText('Traiter →');
-    expect(traiterLinks.length).toBe(7);
+    expect(screen.queryByText('Traiter →')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Résoudre/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Reporter/)).not.toBeInTheDocument();
+    // Only the three filter chips remain interactive; no per-alert button.
+    expect(screen.getAllByRole('button').length).toBe(3);
   });
 });
