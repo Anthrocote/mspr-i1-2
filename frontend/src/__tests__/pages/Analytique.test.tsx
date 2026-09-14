@@ -25,7 +25,7 @@ describe('AnalytiquePage', () => {
     expect(screen.getByText('↑ +4 pts vs mois dernier')).toBeInTheDocument();
     expect(screen.getByText('cible de rotation < 180 j')).toBeInTheDocument();
     expect(screen.getByText('2 dégradés')).toBeInTheDocument();
-    expect(screen.getByText('grâce aux alertes IoT')).toBeInTheDocument();
+    expect(screen.getByText('grâce aux alertes')).toBeInTheDocument();
   });
 
   it('animated numbers reach target values after animation', () => {

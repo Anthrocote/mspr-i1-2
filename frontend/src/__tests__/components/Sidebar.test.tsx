@@ -18,16 +18,16 @@ describe('Sidebar', () => {
     expect(screen.getByText('FutureKawa')).toBeInTheDocument();
   });
 
-  it('renders Stock & IoT subtitle', () => {
+  it('renders the jargon-free subtitle', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
-    expect(screen.getByText('Stock & IoT')).toBeInTheDocument();
+    expect(screen.getByText('Suivi des stocks')).toBeInTheDocument();
   });
 
   it('renders all menu navigation items', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Gestion des Lots')).toBeInTheDocument();
-    expect(screen.getByText('Surveillance IoT')).toBeInTheDocument();
+    expect(screen.getByText('Suivi des entrepôts')).toBeInTheDocument();
     expect(screen.getByText('Alertes')).toBeInTheDocument();
     expect(screen.getByText('Exploitations')).toBeInTheDocument();
     expect(screen.getByText('Analytique')).toBeInTheDocument();

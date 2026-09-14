@@ -107,5 +107,5 @@ export const PAGE_META: Record<PageId, PageMeta> = {
   alertes:       { title: 'Alertes',            subtitle: '7 alertes actives nécessitant une action' },
   exploitations: { title: 'Exploitations',      subtitle: 'Brésil · Équateur · Colombie' },
   analytique:    { title: 'Analytique',         subtitle: 'Tendances & indicateurs de performance' },
-  parametres:    { title: 'Paramètres',          subtitle: 'Seuils IoT, notifications & compte' },
+  parametres:    { title: 'Paramètres',          subtitle: 'Seuils, notifications & compte' },
 };

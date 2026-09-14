@@ -19,8 +19,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'FutureKawa — Stock & IoT',
-  description: 'Suivi des stocks et surveillance IoT des conditions de stockage du café vert',
+  title: 'FutureKawa — Suivi des stocks',
+  description: 'Suivi des stocks et surveillance des conditions de conservation du café vert',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

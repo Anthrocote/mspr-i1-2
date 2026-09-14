@@ -5,7 +5,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 describe('ParametresPage', () => {
   it('renders IoT thresholds section', () => {
     render(<LanguageProvider><ParametresPage /></LanguageProvider>);
-    expect(screen.getByText('Seuils IoT par pays')).toBeInTheDocument();
+    expect(screen.getByText('Seuils par pays')).toBeInTheDocument();
   });
 
   it('shows thresholds for all 3 countries', () => {
@@ -38,14 +38,14 @@ describe('ParametresPage', () => {
     render(<LanguageProvider><ParametresPage /></LanguageProvider>);
     expect(screen.getByText('Alertes email')).toBeInTheDocument();
     expect(screen.getByText('Rotation stricte du stock')).toBeInTheDocument();
-    expect(screen.getByText('Surveillance IoT temps réel')).toBeInTheDocument();
+    expect(screen.getByText('Suivi temps réel')).toBeInTheDocument();
   });
 
   it('shows toggle descriptions', () => {
     render(<LanguageProvider><ParametresPage /></LanguageProvider>);
     expect(screen.getByText(/Envoyer un email au responsable/)).toBeInTheDocument();
     expect(screen.getByText(/Bloquer toute sortie/)).toBeInTheDocument();
-    expect(screen.getByText(/Rafraîchir les capteurs MQTT/)).toBeInTheDocument();
+    expect(screen.getByText(/Rafraîchir les mesures/)).toBeInTheDocument();
   });
 
   it('renders account section', () => {

@@ -94,7 +94,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           {!collapsed && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
               <div className="font-display text-[21px] font-semibold text-parchment-100 tracking-[.02em] leading-none">FutureKawa</div>
-              <div className="text-[10px] text-espresso-400 tracking-[.14em] uppercase mt-[3px]">Stock & IoT</div>
+              <div className="text-[10px] text-espresso-400 tracking-[.14em] uppercase mt-[3px]">Suivi des stocks</div>
             </motion.div>
           )}
         </div>

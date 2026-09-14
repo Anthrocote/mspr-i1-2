@@ -46,7 +46,7 @@ describe('LotsPage', () => {
     render(<LanguageProvider><SearchProvider><LotsPage /></SearchProvider></LanguageProvider>);
     const lotRow = screen.getByText('LOT-BR-2023-00018').closest('[class*="cursor-pointer"]');
     if (lotRow) fireEvent.click(lotRow);
-    expect(screen.getByText('Conditions actuelles (IoT)')).toBeInTheDocument();
+    expect(screen.getByText('Conditions actuelles')).toBeInTheDocument();
     expect(screen.getByText('Température')).toBeInTheDocument();
     expect(screen.getByText('Humidité')).toBeInTheDocument();
   });
