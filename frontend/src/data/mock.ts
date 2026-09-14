@@ -1,4 +1,13 @@
-import type { Warehouse, Lot, Alert, Country, Farm, DashboardAlert } from '@/types';
+import type { Warehouse, Lot, Alert, Country, Farm, DashboardAlert, ConsolidatedSummary } from '@/types';
+
+// Consolidated at the siège from every country backend. The dashboard reads
+// these authoritative counts instead of scattering the same numbers across
+// hardcoded KPI tiles and a donut.
+export const CONSOLIDATED: ConsolidatedSummary = {
+  totalLots: 248,
+  enTransit: 14,
+  distribution: { conforme: 174, alerte: 72, perime: 2 },
+};
 
 export const WAREHOUSES: Warehouse[] = [
   { id: 'wh-sp-a',  name: 'São Paulo A',  country: 'Brésil',   countryCode: 'br', flag: '🇧🇷', temp: '29°C', hum: '55%', tempNum: 29, humNum: 55, tempRange: [26, 32], humRange: [53, 57], idealTemp: '29°C ±3', idealHum: '55% ±2', status: 'Conforme',  statusVariant: 'ok',   lots: 48 },

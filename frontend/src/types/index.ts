@@ -86,6 +86,21 @@ export interface DashboardAlert {
   borderColor: string;
 }
 
+export interface StatusDistribution {
+  conforme: number;
+  alerte: number;
+  perime: number;
+}
+
+// Aggregates the siège holds after querying each country backend. The siège
+// frontend is read-only, so it consumes these counts rather than recomputing
+// them from individual lots (which live in the local country tier).
+export interface ConsolidatedSummary {
+  totalLots: number;
+  enTransit: number;
+  distribution: StatusDistribution;
+}
+
 export type PageId =
   | 'dashboard'
   | 'lots'

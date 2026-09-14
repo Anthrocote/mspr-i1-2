@@ -2,68 +2,48 @@ import { render, screen } from '@testing-library/react';
 import DashboardPage from '@/app/page';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
+function renderDashboard() {
+  return render(<LanguageProvider><DashboardPage /></LanguageProvider>);
+}
+
 describe('DashboardPage', () => {
-  it('renders Total Lots metric with value 248', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
+  it('renders the Total Lots KPI with the consolidated value', () => {
+    renderDashboard();
     expect(screen.getByText('Total Lots')).toBeInTheDocument();
     expect(screen.getByText('248')).toBeInTheDocument();
   });
 
-  it('renders En Alerte metric label', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
-    const enAlerteElements = screen.getAllByText('En Alerte');
-    expect(enAlerteElements.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('renders Lots Périmés metric label', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
-    expect(screen.getByText('Lots Périmés')).toBeInTheDocument();
-  });
-
-  it('renders En Transit metric with value 14', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
-    const transitLabels = screen.getAllByText('En Transit');
-    expect(transitLabels.length).toBeGreaterThanOrEqual(1);
+  it('renders the En Transit KPI with its value', () => {
+    renderDashboard();
+    expect(screen.getByText('En Transit')).toBeInTheDocument();
     expect(screen.getByText('14')).toBeInTheDocument();
   });
 
-  it('renders all 4 metric labels', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
-    expect(screen.getByText('Total Lots')).toBeInTheDocument();
-    expect(screen.getAllByText('En Alerte').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Lots Périmés')).toBeInTheDocument();
-    const transitLabels = screen.getAllByText('En Transit');
-    expect(transitLabels.length).toBeGreaterThanOrEqual(1);
+  it('states conformity once via the conformity bar (rate + distribution)', () => {
+    renderDashboard();
+    expect(screen.getByText('Statut des Lots')).toBeInTheDocument();
+    expect(screen.getByText('70%')).toBeInTheDocument();
+    expect(screen.getByText('174')).toBeInTheDocument();
   });
 
-  it('renders Entrepôts surveillés section', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
-    expect(screen.getByText('Entrepôts surveillés')).toBeInTheDocument();
-  });
-
-  it('renders warehouse names', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
-    expect(screen.getByText('São Paulo A')).toBeInTheDocument();
-    expect(screen.getByText('Rio C')).toBeInTheDocument();
+  it('renders the watchlist with warehouses over their threshold', () => {
+    renderDashboard();
+    expect(screen.getByText('À surveiller')).toBeInTheDocument();
+    // Quito B (temp at tolerance edge) and Guayaquil A (humidity over range)
+    // are derived exceptions, so they must surface here.
     expect(screen.getByText('Quito B')).toBeInTheDocument();
     expect(screen.getByText('Guayaquil A')).toBeInTheDocument();
   });
 
-  it('renders Alertes récentes section', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
+  it('renders recent alerts, most severe first', () => {
+    renderDashboard();
     expect(screen.getByText('Alertes récentes')).toBeInTheDocument();
-  });
-
-  it('renders dashboard alert titles', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
     expect(screen.getByText('Lot périmé — LOT-CO-2023-00018')).toBeInTheDocument();
-    expect(screen.getByText('Température hors plage — Quito B')).toBeInTheDocument();
-    expect(screen.getByText('Humidité élevée — Bogotá C')).toBeInTheDocument();
   });
 
-  it('renders Voir tout links', () => {
-    render(<LanguageProvider><DashboardPage /></LanguageProvider>);
-    expect(screen.getByText('Voir tout →')).toBeInTheDocument();
-    expect(screen.getByText('Tout voir →')).toBeInTheDocument();
+  it('signals the alerts beyond the preview with a +N link', () => {
+    renderDashboard();
+    // 7 alerts, 4 previewed -> "+3 autres alertes"
+    expect(screen.getByText(/\+3 autres alertes/)).toBeInTheDocument();
   });
 });
