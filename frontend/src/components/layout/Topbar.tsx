@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import type { Language } from '@/translations';
 import { useSearch } from '@/contexts/SearchContext';
 
 interface TopbarProps {
@@ -10,8 +11,14 @@ interface TopbarProps {
   onMenuClick: () => void;
 }
 
+const LANGUAGES: { code: Language; label: string }[] = [
+  { code: 'fr', label: 'FR' },
+  { code: 'en', label: 'EN' },
+  { code: 'es', label: 'ES' },
+];
+
 export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { searchQuery, setSearchQuery } = useSearch();
   return (
     <motion.header
@@ -53,6 +60,18 @@ export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
             className="border-none bg-transparent outline-none font-[inherit] text-[13px] text-espresso-900 w-full placeholder:text-parchment-700"
           />
         </label>
+
+        {/* Language switcher */}
+        <select
+          aria-label={t('language')}
+          value={language}
+          onChange={(e) => setLanguage(e.target.value as Language)}
+          className="bg-parchment-100 border-[1.5px] border-parchment-400 rounded-full py-[7px] sm:py-[9px] px-3 text-[13px] font-semibold text-espresso-900 outline-none focus:border-[#A0714F] cursor-pointer"
+        >
+          {LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code}>{l.label}</option>
+          ))}
+        </select>
       </div>
     </motion.header>
   );

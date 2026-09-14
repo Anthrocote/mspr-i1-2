@@ -24,12 +24,6 @@ const MENU_ITEMS = [
   )},
 ];
 
-const GENERAL_ITEMS = [
-  { id: 'parametres', label: 'Paramètres', href: '/parametres', icon: (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2m0 18v-2m10-8h-2M4 12H2m15.07 7.07l-1.41-1.41M6.34 17.66l-1.41 1.41"/></svg>
-  )},
-];
-
 function isActive(href: string, pathname: string): boolean {
   if (href === '/') return pathname === '/';
   return pathname.startsWith(href);
@@ -133,44 +127,6 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       {item.badge}
                     </span>
                   )}
-                </Link>
-              </motion.div>
-            );
-          })}
-        </nav>
-
-        {/* Général */}
-        <div className={`text-[11px] font-semibold text-espresso-400 uppercase tracking-[.13em] mb-2 ${
-          collapsed ? 'text-center text-[9px] opacity-60 ml-0' : 'ml-3'
-        }`}>
-          {collapsed ? '•' : t('general')}
-        </div>
-        <nav className="flex flex-col gap-[3px] mb-4">
-          {GENERAL_ITEMS.map((item) => {
-            const active = isActive(item.href, pathname);
-            return (
-              <motion.div key={item.id} whileHover={{ scale: 1.01 }} transition={{ duration: 0.12 }}>
-                <Link
-                  href={item.href}
-                  onClick={handleLinkClick}
-                  title={collapsed ? t(item.id) : undefined}
-                  className={`relative flex items-center rounded-xl text-sm font-medium transition-all duration-150 ${
-                    collapsed ? 'justify-center py-[10px] px-0' : 'py-[10px] px-[13px] gap-3'
-                  } ${
-                    active
-                      ? 'bg-white/10 text-parchment-100 border border-white/[.08]'
-                      : 'text-espresso-300 border border-transparent hover:bg-white/[.07] hover:text-parchment-100'
-                  }`}
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="sidebar-indicator"
-                      className="absolute -left-[18px] top-[9px] bottom-[9px] w-[3px] bg-parchment-400 rounded-r-[3px]"
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                  {item.icon}
-                  {!collapsed && t(item.id)}
                 </Link>
               </motion.div>
             );

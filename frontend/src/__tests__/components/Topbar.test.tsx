@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Topbar from '@/components/layout/Topbar';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
@@ -38,5 +38,13 @@ describe('Topbar', () => {
     renderTopbar('Test', 'Sub');
     expect(screen.queryByText('Marina Joaquim')).not.toBeInTheDocument();
     expect(screen.queryByText('MJ')).not.toBeInTheDocument();
+  });
+
+  it('hosts the language switcher moved out of the deleted settings page', () => {
+    renderTopbar('Test', 'Sub');
+    const select = screen.getByLabelText('Langue');
+    expect(select).toBeInTheDocument();
+    fireEvent.change(select, { target: { value: 'en' } });
+    expect((select as HTMLSelectElement).value).toBe('en');
   });
 });

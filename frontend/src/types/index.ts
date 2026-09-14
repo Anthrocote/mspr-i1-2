@@ -121,8 +121,7 @@ export type PageId =
   | 'lots'
   | 'iot'
   | 'alertes'
-  | 'exploitations'
-  | 'parametres';
+  | 'exploitations';
 
 export interface PageMeta {
   title: string;
@@ -135,5 +134,4 @@ export const PAGE_META: Record<PageId, PageMeta> = {
   iot:           { title: 'Surveillance IoT',   subtitle: 'Capteurs température & humidité en temps réel' },
   alertes:       { title: 'Alertes',            subtitle: '7 alertes actives nécessitant une action' },
   exploitations: { title: 'Exploitations',      subtitle: 'Brésil · Équateur · Colombie' },
-  parametres:    { title: 'Paramètres',          subtitle: 'Seuils, notifications & compte' },
 };

@@ -33,9 +33,9 @@ describe('Sidebar', () => {
     expect(screen.queryByText('Analytique')).not.toBeInTheDocument();
   });
 
-  it('renders Paramètres in the general section', () => {
+  it('no longer links to the removed Paramètres page', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
-    expect(screen.getByText('Paramètres')).toBeInTheDocument();
+    expect(screen.queryByText('Paramètres')).not.toBeInTheDocument();
   });
 
   it('shows 248 badge on Gestion des Lots', () => {
@@ -54,10 +54,10 @@ describe('Sidebar', () => {
     expect(screen.queryByText('70%')).not.toBeInTheDocument();
   });
 
-  it('renders Menu and Général section headers', () => {
+  it('renders the Menu section header and drops the now-empty Général section', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Menu')).toBeInTheDocument();
-    expect(screen.getByText('Général')).toBeInTheDocument();
+    expect(screen.queryByText('Général')).not.toBeInTheDocument();
   });
 
   it('renders navigation links with correct href', () => {
