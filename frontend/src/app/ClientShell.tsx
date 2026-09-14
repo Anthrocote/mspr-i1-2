@@ -6,7 +6,6 @@ import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
 import CoffeeBeanTrigger from '@/components/game/CoffeeBeanTrigger';
 import { PAGE_META } from '@/types';
-import type { PageId } from '@/types';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
 

@@ -14,9 +14,13 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('fr');
 
+  // Read the persisted preference after mount, not via a lazy initializer:
+  // localStorage is unavailable during SSR, and applying it at init would
+  // desync the server HTML (always 'fr') from the client and warn on hydration.
   useEffect(() => {
     const saved = localStorage.getItem('app-language') as Language;
     if (saved && (saved === 'fr' || saved === 'en' || saved === 'es')) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- deferred one-time sync from persisted storage
       setLanguageState(saved);
     }
   }, []);

@@ -63,7 +63,9 @@ export default function DinoRunner() {
   const rafId = useRef<number | null>(null);
   const lastTime = useRef<number | null>(null);
 
+  // Best score lives in localStorage (client-only), so read it after mount.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deferred one-time sync from persisted storage
     setBestScore(readBestScore());
   }, []);
 
@@ -197,8 +199,11 @@ export default function DinoRunner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  // Persist the best score when a run ends. The functional update reads the
+  // previous best, so no extra render is chained beyond the score comparison.
   useEffect(() => {
     if (phase !== 'gameover') return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- persists best score on game-over transition
     setBestScore((prev) => {
       if (score > prev) {
         localStorage.setItem(BEST_SCORE_KEY, String(score));

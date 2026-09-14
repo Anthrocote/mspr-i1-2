@@ -41,7 +41,10 @@ export default function CoffeeBeanTrigger() {
   const [target, setTarget] = useState<BeanTarget | null>(null);
   const clickTimestamps = useRef<number[]>([]);
 
+  // Resolved from sessionStorage, which is client-only, so it must run after
+  // mount rather than during render/init.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deferred one-time sync from persisted storage
     setTarget(getOrCreateTarget());
   }, []);
 
