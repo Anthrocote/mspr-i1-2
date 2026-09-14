@@ -21,7 +21,7 @@ class SyncController extends AbstractController
     }
 
     #[Route('/countries/{id}', name: 'pays', methods: ['POST'])]
-    #[OA\Post(path: '/api/sync/countries/{id}', summary: 'Manually trigger the sync of a country (ROLE_ADMIN)')]
+    #[OA\Post(path: '/api/sync/countries/{id}', summary: 'Manually trigger the sync of a country')]
     #[OA\Response(response: 202, description: 'Sync triggered')]
     #[OA\Response(response: 404, description: 'Country not found')]
     public function syncPays(int $id): JsonResponse

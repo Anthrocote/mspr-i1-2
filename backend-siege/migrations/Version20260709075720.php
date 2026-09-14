@@ -11,7 +11,7 @@ final class Version20260709075720 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Schéma initial : pays, role, produit, entrepot, utilisateur, lot, historique_stockage, mesure, alerte';
+        return 'Schéma initial : pays, produit, entrepot, lot, historique_stockage, mesure, alerte';
     }
 
     public function up(Schema $schema): void
@@ -29,15 +29,6 @@ final class Version20260709075720 extends AbstractMigration
                 PRIMARY KEY(id)
             )
         SQL);
-
-        $this->addSql(<<<'SQL'
-            CREATE TABLE role (
-                id SERIAL NOT NULL,
-                libelle VARCHAR(100) NOT NULL,
-                PRIMARY KEY(id)
-            )
-        SQL);
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_ROLE_LIBELLE ON role (libelle)');
 
         $this->addSql(<<<'SQL'
             CREATE TABLE produit (
@@ -68,24 +59,6 @@ final class Version20260709075720 extends AbstractMigration
         SQL);
         $this->addSql('CREATE INDEX IDX_ENTREPOT_PAYS ON entrepot (pays_id)');
         $this->addSql('ALTER TABLE entrepot ADD CONSTRAINT FK_entrepot_pays FOREIGN KEY (pays_id) REFERENCES pays (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-
-        $this->addSql(<<<'SQL'
-            CREATE TABLE utilisateur (
-                uuid UUID NOT NULL,
-                role_id INT NOT NULL,
-                entrepot_id UUID DEFAULT NULL,
-                nom VARCHAR(100) NOT NULL,
-                prenom VARCHAR(100) NOT NULL,
-                email VARCHAR(100) NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                PRIMARY KEY(uuid)
-            )
-        SQL);
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_USER_EMAIL ON utilisateur (email)');
-        $this->addSql('CREATE INDEX IDX_USER_ROLE ON utilisateur (role_id)');
-        $this->addSql('CREATE INDEX IDX_USER_ENTREPOT ON utilisateur (entrepot_id)');
-        $this->addSql('ALTER TABLE utilisateur ADD CONSTRAINT FK_utilisateur_role FOREIGN KEY (role_id) REFERENCES role (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE utilisateur ADD CONSTRAINT FK_utilisateur_entrepot FOREIGN KEY (entrepot_id) REFERENCES entrepot (uuid) NOT DEFERRABLE INITIALLY IMMEDIATE');
 
         $this->addSql(<<<'SQL'
             CREATE TABLE lot (
@@ -154,17 +127,13 @@ final class Version20260709075720 extends AbstractMigration
         $this->addSql('ALTER TABLE historique_stockage DROP CONSTRAINT FK_hs_entrepot');
         $this->addSql('ALTER TABLE mesure DROP CONSTRAINT FK_mesure_entrepot');
         $this->addSql('ALTER TABLE lot DROP CONSTRAINT FK_lot_produit');
-        $this->addSql('ALTER TABLE utilisateur DROP CONSTRAINT FK_utilisateur_role');
-        $this->addSql('ALTER TABLE utilisateur DROP CONSTRAINT FK_utilisateur_entrepot');
         $this->addSql('ALTER TABLE entrepot DROP CONSTRAINT FK_entrepot_pays');
         $this->addSql('DROP TABLE alerte');
         $this->addSql('DROP TABLE historique_stockage');
         $this->addSql('DROP TABLE mesure');
         $this->addSql('DROP TABLE lot');
-        $this->addSql('DROP TABLE utilisateur');
         $this->addSql('DROP TABLE produit');
         $this->addSql('DROP TABLE entrepot');
-        $this->addSql('DROP TABLE role');
         $this->addSql('DROP TABLE pays');
     }
 }

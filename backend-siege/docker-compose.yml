@@ -5,14 +5,10 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - .:/var/www/app
-      - ./config/jwt:/var/www/app/config/jwt:ro
     environment:
       APP_ENV: ${APP_ENV:-prod}
       APP_SECRET: ${APP_SECRET}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-futurekawa_siege}?serverVersion=16&charset=utf8
-      JWT_SECRET_KEY: /var/www/app/config/jwt/private.pem
-      JWT_PUBLIC_KEY: /var/www/app/config/jwt/public.pem
-      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
       MAILER_DSN: ${MAILER_DSN:-null://null}
       MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:-doctrine://default?auto_setup=0}
       ALERT_TEMP_TOLERANCE: ${ALERT_TEMP_TOLERANCE:-3}
@@ -63,16 +59,12 @@ services:
       APP_ENV: ${APP_ENV:-prod}
       APP_SECRET: ${APP_SECRET}
       DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-futurekawa_siege}?serverVersion=16&charset=utf8
-      JWT_SECRET_KEY: /var/www/app/config/jwt/private.pem
-      JWT_PUBLIC_KEY: /var/www/app/config/jwt/public.pem
-      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
       MAILER_DSN: ${MAILER_DSN:-null://null}
       MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:-doctrine://default?auto_setup=0}
       ALERT_TEMP_TOLERANCE: ${ALERT_TEMP_TOLERANCE:-3}
       ALERT_HUMIDITY_TOLERANCE: ${ALERT_HUMIDITY_TOLERANCE:-2}
     volumes:
       - .:/var/www/app
-      - ./config/jwt:/var/www/app/config/jwt:ro
     depends_on:
       db:
         condition: service_healthy

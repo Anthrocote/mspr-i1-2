@@ -7,26 +7,13 @@ use App\Entity\HistoriqueStockage;
 use App\Entity\Lot;
 use App\Entity\Pays;
 use App\Entity\Produit;
-use App\Entity\Role;
-use App\Entity\Utilisateur;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-    public function __construct(private readonly UserPasswordHasherInterface $hasher)
-    {
-    }
-
     public function load(ObjectManager $manager): void
     {
-        // Rôles
-        $roleAdmin = (new Role())->setLibelle('ROLE_ADMIN');
-        $roleUser  = (new Role())->setLibelle('ROLE_USER');
-        $manager->persist($roleAdmin);
-        $manager->persist($roleUser);
-
         // Pays avec conditions idéales (spec cahier des charges)
         $paysData = [
             ['Brésil',   'BRA', 29.0, 55.0],
@@ -97,15 +84,6 @@ class AppFixtures extends Fixture
                 ->setDateArrivee(new \DateTimeImmutable($dateOffset));
             $manager->persist($hs);
         }
-
-        // Utilisateur admin
-        $admin = (new Utilisateur())
-            ->setNom('Admin')
-            ->setPrenom('Siège')
-            ->setEmail('admin@futurekawa.com')
-            ->setRole($roleAdmin);
-        $admin->setPassword($this->hasher->hashPassword($admin, 'admin1234'));
-        $manager->persist($admin);
 
         $manager->flush();
     }
