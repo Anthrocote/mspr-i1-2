@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Pagination\Pagination;
 use App\Repository\EntrepotRepository;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,16 +21,23 @@ class EntrepotController extends AbstractController
     #[Route('', name: 'list', methods: ['GET'])]
     #[OA\Get(path: '/api/warehouses', summary: 'List warehouses, filterable by country')]
     #[OA\Parameter(name: 'country_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Response(response: 200, description: 'List of warehouses')]
+    #[OA\Parameter(name: 'page',       in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit',      in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
+    #[OA\Response(response: 200, description: 'Paginated list of warehouses')]
     public function list(Request $request): JsonResponse
     {
         $paysId = $request->query->get('country_id');
+        $pagination = Pagination::fromRequest($request);
 
-        $entrepots = $paysId !== null
-            ? $this->entrepotRepository->findByPays((int) $paysId)
-            : $this->entrepotRepository->findAll();
+        $result = $this->entrepotRepository->findFilteredPaginated(
+            $paysId !== null ? (int) $paysId : null,
+            $pagination->getLimit(),
+            $pagination->getOffset(),
+        );
 
-        return $this->json(array_map(fn ($e) => $this->serialize($e), $entrepots));
+        $data = array_map(fn ($e) => $this->serialize($e), $result['items']);
+
+        return $this->json($pagination->envelope($data, $result['total']));
     }
 
     #[Route('/{uuid}', name: 'show', methods: ['GET'])]

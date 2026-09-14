@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Pagination\Pagination;
 use App\Repository\ProduitRepository;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/products', name: 'api_produits_')]
@@ -18,12 +20,17 @@ class ProduitController extends AbstractController
 
     #[Route('', name: 'list', methods: ['GET'])]
     #[OA\Get(path: '/api/products', summary: 'List all products')]
-    #[OA\Response(response: 200, description: 'List of products')]
-    public function list(): JsonResponse
+    #[OA\Parameter(name: 'page',  in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
+    #[OA\Response(response: 200, description: 'Paginated list of products')]
+    public function list(Request $request): JsonResponse
     {
-        $produits = $this->produitRepository->findAll();
+        $pagination = Pagination::fromRequest($request);
+        $result = $this->produitRepository->findPaginated($pagination->getLimit(), $pagination->getOffset());
 
-        return $this->json(array_map(fn ($p) => $this->serialize($p), $produits));
+        $data = array_map(fn ($p) => $this->serialize($p), $result['items']);
+
+        return $this->json($pagination->envelope($data, $result['total']));
     }
 
     #[Route('/{uuid}', name: 'show', methods: ['GET'])]

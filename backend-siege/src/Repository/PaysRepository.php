@@ -12,4 +12,13 @@ class PaysRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Pays::class);
     }
+
+    /** @return array{items: list<Pays>, total: int} */
+    public function findPaginated(int $limit, int $offset): array
+    {
+        return [
+            'items' => $this->findBy([], ['id' => 'ASC'], $limit, $offset),
+            'total' => $this->count([]),
+        ];
+    }
 }

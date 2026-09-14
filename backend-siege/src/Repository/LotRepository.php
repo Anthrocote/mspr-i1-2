@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Lot;
+use App\Pagination\QueryPaginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,14 +14,19 @@ class LotRepository extends ServiceEntityRepository
         parent::__construct($registry, Lot::class);
     }
 
-    /** @return Lot[] Lots triés par date d'arrivée croissante (FIFO), avec filtres optionnels */
-    public function findFiltered(?string $entrepotUuid, ?string $statut, ?int $paysId): array
+    /**
+     * @return array{items: list<Lot>, total: int} Lots en FIFO : triés par date de
+     *   PREMIÈRE arrivée (le plus ancien historique de stockage), avec filtres optionnels
+     */
+    public function findFiltered(?string $entrepotUuid, ?string $statut, ?int $paysId, int $limit, int $offset): array
     {
         $qb = $this->createQueryBuilder('l')
+            ->addSelect('MIN(hs.dateArrivee) AS HIDDEN firstArrival')
             ->join('l.produit', 'p')
             ->leftJoin('l.historiqueStockages', 'hs')
             ->leftJoin('hs.entrepot', 'e')
-            ->leftJoin('e.pays', 'pays');
+            ->leftJoin('e.pays', 'pays')
+            ->groupBy('l.uuid');
 
         if ($statut !== null) {
             $qb->andWhere('l.statut = :statut')->setParameter('statut', $statut);
@@ -32,10 +38,9 @@ class LotRepository extends ServiceEntityRepository
             $qb->andWhere('pays.id = :paysId')->setParameter('paysId', $paysId);
         }
 
-        return $qb
-            ->orderBy('hs.dateArrivee', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $qb->orderBy('firstArrival', 'ASC');
+
+        return QueryPaginator::paginate($qb, $limit, $offset, fetchJoinCollection: true);
     }
 
     /** @return Lot[] Lots dont la date d'arrivée dépasse 365 jours et statut non périmé */
