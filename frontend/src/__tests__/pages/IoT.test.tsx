@@ -3,59 +3,48 @@ import IoTPage from '@/app/iot/page';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
 
+function renderIoT() {
+  return render(
+    <LanguageProvider>
+      <SearchProvider>
+        <IoTPage />
+      </SearchProvider>
+    </LanguageProvider>
+  );
+}
+
 describe('IoTPage', () => {
-  it('renders all 6 warehouse names in card headers', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText(/🇧🇷 São Paulo A/)).toBeInTheDocument();
-    expect(screen.getByText(/🇧🇷 Rio C/)).toBeInTheDocument();
-    expect(screen.getByText(/🇪🇨 Quito B/)).toBeInTheDocument();
-    expect(screen.getByText(/🇪🇨 Guayaquil A/)).toBeInTheDocument();
-    expect(screen.getByText(/🇨🇴 Bogotá C/)).toBeInTheDocument();
-    expect(screen.getByText(/🇨🇴 Medellín D/)).toBeInTheDocument();
+  it('drives the charts from a grouped warehouse selector', () => {
+    renderIoT();
+    expect(screen.getByLabelText('Entrepôt')).toBeInTheDocument();
+    // Every warehouse is reachable as an option.
+    expect(screen.getByRole('option', { name: 'São Paulo A' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Quito B' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Medellín D' })).toBeInTheDocument();
   });
 
-  it('shows Temp. and Hum. labels in warehouse cards', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    const tempLabels = screen.getAllByText('Temp.');
-    expect(tempLabels.length).toBe(6);
-    const humLabels = screen.getAllByText('Hum.');
-    expect(humLabels.length).toBe(6);
+  it('defaults to the first at-risk warehouse and shows both metric charts', () => {
+    renderIoT();
+    expect(screen.getByText('Température · Quito B')).toBeInTheDocument();
+    expect(screen.getByText('Humidité · Quito B')).toBeInTheDocument();
   });
 
-  it('shows warehouse status badges', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    const conformes = screen.getAllByText('Conforme');
-    expect(conformes.length).toBeGreaterThanOrEqual(4);
-    const alertes = screen.getAllByText('En Alerte');
-    expect(alertes.length).toBeGreaterThanOrEqual(1);
+  it('flags the selected at-risk warehouse as out of range', () => {
+    renderIoT();
+    // Quito B drifts past its band, so both charts report it.
+    expect(screen.getAllByText(/Hors plage/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('renders live chart section', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText(/Flux temps réel — Quito B/)).toBeInTheDocument();
+  it('offers time-range controls', () => {
+    renderIoT();
+    expect(screen.getByRole('button', { name: '24 h' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '7 j' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '30 j' })).toBeInTheDocument();
   });
 
-  it('shows drift detected indicator', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText('Dérive détectée')).toBeInTheDocument();
-  });
-
-  it('renders time axis labels', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText('00 h')).toBeInTheDocument();
-    expect(screen.getByText('12 h')).toBeInTheDocument();
-    expect(screen.getByText('24 h')).toBeInTheDocument();
-  });
-
-  it('shows lots count for warehouses', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText('48 lots')).toBeInTheDocument();
-    expect(screen.getByText('37 lots')).toBeInTheDocument();
-  });
-
-  it('shows ideal ranges for warehouses', () => {
-    render(<LanguageProvider><SearchProvider><IoTPage /></SearchProvider></LanguageProvider>);
-    const ideals = screen.getAllByText(/Idéal/);
-    expect(ideals.length).toBeGreaterThanOrEqual(6);
+  it('drops the fake live-chart affordances', () => {
+    renderIoT();
+    expect(screen.queryByText('Dérive détectée')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Flux temps réel/)).not.toBeInTheDocument();
   });
 });

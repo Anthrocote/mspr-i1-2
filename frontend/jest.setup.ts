@@ -1,5 +1,14 @@
 import '@testing-library/jest-dom';
 
+// jsdom has no ResizeObserver; recharts' ResponsiveContainer needs it to measure.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+}
+
 // jsdom has no real canvas backend. Components that draw to a <canvas> need
 // getContext('2d') to return a stub instead of null so their draw calls
 // don't throw during tests.
