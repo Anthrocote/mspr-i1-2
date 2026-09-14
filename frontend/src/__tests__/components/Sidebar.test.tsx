@@ -48,10 +48,10 @@ describe('Sidebar', () => {
     expect(screen.getByText('7')).toBeInTheDocument();
   });
 
-  it('shows conformité globale 70% card', () => {
+  it('no longer shows the hardcoded conformity widget', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
-    expect(screen.getByText('Conformité globale')).toBeInTheDocument();
-    expect(screen.getByText('70%')).toBeInTheDocument();
+    expect(screen.queryByText('Conformité globale')).not.toBeInTheDocument();
+    expect(screen.queryByText('70%')).not.toBeInTheDocument();
   });
 
   it('renders Menu and Général section headers', () => {

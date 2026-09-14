@@ -180,29 +180,12 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           })}
         </nav>
 
-        {/* Compliance card */}
-        {!collapsed && (
-          <div className="mt-auto rounded-[14px] p-4 border border-white/[.06] mb-4" style={{ background: 'linear-gradient(150deg, #3D2610, #1E0F06)' }}>
-            <div className="text-xs text-espresso-300 mb-1">{t('compliance_global')}</div>
-            <div className="font-mono text-[26px] font-bold text-parchment-100 leading-none">70%</div>
-            <div className="h-1.5 bg-white/10 rounded-full mt-[10px] overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: '70%' }}
-                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
-                className="h-full rounded-full"
-                style={{ background: 'linear-gradient(90deg, #5DB761, #2E7D32)' }}
-              />
-            </div>
-          </div>
-        )}
-
         {/* Collapse toggle button on desktop */}
         {isDesktop && (
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`flex items-center justify-center py-2.5 text-espresso-300 hover:text-parchment-100 hover:bg-white/10 rounded-xl transition-all cursor-pointer border border-transparent hover:border-white/[.08] ${
-              collapsed ? 'w-full mt-auto px-0' : 'w-full px-3 gap-3 justify-start'
+            className={`flex items-center justify-center py-2.5 mt-auto text-espresso-300 hover:text-parchment-100 hover:bg-white/10 rounded-xl transition-all cursor-pointer border border-transparent hover:border-white/[.08] ${
+              collapsed ? 'w-full px-0' : 'w-full px-3 gap-3 justify-start'
             }`}
             title={collapsed ? "Agrandir le menu" : "Réduire le menu"}
           >
