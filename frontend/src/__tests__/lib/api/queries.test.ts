@@ -214,6 +214,10 @@ describe('fetchLotDetail', () => {
     };
     const fetchMock = jest.fn((url: string) => {
       if (/\/api\/lots\/lot-1/.test(url)) return Promise.resolve(json(detail));
+      // getCountry(1) -> ideal band source.
+      if (/\/api\/countries\/1/.test(url)) {
+        return Promise.resolve(json({ id: 1, name: 'Brésil', isoCode: 'BRA', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null }));
+      }
       // Single measurement -> probe returns it directly.
       if (/measurements/.test(url)) {
         return Promise.resolve(json(page([{ uuid: 'm-1', warehouseUuid: 'wh-1', temperature: 31.4, humidity: 56.8, measuredAt: 'x', syncedAt: 'x' }], 1, 1, 1)));
@@ -230,11 +234,17 @@ describe('fetchLotDetail', () => {
     ]);
     expect(result.temp).toBe(31.4);
     expect(result.hum).toBe(56.8);
+    // Ideal band derived from the country + front tolerance policy.
+    expect(result.idealTemp).toBe('29°C ±3');
+    expect(result.idealHum).toBe('55% ±2');
   });
 
   it('omits temp/hum when the lot has no current warehouse', async () => {
     const detail = { ...ENRICHED_LOT, currentWarehouse: null, storageHistory: [] };
-    const fetchMock = router([{ match: /\/api\/lots\/lot-1/, body: detail }]);
+    const fetchMock = router([
+      { match: /\/api\/lots\/lot-1/, body: detail },
+      { match: /\/api\/countries\/1/, body: { id: 1, name: 'Brésil', isoCode: 'BRA', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null } },
+    ]);
     const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
 
     const result = await fetchLotDetail(client, 'lot-1');
@@ -242,6 +252,8 @@ describe('fetchLotDetail', () => {
     expect(result.temp).toBeUndefined();
     expect(result.hum).toBeUndefined();
     expect(result.stays).toEqual([]);
+    // Ideal is still resolved from the country even without a current reading.
+    expect(result.idealTemp).toBe('29°C ±3');
   });
 });
 

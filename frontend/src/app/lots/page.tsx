@@ -128,7 +128,7 @@ export default function LotsPage() {
   const loadDetail = async (lot: Lot): Promise<LotDetailExtras> => {
     if (!lot.uuid) return { stays: lot.stays };
     const detail = await fetchLotDetail(apiClient, lot.uuid);
-    return { stays: detail.stays, temp: detail.temp, hum: detail.hum };
+    return { stays: detail.stays, temp: detail.temp, hum: detail.hum, idealTemp: detail.idealTemp, idealHum: detail.idealHum };
   };
 
   // Filter changes reset to the first page so the view can't land out of range.

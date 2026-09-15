@@ -16,6 +16,8 @@ import {
   formatHumidity,
   formatTemperature,
   isoToCountryCode,
+  HUM_TOLERANCE,
+  TEMP_TOLERANCE,
 } from './adapters';
 
 // Consolidated headline the dashboard shows. `enTransit` is intentionally
@@ -347,6 +349,10 @@ export interface LotDetailData {
   stays: WarehouseStay[];
   temp?: number;
   hum?: number;
+  // Ideal temp/humidity band of the lot's (current) country, preformatted like
+  // the warehouse ideal (e.g. "29°C ±3"). Absent when the lot has no country.
+  idealTemp?: string;
+  idealHum?: string;
 }
 
 // Compose the lot detail view: the lot itself (enriched summary), its warehouse
@@ -363,14 +369,24 @@ export async function fetchLotDetail(
   const lot = adaptLotSummary(detail);
   const stays = adaptStays(detail.storageHistory);
 
+  // Ideal band comes from the lot's (current-warehouse) country; the tolerance
+  // policy is the same front-side one the warehouse conditions use.
+  let idealTemp: string | undefined;
+  let idealHum: string | undefined;
+  if (detail.country) {
+    const country = await client.getCountry(detail.country.id, options);
+    idealTemp = `${formatTemperature(country.idealTemperature)} ±${TEMP_TOLERANCE}`;
+    idealHum = `${formatHumidity(country.idealHumidity)} ±${HUM_TOLERANCE}`;
+  }
+
   if (!detail.currentWarehouse) {
-    return { lot, stays };
+    return { lot, stays, idealTemp, idealHum };
   }
 
   const latest = await fetchLatestMeasurement(client, detail.currentWarehouse.uuid, options);
   if (!latest) {
-    return { lot, stays };
+    return { lot, stays, idealTemp, idealHum };
   }
 
-  return { lot, stays, temp: latest.temperature, hum: latest.humidity };
+  return { lot, stays, temp: latest.temperature, hum: latest.humidity, idealTemp, idealHum };
 }

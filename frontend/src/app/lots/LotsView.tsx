@@ -58,6 +58,8 @@ export interface LotDetailExtras {
   stays: WarehouseStay[];
   temp?: number;
   hum?: number;
+  idealTemp?: string;
+  idealHum?: string;
 }
 
 export interface LotsViewProps {
@@ -161,6 +163,8 @@ export default function LotsView({
       stays: detailExtras?.stays ?? selectedLot.stays,
       temp: detailExtras?.temp != null ? formatTemperature(detailExtras.temp) : selectedLot.temp,
       hum: detailExtras?.hum != null ? formatHumidity(detailExtras.hum) : selectedLot.hum,
+      idealTemp: detailExtras?.idealTemp ?? selectedLot.idealTemp,
+      idealHum: detailExtras?.idealHum ?? selectedLot.idealHum,
     };
     return <LotDetail lot={mergedLot} farms={farms} onBack={() => setSelectedLotId(null)} />;
   }
