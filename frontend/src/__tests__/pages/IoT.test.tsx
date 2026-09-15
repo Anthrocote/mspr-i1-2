@@ -23,15 +23,16 @@ describe('IoTPage', () => {
     expect(screen.getByRole('option', { name: 'Medellín D' })).toBeInTheDocument();
   });
 
-  it('defaults to the first at-risk warehouse and shows both metric charts', () => {
+  it('defaults to the warehouse with the worst derived deviation', () => {
     renderIoT();
-    expect(screen.getByText('Température · Quito B')).toBeInTheDocument();
-    expect(screen.getByText('Humidité · Quito B')).toBeInTheDocument();
+    // Rio C's humidity is furthest out of band (ratio 1.5), so it leads.
+    expect(screen.getByText('Température · Rio C')).toBeInTheDocument();
+    expect(screen.getByText('Humidité · Rio C')).toBeInTheDocument();
   });
 
-  it('flags the selected at-risk warehouse as out of range', () => {
+  it('flags the out-of-band metric, not the on-target one', () => {
     renderIoT();
-    // Quito B drifts past its band, so both charts report it.
+    // Rio C: humidity out of range, temperature on target — only humidity flags.
     expect(screen.getAllByText(/Hors plage/).length).toBeGreaterThanOrEqual(1);
   });
 

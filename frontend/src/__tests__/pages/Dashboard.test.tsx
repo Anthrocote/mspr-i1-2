@@ -38,7 +38,7 @@ describe('DashboardPage', () => {
   it('renders recent alerts, most severe first', () => {
     renderDashboard();
     expect(screen.getByText('Alertes récentes')).toBeInTheDocument();
-    expect(screen.getByText('Lot périmé — LOT-CO-2023-00018')).toBeInTheDocument();
+    expect(screen.getByText('Lot périmé — LOT-BR-2023-00018')).toBeInTheDocument();
   });
 
   it('signals the alerts beyond the preview with a +N link', () => {

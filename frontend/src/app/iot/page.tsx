@@ -7,6 +7,7 @@ import type { CountryCode } from '@/types';
 import Badge from '@/components/ui/Badge';
 import ConditionChart from '@/components/charts/ConditionChart';
 import { warehouseSeries, type TimeRange } from '@/lib/series';
+import { warehouseStatus, warehouseExceptions } from '@/lib/dashboard';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const RANGES: { key: TimeRange; label: string }[] = [
@@ -17,7 +18,8 @@ const RANGES: { key: TimeRange; label: string }[] = [
 
 const COUNTRY_ORDER: CountryCode[] = ['br', 'ec', 'co'];
 
-const firstAtRisk = WAREHOUSES.find((w) => w.statusVariant !== 'ok') ?? WAREHOUSES[0];
+// Default to the warehouse with the worst derived deviation.
+const firstAtRisk = warehouseExceptions(WAREHOUSES)[0]?.warehouse ?? WAREHOUSES[0];
 
 export default function IoTPage() {
   const { t } = useLanguage();
@@ -31,6 +33,7 @@ export default function IoTPage() {
   }));
 
   const selected = WAREHOUSES.find((w) => w.id === selectedId) ?? WAREHOUSES[0];
+  const selectedStatus = warehouseStatus(selected);
   const tempSeries = warehouseSeries(selected, 'temp', range);
   const humSeries = warehouseSeries(selected, 'hum', range);
 
@@ -59,8 +62,8 @@ export default function IoTPage() {
               </optgroup>
             ))}
           </select>
-          <Badge variant={selected.statusVariant}>
-            {t(selected.statusVariant === 'ok' ? 'status_ok' : selected.statusVariant === 'warn' ? 'status_warn' : 'status_err')}
+          <Badge variant={selectedStatus}>
+            {t(selectedStatus === 'ok' ? 'status_ok' : selectedStatus === 'warn' ? 'status_warn' : 'status_err')}
           </Badge>
           <span className="text-xs text-[#A08060] hidden md:inline">
             {selected.country} · {selected.lots} {t('lots_count')} · {t('ideal').toLowerCase()} {selected.idealTemp} · {selected.idealHum}

@@ -17,8 +17,6 @@ export interface Warehouse {
   humRange: [number, number];
   idealTemp: string;
   idealHum: string;
-  status: 'Conforme' | 'En Alerte';
-  statusVariant: BadgeVariant;
   lots: number;
 }
 

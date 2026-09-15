@@ -53,7 +53,10 @@ export function warehouseSeries(w: Warehouse, metric: Metric, range: TimeRange):
   const ideal = (lo + hi) / 2;
   const tolerance = (hi - lo) / 2;
   const baseline = metric === 'temp' ? w.tempNum : w.humNum;
-  const atRisk = w.statusVariant !== 'ok';
+  // Per-metric: this metric's own baseline reaching its own tolerance edge.
+  // A warehouse out of band on humidity must not paint its temperature chart
+  // "out of range" when the temperature is on target.
+  const atRisk = tolerance > 0 && Math.abs(baseline - ideal) / tolerance >= 1;
   const seed = hash(`${w.id}-${metric}-${range}`);
   const amp = tolerance * 0.4;
 

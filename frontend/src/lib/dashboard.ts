@@ -1,4 +1,4 @@
-import type { Warehouse, Alert, StatusDistribution } from '@/types';
+import type { Warehouse, Alert, StatusDistribution, BadgeVariant } from '@/types';
 
 // One reading (temperature or humidity) scored against the warehouse's own
 // acceptable band. The band is [min, max] = ideal ± tolerance, so the midpoint
@@ -41,6 +41,19 @@ export function warehouseExceptions(warehouses: Warehouse[]): WarehouseException
     })
     .filter((e) => e.temp.atRisk || e.hum.atRisk)
     .sort((a, b) => b.score - a.score);
+}
+
+// Single source of truth for a warehouse's status, derived from how far its
+// readings sit from their own bands. Replaces the hardcoded status/statusVariant
+// that could contradict the ranges (a warehouse marked "Conforme" with an
+// out-of-band reading).
+export function warehouseStatus(w: Warehouse): BadgeVariant {
+  const temp = deviation(w.tempNum, w.tempRange);
+  const hum = deviation(w.humNum, w.humRange);
+  const score = Math.max(temp.ratio, hum.ratio);
+  if (score >= 1.5) return 'err';
+  if (score >= 1) return 'warn';
+  return 'ok';
 }
 
 const SEVERITY_RANK: Record<Alert['severity'], number> = { critique: 0, alerte: 1 };
