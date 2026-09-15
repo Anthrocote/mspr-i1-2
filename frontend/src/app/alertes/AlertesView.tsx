@@ -22,7 +22,7 @@ const STATUS_OPTIONS: { value: AlertStatusFilter; key: string }[] = [
   { value: 'resolved', key: 'alert_status_resolved' },
 ];
 
-const GRID = 'grid-cols-[1.5fr_1.2fr_0.9fr_1.1fr_0.8fr_1.1fr]';
+const GRID = 'grid-cols-[1.6fr_1.3fr_1.2fr_0.9fr_1.2fr]';
 
 // Pure presentation for the alert history table. Filtering, sorting (newest
 // first) and pagination all happen on the siège, so this component only renders
@@ -186,7 +186,7 @@ export default function AlertesView({
         <div className="min-w-[900px] bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-sm overflow-hidden mx-4 sm:mx-0">
           {/* Header */}
           <div className={`grid ${GRID} gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4] select-none`}>
-            {[t('alert_type'), t('alert_subject'), t('severity'), t('triggered_at'), t('status'), t('resolved_at')].map((label, i) => (
+            {[t('alert_type'), t('alert_subject'), t('triggered_at'), t('status'), t('resolved_at')].map((label, i) => (
               <div key={i} className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide">{label}</div>
             ))}
           </div>
@@ -203,9 +203,6 @@ export default function AlertesView({
                   <span className="text-[13px] font-semibold text-[#1E0F06] truncate">{a.typeLabel}</span>
                 </div>
                 <div className="text-[13px] text-[#443524] truncate">{a.subject}</div>
-                <div>
-                  <Badge variant={a.variant}>{a.level}</Badge>
-                </div>
                 <div className="text-[13px] text-[#443524]">{a.dateTime}</div>
                 <div>
                   <Badge variant={a.status === 'resolved' ? 'ok' : 'warn'}>
