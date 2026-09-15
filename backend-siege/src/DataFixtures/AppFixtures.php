@@ -2,10 +2,12 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Alerte;
 use App\Entity\Entrepot;
 use App\Entity\Exploitation;
 use App\Entity\HistoriqueStockage;
 use App\Entity\Lot;
+use App\Entity\Mesure;
 use App\Entity\Pays;
 use App\Entity\Produit;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -84,14 +86,18 @@ class AppFixtures extends Fixture
             ->setCorps(6);
         $manager->persist($produit);
 
-        // Lots exemple avec historique stockage
+        // Lots exemple avec historique stockage. Statuts variés pour couvrir les
+        // trois états du cahier des charges (conforme / en alerte / périmé) ; le
+        // dernier lot dépasse 365 jours de stockage (règle "lot trop ancien").
         $lotsData = [
-            ['BRA', 'LOT-BRA-2025-001', 500.0, '-60 days'],
-            ['ECU', 'LOT-ECU-2025-001', 320.0, '-45 days'],
-            ['COL', 'LOT-COL-2025-001', 410.0, '-30 days'],
+            ['BRA', 'LOT-BRA-2025-001', 500.0, '-60 days',  Lot::STATUT_CONFORME],
+            ['ECU', 'LOT-ECU-2025-001', 320.0, '-200 days', Lot::STATUT_EN_ALERTE],
+            ['COL', 'LOT-COL-2025-001', 410.0, '-30 days',  Lot::STATUT_CONFORME],
+            ['BRA', 'LOT-BRA-2024-042', 280.0, '-400 days', Lot::STATUT_PERIME],
         ];
 
-        foreach ($lotsData as [$iso, $libelle, $quantite, $dateOffset]) {
+        $lots = [];
+        foreach ($lotsData as [$iso, $libelle, $quantite, $dateOffset, $statut]) {
             $lot = (new Lot())
                 ->setUuid(Uuid::v4())
                 ->setLibelle($libelle)
@@ -99,8 +105,9 @@ class AppFixtures extends Fixture
                 ->setProduit($produit)
                 ->setExploitation($exploitations[$iso])
                 ->setConstitueeLe(new \DateTimeImmutable($dateOffset))
-                ->setStatut(Lot::STATUT_CONFORME);
+                ->setStatut($statut);
             $manager->persist($lot);
+            $lots[$libelle] = $lot;
 
             $hs = (new HistoriqueStockage())
                 ->setLot($lot)
@@ -108,6 +115,43 @@ class AppFixtures extends Fixture
                 ->setDateArrivee(new \DateTimeImmutable($dateOffset));
             $manager->persist($hs);
         }
+
+        // Séries de mesures IoT : 12 relevés horaires par entrepôt pour tracer les
+        // courbes température/humidité. Le dernier relevé du Brésil sort de la plage
+        // idéale (29 °C ±3) pour illustrer une condition hors seuil.
+        $ideal = ['BRA' => [29.0, 55.0], 'ECU' => [31.0, 60.0], 'COL' => [26.0, 80.0]];
+        foreach ($entrepots as $iso => $entrepot) {
+            [$tempIdeal, $humIdeal] = $ideal[$iso];
+            for ($h = 11; $h >= 0; $h--) {
+                $wave = sin($h / 2);
+                $temp = $tempIdeal + $wave;
+                $hum = $humIdeal + $wave;
+                if ($iso === 'BRA' && $h === 0) {
+                    $temp = $tempIdeal + 5.0; // spike above the +3 °C tolerance
+                }
+                $manager->persist((new Mesure())
+                    ->setUuid(Uuid::v4())
+                    ->setEntrepot($entrepot)
+                    ->setTemperature(round($temp, 1))
+                    ->setHumidite(round($hum, 1))
+                    ->setMesureLe(new \DateTimeImmutable("-{$h} hours")));
+            }
+        }
+
+        // Alertes : les deux cas du cahier des charges (condition hors plage,
+        // lot trop ancien).
+        $manager->persist((new Alerte())
+            ->setUuid(Uuid::v4())
+            ->setType(Alerte::TYPE_CONDITION_HORS_PLAGE)
+            ->setEntrepot($entrepots['BRA'])
+            ->setDeclencheeLe(new \DateTimeImmutable('-1 hour')));
+
+        $manager->persist((new Alerte())
+            ->setUuid(Uuid::v4())
+            ->setType(Alerte::TYPE_LOT_PERIME)
+            ->setLot($lots['LOT-BRA-2024-042'])
+            ->setEntrepot($entrepots['BRA'])
+            ->setDeclencheeLe(new \DateTimeImmutable('-2 days')));
 
         $manager->flush();
     }
