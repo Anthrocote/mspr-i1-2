@@ -36,6 +36,11 @@ describe('DashboardPage container', () => {
         time: '5 jan. 2025',
         bgColor: '#FEF2F2',
         borderColor: '#9B1C1C',
+        typeLabel: 'Lot périmé',
+        subject: 'LOT-BRA-2025-001',
+        status: 'active',
+        dateTime: '5 jan. 2025 09:00',
+        resolvedDateTime: null,
       },
     ]);
 
@@ -46,8 +51,9 @@ describe('DashboardPage container', () => {
     expect(screen.getByText('Statut des Lots')).toBeInTheDocument();
     // The adapted alert surfaces in the recent-alerts preview.
     expect(screen.getByText('Lot périmé — LOT-BRA-2025-001')).toBeInTheDocument();
-    // enTransit has no API source -> em dash.
-    expect(screen.getByText('—')).toBeInTheDocument();
+    // enTransit has no API source -> rendered as 0, never a placeholder dash.
+    expect(screen.queryByText('—')).not.toBeInTheDocument();
+    expect(screen.getAllByText('0').length).toBeGreaterThan(0);
   });
 
   it('shows an error state when the API fails', async () => {

@@ -51,24 +51,15 @@ export async function fetchConsolidatedSummary(
   return { totalLots, distribution: distributionFromCounts(counts) };
 }
 
-// The measurements list is ordered oldest-first and there is no dedicated
-// "latest" route, so the newest reading sits on the last page. Read the total
-// with a size-1 probe, then jump straight to the last element.
+// The measurements list is newest-first, so the latest reading is the first item
+// of page 1 — a single call.
 export async function fetchLatestMeasurement(
   client: ApiClient,
   warehouseUuid: string,
   options?: RequestOptions,
 ): Promise<ApiMeasurement | null> {
-  const probe = await client.getWarehouseMeasurements(warehouseUuid, { limit: 1, page: 1 }, options);
-  if (probe.total === 0) return null;
-  if (probe.total === 1) return probe.items[0] ?? null;
-
-  const last = await client.getWarehouseMeasurements(
-    warehouseUuid,
-    { limit: 1, page: probe.total },
-    options,
-  );
-  return last.items[0] ?? null;
+  const page = await client.getWarehouseMeasurements(warehouseUuid, { limit: 1, page: 1 }, options);
+  return page.items[0] ?? null;
 }
 
 // Compose the watchlist/IoT warehouse view: each warehouse joined with its
@@ -99,9 +90,10 @@ export async function fetchWarehouseConditions(
   );
 }
 
-// Time-ordered (oldest-first) measurements for one warehouse, used to build the
-// IoT charts. `params` carries the window bound (`from`) and paging; the wide
-// default limit keeps a single call enough for the visible ranges.
+// Measurements for one warehouse, used to build the IoT charts. The API returns
+// them newest-first, so page 1 holds the most recent window; we reverse to
+// oldest-first so the chart plots left-to-right in time. `params` carries the
+// window bound (`from`); the page size is the API maximum.
 export async function fetchWarehouseMeasurements(
   client: ApiClient,
   warehouseUuid: string,
@@ -110,10 +102,10 @@ export async function fetchWarehouseMeasurements(
 ): Promise<ApiMeasurement[]> {
   const page = await client.getWarehouseMeasurements(
     warehouseUuid,
-    { limit: 500, ...params },
+    { ...params, limit: 200, page: 1 },
     options,
   );
-  return page.items;
+  return page.items.slice().reverse();
 }
 
 // Per-country roll-up for the exploitations page. Every figure is sourced:
@@ -170,7 +162,9 @@ export async function fetchCountrySummaries(
   );
 }
 
-// Active alerts, most recent first, adapted to the presentation Alert shape.
+// Active alerts (unresolved), most recent first, adapted to the presentation
+// Alert shape. Resolved alerts are filtered out so the list reflects what still
+// needs attention rather than a historical log.
 export async function fetchRecentAlerts(
   client: ApiClient,
   limit = 50,
@@ -178,9 +172,53 @@ export async function fetchRecentAlerts(
 ): Promise<Alert[]> {
   const page = await client.getAlerts({ limit, page: 1 }, options);
   return page.items
-    .slice()
+    .filter((a) => a.resolvedAt === null)
     .sort((a, b) => new Date(b.triggeredAt).getTime() - new Date(a.triggeredAt).getTime())
     .map(adaptAlert);
+}
+
+// ── Alerts history (server-paginated) ──
+// Filters (status/type/date range) AND pagination are applied by the siège, so
+// nothing is capped or filtered client-side. The list arrives newest-first from
+// the server; the adapter only maps each row.
+export type AlertStatusFilter = 'active' | 'resolved' | 'all';
+
+export interface AlertsQuery {
+  status?: AlertStatusFilter;
+  type?: string;
+  from?: string; // ISO 8601 (inclusive lower bound on triggeredAt)
+  to?: string; // ISO 8601 (inclusive upper bound on triggeredAt)
+  page?: number;
+  limit?: number;
+}
+
+export interface AlertsPageResult {
+  alerts: Alert[];
+  page: number;
+  pages: number;
+  total: number;
+}
+
+export async function fetchAlertsPage(
+  client: ApiClient,
+  query: AlertsQuery = {},
+  options?: RequestOptions,
+): Promise<AlertsPageResult> {
+  const params: QueryParams = {
+    status: query.status,
+    type: query.type,
+    from: query.from,
+    to: query.to,
+    page: query.page,
+    limit: query.limit,
+  };
+  const page = await client.getAlerts(params, options);
+  return {
+    alerts: page.items.map(adaptAlert),
+    page: page.page,
+    pages: page.pages,
+    total: page.total,
+  };
 }
 
 // Raw lots page (transport-level), for callers that need pagination metadata.
@@ -202,6 +240,97 @@ export async function fetchLots(
 ): Promise<Lot[]> {
   const page = await client.getLots({ limit: 200, ...params }, options);
   return page.items.map(adaptLotSummary);
+}
+
+// ── Lots table (server-paginated) ──
+// Filters (status/location/age/search), sorting and pagination are all applied
+// by the siège, so the table is never capped or re-sorted client-side.
+export type LotAgeFilter = 'lt90' | '90_180' | '180_365' | 'gt365';
+export type LotSortField = 'id' | 'country' | 'warehouse' | 'duration' | 'status';
+export type SortOrder = 'asc' | 'desc';
+
+export interface LotsQuery {
+  status?: ApiLotStatus;
+  countryId?: number;
+  warehouseId?: string;
+  search?: string;
+  age?: LotAgeFilter;
+  sort?: LotSortField;
+  order?: SortOrder;
+  page?: number;
+  limit?: number;
+}
+
+export interface LotsPageResult {
+  lots: Lot[];
+  page: number;
+  pages: number;
+  total: number;
+}
+
+export async function fetchLotsServer(
+  client: ApiClient,
+  query: LotsQuery = {},
+  options?: RequestOptions,
+): Promise<LotsPageResult> {
+  const params: QueryParams = {
+    status: query.status,
+    country_id: query.countryId,
+    warehouse_id: query.warehouseId,
+    search: query.search,
+    age: query.age,
+    sort: query.sort,
+    order: query.order,
+    page: query.page,
+    limit: query.limit,
+  };
+  const page = await client.getLots(params, options);
+  return {
+    lots: page.items.map(adaptLotSummary),
+    page: page.page,
+    pages: page.pages,
+    total: page.total,
+  };
+}
+
+// Location filter options for the lots table. With server-side pagination the
+// current page no longer contains every country/warehouse, so the filter is
+// sourced from the dedicated list endpoints instead of the page on screen.
+export interface LotFilterCountry {
+  id: number;
+  code: CountryCode;
+  name: string;
+  flag: string;
+}
+export interface LotFilterWarehouse {
+  id: string; // uuid
+  name: string;
+  countryId: number;
+}
+export interface LotFilterOptions {
+  countries: LotFilterCountry[];
+  warehouses: LotFilterWarehouse[];
+}
+
+export async function fetchLotFilterOptions(
+  client: ApiClient,
+  options?: RequestOptions,
+): Promise<LotFilterOptions> {
+  const [countries, warehouses] = await Promise.all([
+    client.getCountries({ limit: 200 }, options),
+    client.getWarehouses({ limit: 200 }, options),
+  ]);
+  return {
+    countries: countries.items.map((c) => {
+      const code = isoToCountryCode(c.isoCode);
+      return { id: c.id, code, name: c.name, flag: countryFlag(code) };
+    }),
+    warehouses: warehouses.items.map((w) => ({
+      id: w.uuid,
+      name: w.name,
+      countryId: w.country.id,
+    })),
+  };
 }
 
 // Partner exploitations with their resolved country and API lot count.

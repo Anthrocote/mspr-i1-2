@@ -7,6 +7,7 @@ import {
   fetchLots,
   fetchRecentAlerts,
   fetchWarehouseConditions,
+  fetchWarehouseMeasurements,
 } from '@/lib/api/queries';
 
 // jsdom has no Fetch API globals; the client only reads .ok/.status/.text().
@@ -56,7 +57,7 @@ describe('fetchLatestMeasurement', () => {
     expect(await fetchLatestMeasurement(client, 'wh-1')).toBeNull();
   });
 
-  it('jumps to the last page (newest) since the list is ordered oldest-first', async () => {
+  it('returns the first item of page 1 (measurements are newest-first)', async () => {
     const newest = {
       uuid: 'm-9',
       warehouseUuid: 'wh-1',
@@ -65,18 +66,27 @@ describe('fetchLatestMeasurement', () => {
       measuredAt: '2025-02-01T00:00:00Z',
       syncedAt: '2025-02-01T00:00:00Z',
     };
-    const fetchMock = jest.fn((url: string) => {
-      // Probe: page=1 -> total known, oldest row.
-      if (/page=1/.test(url)) return Promise.resolve(json(page([{ uuid: 'm-1' }], 9, 1, 1)));
-      // Last page (page=9 with limit=1) -> newest row.
-      if (/page=9/.test(url)) return Promise.resolve(json(page([newest], 9, 9, 1)));
-      throw new Error(`Unexpected ${url}`);
-    });
+    const fetchMock = router([{ match: /measurements/, body: page([newest, { uuid: 'm-8' }], 9, 1, 1) }]);
     const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
 
     const latest = await fetchLatestMeasurement(client, 'wh-1');
     expect(latest?.uuid).toBe('m-9');
     expect(latest?.temperature).toBe(33);
+  });
+});
+
+describe('fetchWarehouseMeasurements', () => {
+  it('reverses the newest-first page to oldest-first for the chart', async () => {
+    const rows = [
+      { uuid: 'm-3', warehouseUuid: 'wh-1', temperature: 27, humidity: 55, measuredAt: '2025-02-01T03:00:00Z', syncedAt: 'x' },
+      { uuid: 'm-2', warehouseUuid: 'wh-1', temperature: 26, humidity: 55, measuredAt: '2025-02-01T02:00:00Z', syncedAt: 'x' },
+      { uuid: 'm-1', warehouseUuid: 'wh-1', temperature: 25, humidity: 55, measuredAt: '2025-02-01T01:00:00Z', syncedAt: 'x' },
+    ];
+    const fetchMock = router([{ match: /measurements/, body: page(rows, 3, 1, 200) }]);
+    const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
+
+    const out = await fetchWarehouseMeasurements(client, 'wh-1');
+    expect(out.map((m) => m.uuid)).toEqual(['m-1', 'm-2', 'm-3']);
   });
 });
 

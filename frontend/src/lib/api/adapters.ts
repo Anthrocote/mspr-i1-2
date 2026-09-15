@@ -128,6 +128,20 @@ export function formatDateFr(iso: string): string {
   return `${d.getUTCDate()} ${MONTHS_FR[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
+// ISO 8601 → French date + wall-clock time (e.g. "5 jan. 2023 14:32"). Uses
+// LOCAL parts so the time matches the on-site clock (the wire timestamp is UTC);
+// alerts are read for "when did this happen here", so the local hour is what the
+// operator expects — same choice as the IoT chart's axis.
+export function formatDateTimeFr(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    throw new Error(`Invalid ISO date: ${iso}`);
+  }
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${d.getDate()} ${MONTHS_FR[d.getMonth()]} ${d.getFullYear()} ${hh}:${mm}`;
+}
+
 // Whole-day span between two instants (UTC), used for lot storage duration.
 export function daysBetween(fromIso: string, toIso: string): number {
   const from = new Date(fromIso).getTime();
@@ -195,6 +209,7 @@ export function adaptWarehouse(input: WarehouseCompositionInput): Warehouse {
     idealTemp: `${formatTemperature(country.idealTemperature)} ±${TEMP_TOLERANCE}`,
     idealHum: `${formatHumidity(country.idealHumidity)} ±${HUM_TOLERANCE}`,
     lots,
+    sensorStatus: warehouse.status ?? null,
   };
 }
 
@@ -206,6 +221,18 @@ export function adaptWarehouse(input: WarehouseCompositionInput): Warehouse {
 const ALERT_TYPE_TO_SEVERITY: Record<ApiAlertType, AlertSeverity> = {
   expired_lot: 'critique',
   out_of_range: 'alerte',
+  sensor_offline: 'alerte',
+};
+
+// Title and (optional) icon per alert type; the icon falls back to the severity's.
+const ALERT_TITLE: Record<ApiAlertType, string> = {
+  expired_lot: 'Lot périmé',
+  out_of_range: 'Condition hors plage',
+  sensor_offline: 'Capteur hors ligne',
+};
+
+const ALERT_ICON: Partial<Record<ApiAlertType, string>> = {
+  sensor_offline: '📡',
 };
 
 const SEVERITY_PRESENTATION: Record<AlertSeverity, {
@@ -223,22 +250,27 @@ export function adaptAlert(alert: ApiAlert): Alert {
   const severity = ALERT_TYPE_TO_SEVERITY[alert.type];
   const p = SEVERITY_PRESENTATION[severity];
   const subject = alert.lot?.label ?? alert.warehouse?.name ?? '—';
-  const title =
-    alert.type === 'expired_lot'
-      ? `Lot périmé — ${subject}`
-      : `Condition hors plage — ${subject}`;
+  const typeLabel = ALERT_TITLE[alert.type];
+  const title = `${typeLabel} — ${subject}`;
+  const resolved = alert.resolvedAt !== null;
 
   return {
     id: alert.uuid,
     severity,
     level: p.level,
-    icon: p.icon,
+    icon: ALERT_ICON[alert.type] ?? p.icon,
     variant: p.variant,
     title,
     description: `Déclenchée le ${formatDateFr(alert.triggeredAt)}`,
     time: formatDateFr(alert.triggeredAt),
     bgColor: p.bgColor,
     borderColor: p.borderColor,
+    // History-table fields.
+    typeLabel,
+    subject,
+    status: resolved ? 'resolved' : 'active',
+    dateTime: formatDateTimeFr(alert.triggeredAt),
+    resolvedDateTime: alert.resolvedAt ? formatDateTimeFr(alert.resolvedAt) : null,
   };
 }
 
@@ -263,6 +295,8 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
     uuid: api.uuid,
     countryCode,
     country: api.country?.name ?? '',
+    countryId: api.country?.id ?? null,
+    warehouseId: api.currentWarehouse?.uuid ?? null,
     // Never invent a flag for a country-less lot.
     flag: api.country ? countryFlag(countryCode) : '',
     warehouse: api.currentWarehouse?.name ?? '',

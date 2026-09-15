@@ -18,6 +18,9 @@ export interface Warehouse {
   idealTemp: string;
   idealHum: string;
   lots: number;
+  // Last sensor status from the local tier: 'online' | 'sensor_error' | 'offline'
+  // | null. Drives the "sensor offline" indicator on the IoT page.
+  sensorStatus?: string | null;
 }
 
 // One warehouse stay in a lot's history. `sortie` is null while the lot is
@@ -36,6 +39,11 @@ export interface Lot {
   uuid?: string;
   countryCode: CountryCode;
   country: string;
+  // Siège country id / current-warehouse uuid, used to drive the server-side
+  // location filter (country_id / warehouse_id). Null when the relation is
+  // unresolved at the source.
+  countryId: number | null;
+  warehouseId: string | null;
   flag: string;
   warehouse: string;
   exploitationId: string;
@@ -55,6 +63,8 @@ export interface Lot {
   idealHum: string;
 }
 
+export type AlertStatus = 'active' | 'resolved';
+
 export interface Alert {
   id: string;
   severity: AlertSeverity;
@@ -66,6 +76,15 @@ export interface Alert {
   variant: BadgeVariant;
   bgColor: string;
   borderColor: string;
+  // History-table fields (Alertes page). `title` bundles type + subject for the
+  // dashboard card; the table keeps them apart.
+  typeLabel: string;
+  subject: string;
+  status: AlertStatus;
+  // Triggered date + wall-clock time (local), e.g. "5 jan. 2023 14:32".
+  dateTime: string;
+  // Resolution date + time, or null while the alert is still active.
+  resolvedDateTime: string | null;
 }
 
 export interface Farm {

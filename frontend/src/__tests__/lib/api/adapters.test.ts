@@ -138,6 +138,8 @@ const WAREHOUSE_BR: ApiWarehouse = {
   postalCode: 69000,
   city: 'Manaus',
   active: true,
+  status: 'online',
+  statusAt: '2025-01-01T00:00:00Z',
   country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
 };
 
@@ -171,6 +173,7 @@ describe('warehouse composition', () => {
     expect(w.idealTemp).toBe('29°C ±3');
     expect(w.idealHum).toBe('55% ±2');
     expect(w.lots).toBe(48);
+    expect(w.sensorStatus).toBe('online');
   });
 
   it('falls back to the ideal when there is no measurement yet', () => {
@@ -213,6 +216,46 @@ describe('alert adaptation', () => {
     expect(a.severity).toBe('alerte');
     expect(a.variant).toBe('warn');
     expect(a.title).toBe('Condition hors plage — Entrepôt Quito');
+  });
+
+  it('derives a sensor-offline title and icon', () => {
+    const alert: ApiAlert = {
+      ...base,
+      type: 'sensor_offline',
+      lot: null,
+      warehouse: { uuid: 'wh-1', name: 'Entrepôt Quito' },
+    };
+    const a = adaptAlert(alert);
+    expect(a.severity).toBe('alerte');
+    expect(a.title).toBe('Capteur hors ligne — Entrepôt Quito');
+    expect(a.icon).toBe('📡');
+  });
+
+  it('splits type + subject and marks an active alert', () => {
+    const a = adaptAlert({
+      ...base,
+      type: 'out_of_range',
+      lot: null,
+      warehouse: { uuid: 'wh-1', name: 'Entrepôt Quito' },
+    });
+    expect(a.typeLabel).toBe('Condition hors plage');
+    expect(a.subject).toBe('Entrepôt Quito');
+    expect(a.status).toBe('active');
+    expect(a.resolvedDateTime).toBeNull();
+    // Date + wall-clock time are exposed for the history table.
+    expect(a.dateTime).toMatch(/^5 jan\. 2025 \d{2}:\d{2}$/);
+  });
+
+  it('marks a resolved alert and exposes its resolution time', () => {
+    const a = adaptAlert({
+      ...base,
+      type: 'sensor_offline',
+      resolvedAt: '2025-01-05T12:30:00Z',
+      lot: null,
+      warehouse: { uuid: 'wh-1', name: 'Entrepôt Quito' },
+    });
+    expect(a.status).toBe('resolved');
+    expect(a.resolvedDateTime).toMatch(/^5 jan\. 2025 \d{2}:\d{2}$/);
   });
 });
 

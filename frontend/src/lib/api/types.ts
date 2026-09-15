@@ -16,7 +16,7 @@
 export const LOT_STATUSES = ['compliant', 'in_alert', 'expired'] as const;
 export type ApiLotStatus = (typeof LOT_STATUSES)[number];
 
-export const ALERT_TYPES = ['out_of_range', 'expired_lot'] as const;
+export const ALERT_TYPES = ['out_of_range', 'expired_lot', 'sensor_offline'] as const;
 export type ApiAlertType = (typeof ALERT_TYPES)[number];
 
 // Wire envelope: `{ data, pagination: { page, limit, total, pages } }`.
@@ -102,6 +102,10 @@ export interface ApiWarehouse {
   postalCode: number | null;
   city: string | null;
   active: boolean;
+  // Last sensor status reported by the local tier: online / sensor_error /
+  // offline, or null until the warehouse has reported one.
+  status: string | null;
+  statusAt: string | null;
   country: ApiCountryRef;
 }
 

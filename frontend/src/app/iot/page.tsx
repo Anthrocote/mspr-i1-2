@@ -27,6 +27,10 @@ const RANGE_MS: Record<TimeRange, number> = {
   '30j': 30 * DAY_MS,
 };
 
+// The warehouses are instrumented in real time, so the page polls for fresh
+// readings instead of relying on a manual reload.
+const REFRESH_MS = 5000;
+
 // A warehouse's ideal/tolerance are encoded as the [min, max] tolerance band the
 // adapters derive from the country thresholds: the midpoint is the ideal, half
 // the span is the tolerance.
@@ -49,7 +53,16 @@ export default function IoTPage() {
   const [range, setRange] = useState<TimeRange>('24h');
   const [measurements, setMeasurements] = useState<ApiMeasurement[]>([]);
 
-  // Warehouse list, once. Default the selection to the worst derived deviation.
+  // Poll tick: drives a periodic refetch so new readings show without a reload.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((value) => value + 1), REFRESH_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  // Warehouse conditions (selector + current reading/status), refetched on each
+  // poll tick. The selection is preserved; a poll failure never downgrades an
+  // already-loaded page to the error state.
   useEffect(() => {
     const controller = new AbortController();
     fetchWarehouseConditions(apiClient, { signal: controller.signal })
@@ -60,25 +73,31 @@ export default function IoTPage() {
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') return;
-        setState({ status: 'error' });
+        setState((current) => (current.status === 'ready' ? current : { status: 'error' }));
       });
     return () => controller.abort();
-  }, []);
+  }, [tick]);
 
-  // Measurements for the selected warehouse + window. Refetched on either change.
+  // Clear the chart when switching warehouse or window, so a stale series is not
+  // shown while the new one loads (a poll tick, in contrast, refreshes in place).
+  useEffect(() => {
+    setMeasurements([]);
+  }, [selectedId, range]);
+
+  // Measurements for the selected warehouse + window. Refetched on selection,
+  // window, or poll tick change.
   useEffect(() => {
     if (!selectedId) return;
     const controller = new AbortController();
     const from = new Date(Date.now() - RANGE_MS[range]).toISOString();
-    setMeasurements([]);
     fetchWarehouseMeasurements(apiClient, selectedId, { from }, { signal: controller.signal })
       .then(setMeasurements)
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') return;
-        // Leave the series empty; the chart renders a neutral in-band state.
+        // Leave the series as-is; the chart keeps the last good readings.
       });
     return () => controller.abort();
-  }, [selectedId, range]);
+  }, [selectedId, range, tick]);
 
   if (state.status === 'loading') {
     return <div className="py-16 text-center text-sm text-[#A08060]">{t('loading')}</div>;
@@ -102,10 +121,11 @@ export default function IoTPage() {
   })).filter((g) => g.items.length > 0);
 
   const selectedStatus = warehouseStatus(selected);
+  const sensorOffline = !!selected.sensorStatus && selected.sensorStatus !== 'online';
   const tempBand = bandCenter(selected.tempRange);
   const humBand = bandCenter(selected.humRange);
-  const tempSeries = buildConditionSeries(measurements, 'temp', tempBand.ideal, tempBand.tolerance, range);
-  const humSeries = buildConditionSeries(measurements, 'hum', humBand.ideal, humBand.tolerance, range);
+  const tempSeries = buildConditionSeries(measurements, 'temp', tempBand.ideal, tempBand.tolerance);
+  const humSeries = buildConditionSeries(measurements, 'hum', humBand.ideal, humBand.tolerance);
 
   return (
     <motion.div
@@ -132,9 +152,17 @@ export default function IoTPage() {
               </optgroup>
             ))}
           </select>
-          <Badge variant={selectedStatus}>
-            {t(selectedStatus === 'ok' ? 'status_ok' : selectedStatus === 'warn' ? 'status_warn' : 'status_err')}
-          </Badge>
+          {sensorOffline ? (
+            // A silent/errored sensor makes the last reading stale, so the
+            // condition badge would be misleading — show the sensor state instead.
+            <Badge variant="err">
+              {selected.sensorStatus === 'sensor_error' ? 'Capteur en erreur' : 'Capteur hors ligne'}
+            </Badge>
+          ) : (
+            <Badge variant={selectedStatus}>
+              {t(selectedStatus === 'ok' ? 'status_ok' : 'out_of_range')}
+            </Badge>
+          )}
           <span className="text-xs text-[#A08060] hidden md:inline">
             {selected.country} · {selected.lots} {t('lots_count')} · {t('ideal').toLowerCase()} {selected.idealTemp} · {selected.idealHum}
           </span>

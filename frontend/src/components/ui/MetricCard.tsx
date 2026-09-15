@@ -9,8 +9,6 @@ export interface MetricCardProps {
   label: string;
   value: string;
   valueColor?: string;
-  trend: string;
-  trendColor?: string;
   icon: ReactNode;
   variant?: MetricVariant;
   barGradient?: string;
@@ -47,8 +45,6 @@ export default function MetricCard({
   label,
   value,
   valueColor,
-  trend,
-  trendColor = '#A08060',
   icon,
   variant = 'light',
   barGradient = 'linear-gradient(90deg, #A0714F, #DFC0A0)',
@@ -77,7 +73,6 @@ export default function MetricCard({
       </div>
       <div className={`text-[11px] font-semibold uppercase tracking-[.08em] mb-[10px] ${cfg.label}`}>{label}</div>
       <div className={`font-mono text-[38px] font-bold leading-[.9] tracking-tight ${resolvedValueColor}`}>{value}</div>
-      <div className="flex items-center gap-[5px] mt-[10px] text-xs" style={{ color: trendColor }}>{trend}</div>
       <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ background: barGradient }} />
     </motion.div>
   );

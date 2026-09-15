@@ -20,7 +20,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "dashboard_subtitle": "Vue globale consolidée",
     "lots_subtitle": "Traçabilité & rotation des stocks",
     "iot_subtitle": "Température & humidité des entrepôts en temps réel",
-    "alertes_subtitle": "Alertes actives · vue consolidée",
+    "alertes_subtitle": "Historique complet · toutes les alertes",
     "exploitations_subtitle": "Brésil · Équateur · Colombie",
 
     // Dashboard Metrics
@@ -100,6 +100,19 @@ export const translations: Record<Language, Record<string, string>> = {
     "all": "Toutes",
     "critical": "Critiques",
     "warnings": "Avertissements",
+    "severity": "Sévérité",
+    "alert_type": "Type",
+    "alert_subject": "Sujet",
+    "triggered_at": "Déclenchée le",
+    "resolved_at": "Résolue le",
+    "status_active": "Active",
+    "status_resolved": "Résolue",
+    "alert_status_all": "Tous les statuts",
+    "alert_status_active": "Actives",
+    "alert_status_resolved": "Résolues",
+    "date_from": "Du",
+    "date_to": "Au",
+    "no_alerts_match": "Aucune alerte ne correspond à ces filtres.",
 
     // Farms Page
     "farms_count": "exploitations",
@@ -147,7 +160,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "dashboard_subtitle": "Consolidated global view",
     "lots_subtitle": "Traceability & stock rotation",
     "iot_subtitle": "Warehouse temperature & humidity in real time",
-    "alertes_subtitle": "Active alerts · consolidated view",
+    "alertes_subtitle": "Full history · all alerts",
     "exploitations_subtitle": "Brazil · Ecuador · Colombia",
 
     // Dashboard Metrics
@@ -227,6 +240,19 @@ export const translations: Record<Language, Record<string, string>> = {
     "all": "All",
     "critical": "Critical",
     "warnings": "Warnings",
+    "severity": "Severity",
+    "alert_type": "Type",
+    "alert_subject": "Subject",
+    "triggered_at": "Triggered at",
+    "resolved_at": "Resolved at",
+    "status_active": "Active",
+    "status_resolved": "Resolved",
+    "alert_status_all": "All statuses",
+    "alert_status_active": "Active",
+    "alert_status_resolved": "Resolved",
+    "date_from": "From",
+    "date_to": "To",
+    "no_alerts_match": "No alert matches these filters.",
 
     // Farms Page
     "farms_count": "farms",
@@ -274,7 +300,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "dashboard_subtitle": "Vista global consolidada",
     "lots_subtitle": "Trazabilidad y rotación de stock",
     "iot_subtitle": "Temperatura y humedad de almacenes en tiempo real",
-    "alertes_subtitle": "Alertas activas · vista consolidada",
+    "alertes_subtitle": "Historial completo · todas las alertas",
     "exploitations_subtitle": "Brasil · Ecuador · Colombia",
 
     // Dashboard Metrics
@@ -354,6 +380,19 @@ export const translations: Record<Language, Record<string, string>> = {
     "all": "Todas",
     "critical": "Críticas",
     "warnings": "Advertencias",
+    "severity": "Severidad",
+    "alert_type": "Tipo",
+    "alert_subject": "Sujeto",
+    "triggered_at": "Activada el",
+    "resolved_at": "Resuelta el",
+    "status_active": "Activa",
+    "status_resolved": "Resuelta",
+    "alert_status_all": "Todos los estados",
+    "alert_status_active": "Activas",
+    "alert_status_resolved": "Resueltas",
+    "date_from": "Desde",
+    "date_to": "Hasta",
+    "no_alerts_match": "Ninguna alerta coincide con estos filtros.",
 
     // Farms Page
     "farms_count": "explotaciones",

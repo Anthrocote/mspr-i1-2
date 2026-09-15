@@ -23,8 +23,8 @@ const ALERT_PREVIEW = 4;
 
 export interface DashboardViewProps {
   totalLots: number;
-  // The siège has no "in transit" concept; the container passes null and we
-  // render an em dash rather than invent a figure.
+  // The siège has no "in transit" concept yet; the container passes null and we
+  // render 0 (no lot known to be in transit) rather than a placeholder.
   enTransit: number | null;
   distribution: StatusDistribution;
   warehouses: Warehouse[];
@@ -60,8 +60,6 @@ export default function DashboardView({
           <MetricCard
             label={t('total_lots')}
             value={String(totalLots)}
-            trend={t('trend_lots')}
-            trendColor="#8ED492"
             variant="dark"
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DFC0A0" strokeWidth="2">
@@ -73,9 +71,7 @@ export default function DashboardView({
         <motion.div variants={item}>
           <MetricCard
             label={t('in_transit')}
-            value={enTransit === null ? '—' : String(enTransit)}
-            trend={t('trend_transit')}
-            trendColor="#8ED492"
+            value={String(enTransit ?? 0)}
             variant="green"
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">

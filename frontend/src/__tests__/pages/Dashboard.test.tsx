@@ -31,7 +31,13 @@ function alert(id: string, severity: Alert['severity'], title: string): Alert {
   const p = severity === 'critique'
     ? { level: 'Critique', icon: '⛔', variant: 'err' as const, bgColor: '#FEF2F2', borderColor: '#9B1C1C' }
     : { level: 'Alerte', icon: '🌡️', variant: 'warn' as const, bgColor: '#FEF3E2', borderColor: '#B45309' };
-  return { id, severity, title, description: 'Déclenchée le 5 jan. 2025', time: '5 jan. 2025', ...p };
+  const [typeLabel, subject] = title.split(' — ');
+  return {
+    id, severity, title, description: 'Déclenchée le 5 jan. 2025', time: '5 jan. 2025',
+    typeLabel, subject: subject ?? '—', status: 'active' as const,
+    dateTime: '5 jan. 2025 09:00', resolvedDateTime: null,
+    ...p,
+  };
 }
 
 const ALERTS: Alert[] = [
@@ -97,18 +103,19 @@ describe('DashboardView', () => {
     expect(screen.getByText(/\+3 autres alertes/)).toBeInTheDocument();
   });
 
-  it('renders an em dash for En Transit when the value is unavailable', () => {
+  it('renders 0 for En Transit when the value is unavailable', () => {
     render(
       <LanguageProvider>
         <DashboardView
           totalLots={10}
           enTransit={null}
-          distribution={{ conforme: 8, alerte: 2, perime: 0 }}
+          distribution={{ conforme: 8, alerte: 2, perime: 1 }}
           warehouses={[]}
           alerts={[]}
         />
       </LanguageProvider>,
     );
-    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.queryByText('—')).not.toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
   });
 });

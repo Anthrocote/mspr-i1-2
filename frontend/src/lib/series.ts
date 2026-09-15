@@ -6,6 +6,9 @@ export type Metric = 'temp' | 'hum';
 export const RANGE_POINTS: Record<TimeRange, number> = { '24h': 24, '7j': 7, '30j': 30 };
 
 export interface Reading {
+  // Epoch ms of the reading: a unique, monotonic x used for a proper time axis
+  // (a shared hour/day label would collapse points and misplace the hover dot).
+  ts: number;
   label: string;
   value: number;
 }
@@ -29,16 +32,16 @@ const MONTHS_FR = [
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
 
-// Axis label for a measurement, chosen by the visible window: hour of day for a
-// 24 h window, day + short month otherwise. Uses UTC parts so the rendered label
-// is stable regardless of the runtime timezone.
-function readingLabel(iso: string, range: TimeRange): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  if (range === '24h') {
-    return `${String(d.getUTCHours()).padStart(2, '0')} h`;
-  }
-  return `${d.getUTCDate()} ${MONTHS_FR[d.getUTCMonth()]}`;
+// Local date and time parts of a reading, for a two-line axis tick (date over
+// time). Uses LOCAL parts so the label matches the wall-clock time on site (the
+// wire timestamp is UTC).
+export function readingParts(ts: number): { date: string; time: string } {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return { date: '', time: '' };
+  return {
+    date: `${d.getDate()} ${MONTHS_FR[d.getMonth()]}`,
+    time: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+  };
 }
 
 // Build a chart-ready condition series from real warehouse measurements. The
@@ -50,15 +53,19 @@ export function buildConditionSeries(
   metric: Metric,
   ideal: number,
   tolerance: number,
-  range: TimeRange = '24h',
 ): ConditionSeries {
   const min = ideal - tolerance;
   const max = ideal + tolerance;
 
-  const readings: Reading[] = measurements.map((m) => ({
-    label: readingLabel(m.measuredAt, range),
-    value: round1(metric === 'temp' ? m.temperature : m.humidity),
-  }));
+  const readings: Reading[] = measurements.map((m) => {
+    const ts = new Date(m.measuredAt).getTime();
+    const { date, time } = readingParts(ts);
+    return {
+      ts,
+      label: `${date} ${time}`,
+      value: round1(metric === 'temp' ? m.temperature : m.humidity),
+    };
+  });
 
   // No reading yet: sit exactly at the ideal so the chart renders a neutral,
   // in-band state rather than a misleading spike.
