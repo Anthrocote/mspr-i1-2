@@ -1,4 +1,4 @@
-import type { Warehouse, Lot, Alert, Country, Farm, DashboardAlert, ConsolidatedSummary } from '@/types';
+import type { Warehouse, Lot, Alert, Country, Farm, ConsolidatedSummary } from '@/types';
 
 // Consolidated at the siège from every country backend. The dashboard reads
 // these authoritative counts instead of scattering the same numbers across
@@ -39,12 +39,6 @@ export const ALERTS: Alert[] = [
   { id: 'a5', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Péremption imminente — LOT-CO-2023-00077', description: '360 j de stockage · 5 j avant péremption',                                time: 'il y a 2 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
   { id: 'a6', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Stockage prolongé — LOT-BR-2024-00760', description: '128 j · température ponctuellement à 32°C',                               time: 'il y a 3 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
   { id: 'a7', severity: 'alerte',   level: 'Alerte',   icon: '📡', variant: 'warn', title: 'Capteur dégradé — Guayaquil A',     description: 'Latence de relevé élevée · dernière mesure il y a 22 min',                     time: 'il y a 4 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
-];
-
-export const DASHBOARD_ALERTS: DashboardAlert[] = [
-  { title: 'Lot périmé — LOT-BR-2023-00018',       description: '387 j de stockage · 22 j au-delà du seuil de 365 j', time: 'il y a 5 min',  bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
-  { title: 'Température hors plage — Quito B',      description: '34°C relevé · seuil Équateur 31°C ±3',         time: 'il y a 18 min', bgColor: '#FEF3E2', borderColor: '#B45309' },
-  { title: 'Humidité élevée — Bogotá C',            description: '83% relevé · seuil Colombie 80% ±3',           time: 'il y a 1 h',    bgColor: '#FEF3E2', borderColor: '#B45309' },
 ];
 
 export const COUNTRIES: Country[] = [

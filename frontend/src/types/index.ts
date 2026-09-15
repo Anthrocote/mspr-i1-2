@@ -91,14 +91,6 @@ export interface Farm {
   certVariant: BadgeVariant;
 }
 
-export interface DashboardAlert {
-  title: string;
-  description: string;
-  time: string;
-  bgColor: string;
-  borderColor: string;
-}
-
 export interface StatusDistribution {
   conforme: number;
   alerte: number;
