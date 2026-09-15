@@ -1,6 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LotsPage from '@/app/lots/page';
 import type { Farm, Lot } from '@/types';
+import type { LotFilterOptions } from '@/lib/api/queries';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
 import * as queries from '@/lib/api/queries';
@@ -14,6 +15,8 @@ const LOT: Lot = {
   uuid: 'lot-uuid-1',
   countryCode: 'br',
   country: 'Brésil',
+  countryId: 1,
+  warehouseId: 'wh-manaus',
   flag: '🇧🇷',
   warehouse: 'Entrepôt Manaus',
   exploitationId: 'exp-1',
@@ -42,6 +45,14 @@ const FARM: Farm = {
   certVariant: 'neutral',
 };
 
+const FILTER_OPTIONS: LotFilterOptions = {
+  countries: [
+    { id: 1, code: 'br', name: 'Brésil', flag: '🇧🇷' },
+    { id: 2, code: 'co', name: 'Colombie', flag: '🇨🇴' },
+  ],
+  warehouses: [{ id: 'wh-manaus', name: 'Entrepôt Manaus', countryId: 1 }],
+};
+
 function renderPage() {
   return render(
     <LanguageProvider>
@@ -53,22 +64,48 @@ function renderPage() {
 }
 
 describe('LotsPage container', () => {
+  beforeEach(() => {
+    mockedQueries.fetchExploitations.mockResolvedValue([FARM]);
+    mockedQueries.fetchLotFilterOptions.mockResolvedValue(FILTER_OPTIONS);
+    mockedQueries.fetchLotsServer.mockResolvedValue({ lots: [LOT], page: 1, pages: 1, total: 1 });
+  });
+
   afterEach(() => jest.clearAllMocks());
 
-  it('fetches lots + exploitations and renders the adapted table', async () => {
-    mockedQueries.fetchLots.mockResolvedValue([LOT]);
-    mockedQueries.fetchExploitations.mockResolvedValue([FARM]);
-
+  it('fetches the server page + filter options and renders the adapted table', async () => {
     renderPage();
-
     expect(await screen.findByText('LOT-BRA-2025-001')).toBeInTheDocument();
     expect(screen.getByText('Entrepôt Manaus')).toBeInTheDocument();
     expect(screen.getByText('60 j')).toBeInTheDocument();
   });
 
+  it('drives the server query from the location filter', async () => {
+    renderPage();
+    fireEvent.click(await screen.findByText('Filtrer'));
+    const locationSelect = screen.getAllByRole('combobox')[0];
+    fireEvent.change(locationSelect, { target: { value: 'country:2' } });
+    await waitFor(() =>
+      expect(mockedQueries.fetchLotsServer).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ countryId: 2, page: 1 }),
+        expect.anything(),
+      ),
+    );
+  });
+
+  it('drives the server query from a column sort', async () => {
+    renderPage();
+    fireEvent.click(await screen.findByText('Durée'));
+    await waitFor(() =>
+      expect(mockedQueries.fetchLotsServer).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ sort: 'duration', order: 'asc' }),
+        expect.anything(),
+      ),
+    );
+  });
+
   it('fetches the detail (stays + conditions) when a lot is opened', async () => {
-    mockedQueries.fetchLots.mockResolvedValue([LOT]);
-    mockedQueries.fetchExploitations.mockResolvedValue([FARM]);
     mockedQueries.fetchLotDetail.mockResolvedValue({
       lot: LOT,
       stays: [{ warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: null }],
@@ -80,7 +117,6 @@ describe('LotsPage container', () => {
 
     fireEvent.click(await screen.findByText('LOT-BRA-2025-001'));
 
-    // Detail fetch fills the stay history and the current conditions.
     expect(await screen.findByText('Entreposé · Entrepôt Manaus')).toBeInTheDocument();
     expect(screen.getByText('31°C')).toBeInTheDocument();
     expect(screen.getByText('56%')).toBeInTheDocument();
@@ -88,8 +124,7 @@ describe('LotsPage container', () => {
   });
 
   it('shows an error state when the lots fetch fails', async () => {
-    mockedQueries.fetchLots.mockRejectedValue(new Error('boom'));
-    mockedQueries.fetchExploitations.mockResolvedValue([]);
+    mockedQueries.fetchLotsServer.mockRejectedValue(new Error('boom'));
 
     renderPage();
 

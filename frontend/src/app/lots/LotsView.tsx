@@ -2,54 +2,39 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Farm, Lot, CountryCode, BadgeVariant, WarehouseStay } from '@/types';
+import type { Farm, Lot, WarehouseStay } from '@/types';
+import type { ApiLotStatus } from '@/lib/api/types';
+import type {
+  LotAgeFilter,
+  LotFilterOptions,
+  LotSortField,
+  SortOrder,
+} from '@/lib/api/queries';
 import { formatHumidity, formatTemperature } from '@/lib/api/adapters';
 import Badge from '@/components/ui/Badge';
 import CountryTag from '@/components/ui/CountryTag';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useSearch } from '@/contexts/SearchContext';
 
 const container = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.04 } },
 };
-const row = {
+const rowVariant = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' as const } },
 };
 
-type StatusFilter = 'all' | BadgeVariant;
-type SortField = 'id' | 'country' | 'warehouse' | 'durationDays' | 'status';
-type SortOrder = 'asc' | 'desc';
-type AgeFilter = 'all' | 'lt90' | '90_180' | '180_365' | 'gt365';
+export type LotStatusFilter = 'all' | ApiLotStatus;
+export type LotAgeChoice = 'all' | LotAgeFilter;
 
-// Location is a single hierarchy (country > warehouse), so country and warehouse
-// can't be set to a contradictory pair.
-const COUNTRY_ORDER: CountryCode[] = ['br', 'ec', 'co'];
-
-// Derive the location filter from the lots actually received, so it can never
-// diverge from the data on screen and needs no separate warehouse source.
-function locationsFromLots(lots: Lot[]): { code: CountryCode; warehouses: string[] }[] {
-  return COUNTRY_ORDER.map((code) => ({
-    code,
-    warehouses: Array.from(
-      new Set(
-        lots
-          .filter((l) => l.countryCode === code && l.warehouse)
-          .map((l) => l.warehouse),
-      ),
-    ),
-  })).filter((c) => lots.some((l) => l.countryCode === c.code));
-}
-
-const STATUS_OPTIONS: { value: StatusFilter; key: string }[] = [
+const STATUS_OPTIONS: { value: LotStatusFilter; key: string }[] = [
   { value: 'all', key: 'all_statuses' },
-  { value: 'ok', key: 'status_ok' },
-  { value: 'warn', key: 'status_warn' },
-  { value: 'err', key: 'status_err' },
+  { value: 'compliant', key: 'status_ok' },
+  { value: 'in_alert', key: 'status_warn' },
+  { value: 'expired', key: 'status_err' },
 ];
 
-const AGE_OPTIONS: { value: AgeFilter; key: string }[] = [
+const AGE_OPTIONS: { value: LotAgeChoice; key: string }[] = [
   { value: 'all', key: 'age_all' },
   { value: 'lt90', key: 'age_lt90' },
   { value: '90_180', key: 'age_90_180' },
@@ -57,17 +42,7 @@ const AGE_OPTIONS: { value: AgeFilter; key: string }[] = [
   { value: 'gt365', key: 'age_gt365' },
 ];
 
-function matchAge(days: number, f: AgeFilter): boolean {
-  switch (f) {
-    case 'lt90': return days < 90;
-    case '90_180': return days >= 90 && days < 180;
-    case '180_365': return days >= 180 && days < 365;
-    case 'gt365': return days >= 365;
-    default: return true;
-  }
-}
-
-const PAGE_SIZE = 8;
+const GRID = 'grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr]';
 
 function durationColor(v: string) {
   if (v === 'err') return 'text-[#9B1C1C]';
@@ -77,7 +52,7 @@ function durationColor(v: string) {
 
 // Detail enrichment fetched lazily when a lot is opened. In production the
 // container wires this to `fetchLotDetail`; view tests can omit it, in which
-// case the row's own data (mock fixtures) is shown as-is.
+// case the row's own data is shown as-is.
 export interface LotDetailExtras {
   stays: WarehouseStay[];
   temp?: number;
@@ -87,29 +62,54 @@ export interface LotDetailExtras {
 export interface LotsViewProps {
   lots: Lot[];
   farms: Farm[];
+  page: number;
+  pages: number;
+  total: number;
+  filterOptions: LotFilterOptions;
+  // Filter/sort state (owned by the container so the server query is the single
+  // source of truth).
+  location: string; // 'all' | `country:${id}` | `wh:${uuid}`
+  statusFilter: LotStatusFilter;
+  ageFilter: LotAgeChoice;
+  sortField: LotSortField | null;
+  sortOrder: SortOrder;
+  onLocation: (v: string) => void;
+  onStatus: (v: LotStatusFilter) => void;
+  onAge: (v: LotAgeChoice) => void;
+  onSort: (field: LotSortField) => void;
+  onReset: () => void;
+  onPage: (updater: (p: number) => number) => void;
   loadDetail?: (lot: Lot) => Promise<LotDetailExtras>;
 }
 
-// Pure presentation for the lots table + read-only detail. Takes already-adapted
-// presentation data so it can be tested with the mock fixtures and reused
-// regardless of the data source.
-export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
+// Pure presentation for the lots table + read-only detail. Filtering, sorting
+// and pagination are performed by the siège; this component renders the current
+// page and reports filter/sort/page intent upward. The detail (stay history +
+// current conditions) is still fetched lazily when a row is opened.
+export default function LotsView({
+  lots,
+  farms,
+  page,
+  pages,
+  total,
+  filterOptions,
+  location,
+  statusFilter,
+  ageFilter,
+  sortField,
+  sortOrder,
+  onLocation,
+  onStatus,
+  onAge,
+  onSort,
+  onReset,
+  onPage,
+  loadDetail,
+}: LotsViewProps) {
   const { t } = useLanguage();
-  const { searchQuery } = useSearch();
-  const locations = locationsFromLots(lots);
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [detailExtras, setDetailExtras] = useState<LotDetailExtras | null>(null);
-
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [locationFilter, setLocationFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [ageFilter, setAgeFilter] = useState<AgeFilter>('all');
-
-  const [sortField, setSortField] = useState<SortField | null>(null);
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-
-  const [page, setPage] = useState(1);
-
   const filterRef = useRef<HTMLDivElement>(null);
 
   // Close the filter popover on outside click or Escape.
@@ -150,67 +150,11 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
   }, [selectedLot, loadDetail]);
 
   const activeFilters =
-    (locationFilter !== 'all' ? 1 : 0) +
+    (location !== 'all' ? 1 : 0) +
     (statusFilter !== 'all' ? 1 : 0) +
     (ageFilter !== 'all' ? 1 : 0);
 
-  // Filters and sort change the result set, so return to the first page.
-  const setLocation = (v: string) => { setLocationFilter(v); setPage(1); };
-  const setStatus = (v: StatusFilter) => { setStatusFilter(v); setPage(1); };
-  const setAge = (v: AgeFilter) => { setAgeFilter(v); setPage(1); };
-  const resetFilters = () => { setLocationFilter('all'); setStatusFilter('all'); setAgeFilter('all'); setPage(1); };
-
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
-    setPage(1);
-  };
-
-  const filtered = lots.filter((l) => {
-    if (locationFilter.startsWith('country:') && l.countryCode !== locationFilter.slice(8)) return false;
-    if (locationFilter.startsWith('wh:') && l.warehouse !== locationFilter.slice(3)) return false;
-    if (statusFilter !== 'all' && l.statusVariant !== statusFilter) return false;
-    if (!matchAge(l.durationDays, ageFilter)) return false;
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      // Match the labels actually rendered (translated), so a search in the
-      // active language finds what the user sees.
-      const match =
-        l.id.toLowerCase().includes(q) ||
-        t(l.countryCode).toLowerCase().includes(q) ||
-        l.warehouse.toLowerCase().includes(q) ||
-        t('status_' + l.statusVariant).toLowerCase().includes(q);
-      if (!match) return false;
-    }
-
-    return true;
-  });
-
-  const sorted = [...filtered].sort((a, b) => {
-    if (!sortField) return 0;
-    const aVal = a[sortField];
-    const bVal = b[sortField];
-    if (typeof aVal === 'string' && typeof bVal === 'string') {
-      return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    }
-    if (typeof aVal === 'number' && typeof bVal === 'number') {
-      return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
-    }
-    return 0;
-  });
-
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const pageClamped = Math.min(page, totalPages);
-  const paged = sorted.slice((pageClamped - 1) * PAGE_SIZE, pageClamped * PAGE_SIZE);
-
   if (selectedLot) {
-    // Merge the lazily-fetched stay history + conditions onto the base lot. The
-    // list summary has no conditions, so temp/hum come from the detail fetch.
     const mergedLot: Lot = {
       ...selectedLot,
       stays: detailExtras?.stays ?? selectedLot.stays,
@@ -220,12 +164,22 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
     return <LotDetail lot={mergedLot} farms={farms} onBack={() => setSelectedLotId(null)} />;
   }
 
+  const headers: { label: string; field: LotSortField | null }[] = [
+    { label: t('id_lot'), field: 'id' },
+    { label: t('country'), field: 'country' },
+    { label: t('warehouse'), field: 'warehouse' },
+    { label: t('constituted_on'), field: null },
+    { label: t('duration'), field: 'duration' },
+    { label: t('status'), field: 'status' },
+    { label: '', field: null },
+  ];
+
   return (
     <div className="max-w-[1320px] mx-auto w-full">
       {/* Filter bar */}
       <div className="flex items-center justify-between gap-3 mb-5">
         <div className="text-[13px] text-[#A08060]">
-          {sorted.length} {t('lots_count')}
+          {total} {t('lots_count')}
         </div>
         <div className="relative" ref={filterRef}>
           <button
@@ -247,7 +201,6 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
             )}
           </button>
 
-          {/* Filter popover — all filters live here */}
           <AnimatePresence>
             {showFilterMenu && (
               <motion.div
@@ -271,25 +224,27 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
                   </button>
                 </div>
 
-                <FilterSelect label={t('location')} value={locationFilter} onChange={setLocation}>
+                <FilterSelect label={t('location')} value={location} onChange={onLocation}>
                   <option value="all">{t('all_locations')}</option>
-                  {locations.map((c) => (
-                    <optgroup key={c.code} label={`${lots.find((l) => l.countryCode === c.code)?.flag ?? ''} ${t(c.code)}`}>
-                      <option value={`country:${c.code}`}>{t(c.code)} {t('location_all_suffix')}</option>
-                      {c.warehouses.map((w) => (
-                        <option key={w} value={`wh:${w}`}>{w}</option>
-                      ))}
+                  {filterOptions.countries.map((c) => (
+                    <optgroup key={c.id} label={`${c.flag} ${c.name}`}>
+                      <option value={`country:${c.id}`}>{c.name} {t('location_all_suffix')}</option>
+                      {filterOptions.warehouses
+                        .filter((w) => w.countryId === c.id)
+                        .map((w) => (
+                          <option key={w.id} value={`wh:${w.id}`}>{w.name}</option>
+                        ))}
                     </optgroup>
                   ))}
                 </FilterSelect>
 
-                <FilterSelect label={t('status')} value={statusFilter} onChange={(v) => setStatus(v as StatusFilter)}>
+                <FilterSelect label={t('status')} value={statusFilter} onChange={(v) => onStatus(v as LotStatusFilter)}>
                   {STATUS_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{t(o.key)}</option>
                   ))}
                 </FilterSelect>
 
-                <FilterSelect label={t('age')} value={ageFilter} onChange={(v) => setAge(v as AgeFilter)}>
+                <FilterSelect label={t('age')} value={ageFilter} onChange={(v) => onAge(v as LotAgeChoice)}>
                   {AGE_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>{t(o.key)}</option>
                   ))}
@@ -297,7 +252,7 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
 
                 {activeFilters > 0 && (
                   <button
-                    onClick={resetFilters}
+                    onClick={onReset}
                     className="text-xs font-semibold text-[#9B1C1C] hover:underline text-left cursor-pointer"
                   >
                     {t('reset_filters')}
@@ -313,22 +268,14 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
       <div className="overflow-x-auto -mx-4 sm:mx-0">
         <div className="min-w-[850px] bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl shadow-sm overflow-hidden mx-4 sm:mx-0">
           {/* Header */}
-          <div className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4] select-none">
-            {[
-              { label: t('id_lot'), field: 'id' as SortField },
-              { label: t('country'), field: 'country' as SortField },
-              { label: t('warehouse'), field: 'warehouse' as SortField },
-              { label: t('constituted_on'), field: null },
-              { label: t('duration'), field: 'durationDays' as SortField },
-              { label: t('status'), field: 'status' as SortField },
-              { label: '', field: null },
-            ].map((h, i) => {
+          <div className={`grid ${GRID} gap-0 py-[14px] px-6 bg-[#FAF4EC] border-b border-[#E8D9C4] select-none`}>
+            {headers.map((h, i) => {
               if (!h.field) return <div key={i} className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wide">{h.label}</div>;
               const isSorted = sortField === h.field;
               return (
                 <button
                   key={i}
-                  onClick={() => handleSort(h.field!)}
+                  onClick={() => onSort(h.field!)}
                   className="flex items-center gap-1 text-[11px] font-semibold text-[#A08060] uppercase tracking-wide hover:text-[#5C3A1E] transition-colors cursor-pointer text-left outline-none border-none bg-transparent"
                 >
                   {h.label}
@@ -338,40 +285,36 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
             })}
           </div>
           {/* Rows */}
-          <motion.div key={`${locationFilter}-${statusFilter}-${ageFilter}-${pageClamped}`} variants={container} initial="hidden" animate="show">
-            <AnimatePresence mode="popLayout">
-              {paged.map((l) => (
-                <motion.div
-                  key={l.id}
-                  variants={row}
-                  exit={{ opacity: 0, height: 0 }}
-                  layout
-                  onClick={() => setSelectedLotId(l.id)}
-                  className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_.8fr_1fr_.7fr] gap-0 items-center py-[15px] px-6 border-b border-[#F0E6D8] cursor-pointer hover:bg-[#FAF4EC] transition-colors"
-                >
-                  <div>
-                    <span className="font-mono text-xs font-bold text-[#3D2610] bg-[#F5EDE0] py-[3px] px-2 rounded border border-[#E8D9C4]">
-                      {l.id}
-                    </span>
-                  </div>
-                  <div>
-                    <CountryTag countryCode={l.countryCode}>
-                      {l.flag} {t(l.countryCode)}
-                    </CountryTag>
-                  </div>
-                  <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
-                  <div className="text-[13px] text-[#443524]">{l.constitutedAt}</div>
-                  <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>{l.duration}</div>
-                  <div>
-                    <Badge variant={l.statusVariant}>{t('status_' + l.statusVariant)}</Badge>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-semibold text-[#1E5220]">{t('see')}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            {paged.length === 0 && (
+          <motion.div key={`${location}-${statusFilter}-${ageFilter}-${sortField}-${sortOrder}-${page}`} variants={container} initial="hidden" animate="show">
+            {lots.map((l) => (
+              <motion.div
+                key={l.id}
+                variants={rowVariant}
+                onClick={() => setSelectedLotId(l.id)}
+                className={`grid ${GRID} gap-0 items-center py-[15px] px-6 border-b border-[#F0E6D8] cursor-pointer hover:bg-[#FAF4EC] transition-colors`}
+              >
+                <div>
+                  <span className="font-mono text-xs font-bold text-[#3D2610] bg-[#F5EDE0] py-[3px] px-2 rounded border border-[#E8D9C4]">
+                    {l.id}
+                  </span>
+                </div>
+                <div>
+                  <CountryTag countryCode={l.countryCode}>
+                    {l.flag} {t(l.countryCode)}
+                  </CountryTag>
+                </div>
+                <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
+                <div className="text-[13px] text-[#443524]">{l.constitutedAt}</div>
+                <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>{l.duration}</div>
+                <div>
+                  <Badge variant={l.statusVariant}>{t('status_' + l.statusVariant)}</Badge>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-semibold text-[#1E5220]">{t('see')}</span>
+                </div>
+              </motion.div>
+            ))}
+            {lots.length === 0 && (
               <div className="py-12 text-center text-sm text-[#A08060]">{t('no_lots_match')}</div>
             )}
           </motion.div>
@@ -379,20 +322,20 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {pages > 1 && (
         <div className="flex items-center justify-between mt-4 px-1">
-          <span className="text-xs text-[#A08060]">{t('page_word')} {pageClamped} / {totalPages}</span>
+          <span className="text-xs text-[#A08060]">{t('page_word')} {page} / {pages}</span>
           <div className="flex gap-2">
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={pageClamped === 1}
+              onClick={() => onPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
               className="py-[7px] px-4 rounded-full text-xs font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t('prev_page')}
             </button>
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={pageClamped === totalPages}
+              onClick={() => onPage((p) => Math.min(pages, p + 1))}
+              disabled={page === pages}
               className="py-[7px] px-4 rounded-full text-xs font-semibold bg-[#F5EDE0] text-[#5C3A1E] border border-[#E8D9C4] cursor-pointer hover:bg-[#EDE0D0] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t('next_page')}
