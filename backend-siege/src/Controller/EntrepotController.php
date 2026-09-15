@@ -64,6 +64,8 @@ class EntrepotController extends AbstractController
             'postalCode'   => $e->getCodePostal(),
             'city'         => $e->getVille(),
             'active'       => $e->isActif(),
+            'status'       => $e->getDernierStatut(),
+            'statusAt'     => $e->getDernierStatutLe()?->format(\DateTimeInterface::ATOM),
             'country'      => [
                 'id'      => $e->getPays()->getId(),
                 'name'    => $e->getPays()->getNom(),

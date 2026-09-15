@@ -13,6 +13,7 @@ class Alerte
 {
     public const TYPE_CONDITION_HORS_PLAGE = 'out_of_range';
     public const TYPE_LOT_PERIME           = 'expired_lot';
+    public const TYPE_CAPTEUR_HORS_LIGNE   = 'sensor_offline';
 
     // The uuid is assigned from the producing tier's payload during sync, never
     // generated here, so the siège shares the same identity as the local record.
@@ -22,7 +23,7 @@ class Alerte
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [self::TYPE_CONDITION_HORS_PLAGE, self::TYPE_LOT_PERIME])]
+    #[Assert\Choice(choices: [self::TYPE_CONDITION_HORS_PLAGE, self::TYPE_LOT_PERIME, self::TYPE_CAPTEUR_HORS_LIGNE])]
     private string $type;
 
     #[ORM\ManyToOne(targetEntity: Lot::class)]

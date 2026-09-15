@@ -55,6 +55,9 @@ class SyncService
         $headers = ['X-API-KEY' => $pays->getApiKey() ?? ''];
 
         try {
+            // Warehouses first: creates/updates the entrepôts (and their sensor
+            // status) that measurements, lots and alerts reference by uuid.
+            $this->syncWarehouses($pays, $baseUrl, $headers);
             // Order matters: lots reference products and exploitations by uuid,
             // so their catalogues must be upserted before lots are resolved.
             $produits      = $this->syncProducts($pays, $baseUrl, $headers);
@@ -115,6 +118,36 @@ class SyncService
                 'url' => $baseUrl,
                 'msg' => $e->getMessage(),
             ]);
+        }
+    }
+
+    /**
+     * Upsert each warehouse and its current sensor status. Not acked: the status
+     * is current state, re-sent every sync, not buffered data.
+     */
+    private function syncWarehouses(Pays $pays, string $baseUrl, array $headers): void
+    {
+        $response = $this->httpClient->request('GET', $baseUrl . '/sync/warehouses', ['headers' => $headers]);
+        $data = $response->toArray();
+
+        foreach ($data as $item) {
+            $entrepot = $this->entrepotRepository->find($item['uuid']);
+            if ($entrepot === null) {
+                $entrepot = (new Entrepot())
+                    ->setUuid(Uuid::fromString($item['uuid']))
+                    ->setNom($item['name'] ?? ('Entrepôt ' . $pays->getNom()))
+                    ->setNumeroRue(0)
+                    ->setAdresse('')
+                    ->setCodePostal(0)
+                    ->setVille('')
+                    ->setPays($pays);
+                $this->em->persist($entrepot);
+            }
+
+            $entrepot->setDernierStatut($item['last_status'] ?? null);
+            $entrepot->setDernierStatutLe(
+                !empty($item['last_status_at']) ? new \DateTimeImmutable($item['last_status_at']) : null,
+            );
         }
     }
 
@@ -251,28 +284,28 @@ class SyncService
         foreach ($data as $item) {
             $synced[] = $item['uuid'];
 
-            if ($this->alerteRepository->find($item['uuid']) !== null) {
-                continue;
+            $alerte = $this->alerteRepository->find($item['uuid']);
+            if ($alerte === null) {
+                $alerte = (new Alerte())
+                    ->setUuid(Uuid::fromString($item['uuid']))
+                    ->setType($item['type'])
+                    ->setEntrepot($this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null))
+                    ->setDeclencheeLe(new \DateTimeImmutable($item['triggered_at']));
+
+                if (!empty($item['lot_uuid'])) {
+                    $alerte->setLot($this->lotRepository->find($item['lot_uuid']));
+                }
+
+                $this->em->persist($alerte);
             }
 
-            $entrepot = $this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null);
-
-            $alerte = (new Alerte())
-                ->setUuid(Uuid::fromString($item['uuid']))
-                ->setType($item['type'])
-                ->setEntrepot($entrepot)
-                ->setDeclencheeLe(new \DateTimeImmutable($item['triggered_at']));
-
-            if (!empty($item['lot_uuid'])) {
-                $lot = $this->lotRepository->find($item['lot_uuid']);
-                $alerte->setLot($lot);
-            }
-
-            if (!empty($item['resolved_at'])) {
-                $alerte->setResolueLe(new \DateTimeImmutable($item['resolved_at']));
-            }
-
-            $this->em->persist($alerte);
+            // Propagate resolution: the local re-sends a resolved alert (it marks it
+            // unacked on resolve), so an already-known alert may now carry resolved_at.
+            // Without updating it here, the siège would display the alert active forever
+            // and pile up several "active" alerts for the same warehouse.
+            $alerte->setResolueLe(
+                !empty($item['resolved_at']) ? new \DateTimeImmutable($item['resolved_at']) : null,
+            );
         }
 
         return $synced;

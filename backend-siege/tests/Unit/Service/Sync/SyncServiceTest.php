@@ -77,7 +77,7 @@ class SyncServiceTest extends TestCase
         $this->syncService->syncAll();
     }
 
-    public function testSyncPaysCallsAllFiveEndpoints(): void
+    public function testSyncPaysCallsAllSixEndpoints(): void
     {
         $pays = (new Pays())
             ->setNom('Brésil')
@@ -88,8 +88,9 @@ class SyncServiceTest extends TestCase
         $emptyResponse = $this->createMock(ResponseInterface::class);
         $emptyResponse->method('toArray')->willReturn([]);
 
-        // products + exploitations + lots + measurements + alerts = 5 GET, no ack (nothing synced).
-        $this->httpClient->expects($this->exactly(5))
+        // warehouses + products + exploitations + lots + measurements + alerts = 6 GET,
+        // no ack (nothing synced).
+        $this->httpClient->expects($this->exactly(6))
             ->method('request')
             ->willReturn($emptyResponse);
 
