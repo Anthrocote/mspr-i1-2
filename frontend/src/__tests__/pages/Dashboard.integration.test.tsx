@@ -40,8 +40,8 @@ describe('DashboardPage container', () => {
         typeLabel: 'Lot périmé',
         subject: 'LOT-BRA-2025-001',
         status: 'active',
-        dateTime: '5 jan. 2025 09:00',
-        resolvedDateTime: null,
+        triggeredAt: '2025-01-05T09:00:00.000Z',
+        resolvedAt: null,
       },
     ]);
 

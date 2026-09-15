@@ -164,7 +164,7 @@ export default function IoTPage() {
             </Badge>
           )}
           <span className="text-xs text-[#A08060] hidden md:inline">
-            {selected.country} · {selected.lots} {t('lots_count')} · {t('ideal').toLowerCase()} {selected.idealTemp} · {selected.idealHum}
+            {t(selected.countryCode)} · {selected.lots} {t('lots_count')} · {t('ideal').toLowerCase()} {selected.idealTemp} · {selected.idealHum}
           </span>
         </div>
         <div className="flex gap-[7px]">

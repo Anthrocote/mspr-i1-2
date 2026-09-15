@@ -20,6 +20,7 @@ function lot(over: Partial<Lot> & { id: string; countryCode: CountryCode; wareho
     flag: COUNTRY_FLAG[countryCode],
     exploitationId: '',
     constitutedAt: '5 jan. 2023',
+    constitutedAtIso: '2023-01-05T00:00:00.000Z',
     storageDate: '12 jan. 2023',
     stays: [],
     duration: '90 j',
@@ -41,8 +42,8 @@ const LOTS: Lot[] = [
     constitutedAt: '5 jan. 2023', duration: '387 j', durationDays: 387, status: 'Périmé', statusVariant: 'err', durationVariant: 'err',
     temp: '31°C', hum: '56%', idealTemp: '29°C ±3', idealHum: '55% ±2',
     stays: [
-      { warehouse: 'Rio C', entree: '12 jan. 2023', sortie: '20 juin 2023' },
-      { warehouse: 'São Paulo A', entree: '21 juin 2023', sortie: null },
+      { warehouse: 'Rio C', entree: '12 jan. 2023', sortie: '20 juin 2023', entreeIso: '2023-01-12T00:00:00.000Z', sortieIso: '2023-06-20T00:00:00.000Z' },
+      { warehouse: 'São Paulo A', entree: '21 juin 2023', sortie: null, entreeIso: '2023-06-21T00:00:00.000Z', sortieIso: null },
     ],
   }),
   lot({ id: 'LOT-EC-2024-00107', countryCode: 'ec', warehouse: 'Quito B', duration: '240 j', durationDays: 240, status: 'En Alerte', statusVariant: 'warn', durationVariant: 'warn' }),

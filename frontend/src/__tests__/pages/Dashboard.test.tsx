@@ -38,7 +38,7 @@ function alert(id: string, severity: Alert['severity'], title: string): Alert {
   return {
     id, severity, title, description: 'Déclenchée le 5 jan. 2025', time: '5 jan. 2025',
     type, typeLabel, subject: subject ?? '—', status: 'active' as const,
-    dateTime: '5 jan. 2025 09:00', resolvedDateTime: null,
+    triggeredAt: '2025-01-05T09:00:00.000Z', resolvedAt: null,
     ...p,
   };
 }

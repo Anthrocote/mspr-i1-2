@@ -30,6 +30,9 @@ export interface WarehouseStay {
   warehouse: string;
   entree: string;
   sortie: string | null;
+  // Raw ISO instants; views format them in the active language.
+  entreeIso: string;
+  sortieIso: string | null;
 }
 
 export interface Lot {
@@ -50,6 +53,8 @@ export interface Lot {
   // Date the lot was constituted at the exploitation. Distinct from a warehouse
   // entry date: duration is counted from here, not from the current storage.
   constitutedAt: string;
+  // Raw ISO of the constitution date; views format it in the active language.
+  constitutedAtIso: string | null;
   storageDate: string;
   stays: WarehouseStay[];
   duration: string;
@@ -80,15 +85,14 @@ export interface Alert {
   // translate it at render time via t('alert_type_' + type); `typeLabel`/`title`
   // hold the French canonical fallback.
   type: string;
+  // Raw ISO instants; views format them in the active language (date + hour).
+  triggeredAt: string;
+  resolvedAt: string | null;
   // History-table fields (Alertes page). `title` bundles type + subject for the
   // dashboard card; the table keeps them apart.
   typeLabel: string;
   subject: string;
   status: AlertStatus;
-  // Triggered date + wall-clock time (local), e.g. "5 jan. 2023 14:32".
-  dateTime: string;
-  // Resolution date + time, or null while the alert is still active.
-  resolvedDateTime: string | null;
 }
 
 export interface Farm {

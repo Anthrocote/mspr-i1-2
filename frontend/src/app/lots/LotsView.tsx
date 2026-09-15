@@ -11,6 +11,7 @@ import type {
   SortOrder,
 } from '@/lib/api/queries';
 import { formatHumidity, formatTemperature } from '@/lib/api/adapters';
+import { formatDate } from '@/lib/format';
 import Badge from '@/components/ui/Badge';
 import CountryTag from '@/components/ui/CountryTag';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -106,7 +107,7 @@ export default function LotsView({
   onPage,
   loadDetail,
 }: LotsViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [detailExtras, setDetailExtras] = useState<LotDetailExtras | null>(null);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -304,7 +305,7 @@ export default function LotsView({
                   </CountryTag>
                 </div>
                 <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
-                <div className="text-[13px] text-[#443524]">{l.constitutedAt}</div>
+                <div className="text-[13px] text-[#443524]">{l.constitutedAtIso ? formatDate(l.constitutedAtIso, language) : l.constitutedAt}</div>
                 <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>{l.duration}</div>
                 <div>
                   <Badge variant={l.statusVariant}>{t('status_' + l.statusVariant)}</Badge>
@@ -364,8 +365,9 @@ function FilterSelect({ label, value, onChange, children }: { label: string; val
 
 /* ── Lot Detail (read-only) ── */
 function LotDetail({ lot, farms, onBack }: { lot: Lot; farms: Farm[]; onBack: () => void }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const exploitation = farms.find((e) => e.id === lot.exploitationId);
+  const constitutedDisplay = lot.constitutedAtIso ? formatDate(lot.constitutedAtIso, language) : lot.constitutedAt;
   return (
     <motion.div
       className="max-w-[1100px] mx-auto w-full"
@@ -399,7 +401,7 @@ function LotDetail({ lot, farms, onBack }: { lot: Lot; farms: Farm[]; onBack: ()
           <div className="p-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px] mb-6">
               <DetailField label={t('exploitation')} value={exploitation ? `${exploitation.flag} ${exploitation.name}` : `${lot.flag} ${t(lot.countryCode)}`} />
-              <DetailField label={t('constituted_on')} value={lot.constitutedAt} />
+              <DetailField label={t('constituted_on')} value={constitutedDisplay} />
               <DetailField
                 label={t('duration_in_stock')}
                 value={lot.duration}
@@ -431,13 +433,13 @@ function LotDetail({ lot, farms, onBack }: { lot: Lot; farms: Farm[]; onBack: ()
         <div className="bg-[#FFFCF8] border border-[#E8D9C4] rounded-2xl p-6 shadow-sm">
           <h3 className="font-display text-[19px] font-semibold text-[#1E0F06] mb-[18px]">{t('lot_journey')}</h3>
           <div className="flex flex-col">
-            <TimelineStep color="#2E7D32" title={t('constituted_step')} desc={`${t(lot.countryCode)} · ${lot.constitutedAt}`} hasLine />
+            <TimelineStep color="#2E7D32" title={t('constituted_step')} desc={`${t(lot.countryCode)} · ${constitutedDisplay}`} hasLine />
             {lot.stays.map((s, i) => (
               <TimelineStep
                 key={`${s.warehouse}-${i}`}
-                color={s.sortie ? '#A0714F' : '#B45309'}
+                color={s.sortieIso ? '#A0714F' : '#B45309'}
                 title={`${t('stored_step')} · ${s.warehouse}`}
-                desc={`${s.entree} → ${s.sortie ?? t('in_progress')}`}
+                desc={`${formatDate(s.entreeIso, language)} → ${s.sortieIso ? formatDate(s.sortieIso, language) : t('in_progress')}`}
                 hasLine={i < lot.stays.length - 1}
               />
             ))}

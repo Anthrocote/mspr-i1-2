@@ -8,6 +8,7 @@ import MetricCard from '@/components/ui/MetricCard';
 import ConformityBar from '@/components/dashboard/ConformityBar';
 import WarehouseWatchlist from '@/components/dashboard/WarehouseWatchlist';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { formatDateTime } from '@/lib/format';
 
 const container = {
   hidden: { opacity: 0 },
@@ -40,7 +41,7 @@ export default function DashboardView({
   warehouses,
   alerts,
 }: DashboardViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const exceptions = warehouseExceptions(warehouses);
   const sortedAlerts = sortAlertsBySeverity(alerts);
   const criticalCount = alerts.filter((a) => a.severity === 'critique').length;
@@ -110,9 +111,8 @@ export default function DashboardView({
               <span className="text-base leading-none mt-0.5">{a.icon}</span>
               <div className="flex-1 min-w-0">
                 <div className="text-[13px] font-semibold text-[#1E0F06]">{t('alert_type_' + a.type)} — {a.subject}</div>
-                <div className="text-xs text-[#6B5540] mt-0.5">{t('triggered_at')} {a.time}</div>
+                <div className="text-xs text-[#6B5540] mt-0.5">{t('triggered_at')} {formatDateTime(a.triggeredAt, language)}</div>
               </div>
-              <span className="text-[11px] text-[#A08060] whitespace-nowrap self-center">{a.time}</span>
             </div>
           ))}
         </div>

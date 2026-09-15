@@ -226,7 +226,7 @@ describe('fetchLotDetail', () => {
 
     expect(result.lot.id).toBe('LOT-BRA-2025-001');
     expect(result.stays).toEqual([
-      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: null },
+      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: null, entreeIso: '2026-07-17T00:00:00Z', sortieIso: null },
     ]);
     expect(result.temp).toBe(31.4);
     expect(result.hum).toBe(56.8);

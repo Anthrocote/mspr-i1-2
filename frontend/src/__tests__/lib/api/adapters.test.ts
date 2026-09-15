@@ -242,9 +242,9 @@ describe('alert adaptation', () => {
     expect(a.typeLabel).toBe('Condition hors plage');
     expect(a.subject).toBe('Entrepôt Quito');
     expect(a.status).toBe('active');
-    expect(a.resolvedDateTime).toBeNull();
-    // Date + wall-clock time are exposed for the history table.
-    expect(a.dateTime).toMatch(/^5 jan\. 2025 \d{2}:\d{2}$/);
+    expect(a.resolvedAt).toBeNull();
+    // Raw ISO instant is exposed so views format it in the active language.
+    expect(a.triggeredAt).toBe('2025-01-05T10:00:00Z');
   });
 
   it('marks a resolved alert and exposes its resolution time', () => {
@@ -256,7 +256,7 @@ describe('alert adaptation', () => {
       warehouse: { uuid: 'wh-1', name: 'Entrepôt Quito' },
     });
     expect(a.status).toBe('resolved');
-    expect(a.resolvedDateTime).toMatch(/^5 jan\. 2025 \d{2}:\d{2}$/);
+    expect(a.resolvedAt).toBe('2025-01-05T12:30:00Z');
   });
 });
 
@@ -366,8 +366,8 @@ describe('storage history adaptation', () => {
       { warehouse: { uuid: 'w-2', name: 'Entrepôt Rio' }, arrivedAt: '2026-08-02T00:00:00Z', departedAt: null },
     ]);
     expect(stays).toEqual([
-      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: '1 août 2026' },
-      { warehouse: 'Entrepôt Rio', entree: '2 août 2026', sortie: null },
+      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: '1 août 2026', entreeIso: '2026-07-17T00:00:00Z', sortieIso: '2026-08-01T00:00:00Z' },
+      { warehouse: 'Entrepôt Rio', entree: '2 août 2026', sortie: null, entreeIso: '2026-08-02T00:00:00Z', sortieIso: null },
     ]);
   });
 });

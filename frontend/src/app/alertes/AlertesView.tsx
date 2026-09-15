@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Alert } from '@/types';
 import type { AlertStatusFilter } from '@/lib/api/queries';
 import Badge from '@/components/ui/Badge';
+import { formatDateTime } from '@/lib/format';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const container = {
@@ -57,7 +58,7 @@ export default function AlertesView({
   onReset,
   onPage,
 }: AlertesViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -203,13 +204,13 @@ export default function AlertesView({
                   <span className="text-[13px] font-semibold text-[#1E0F06] truncate">{t('alert_type_' + a.type)}</span>
                 </div>
                 <div className="text-[13px] text-[#443524] truncate">{a.subject}</div>
-                <div className="text-[13px] text-[#443524]">{a.dateTime}</div>
+                <div className="text-[13px] text-[#443524]">{formatDateTime(a.triggeredAt, language)}</div>
                 <div>
                   <Badge variant={a.status === 'resolved' ? 'ok' : 'warn'}>
                     {t(a.status === 'resolved' ? 'status_resolved' : 'status_active')}
                   </Badge>
                 </div>
-                <div className="text-[13px] text-[#A08060]">{a.resolvedDateTime ?? '—'}</div>
+                <div className="text-[13px] text-[#A08060]">{a.resolvedAt ? formatDateTime(a.resolvedAt, language) : '—'}</div>
               </motion.div>
             ))}
             {alerts.length === 0 && (

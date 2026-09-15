@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AlertesPage from '@/app/alertes/page';
 import type { Alert } from '@/types';
 import type { AlertsPageResult } from '@/lib/api/queries';
+import { formatDateTime } from '@/lib/format';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
 import * as queries from '@/lib/api/queries';
@@ -26,15 +27,18 @@ function alert(over: Partial<Alert> & { id: string; typeLabel: string; subject: 
     bgColor: '#FEF3E2',
     borderColor: '#B45309',
     status: 'active',
-    dateTime: '5 jan. 2026 14:32',
-    resolvedDateTime: null,
+    triggeredAt: '2026-09-15T20:25:00.000Z',
+    resolvedAt: null,
     ...over,
   };
 }
 
+const A1_TRIGGERED = '2026-09-15T20:13:00.000Z';
+const A1_RESOLVED = '2026-09-15T20:15:00.000Z';
+
 const ALERTS: Alert[] = [
-  alert({ id: 'a1', typeLabel: 'Capteur hors ligne', subject: 'Entrepôt Équateur', icon: '📡', dateTime: '15 sep. 2026 23:13', status: 'resolved', resolvedDateTime: '15 sep. 2026 23:15' }),
-  alert({ id: 'a2', typeLabel: 'Condition hors plage', subject: 'Quito B', dateTime: '15 sep. 2026 22:25' }),
+  alert({ id: 'a1', typeLabel: 'Capteur hors ligne', subject: 'Entrepôt Équateur', icon: '📡', triggeredAt: A1_TRIGGERED, status: 'resolved', resolvedAt: A1_RESOLVED }),
+  alert({ id: 'a2', typeLabel: 'Condition hors plage', subject: 'Quito B', triggeredAt: '2026-09-15T20:25:00.000Z' }),
 ];
 
 function pageResult(over: Partial<AlertsPageResult> = {}): AlertsPageResult {
@@ -58,8 +62,8 @@ describe('AlertesPage container', () => {
     expect(screen.getByText('Condition hors plage')).toBeInTheDocument();
     expect(screen.getByText('Entrepôt Équateur')).toBeInTheDocument();
     expect(screen.getByText('Quito B')).toBeInTheDocument();
-    // Date AND time are shown.
-    expect(screen.getByText('15 sep. 2026 23:13')).toBeInTheDocument();
+    // Date AND time are shown, formatted in the active language.
+    expect(screen.getByText(formatDateTime(A1_TRIGGERED, 'fr'))).toBeInTheDocument();
   });
 
   it('shows the total alert count', async () => {
@@ -73,7 +77,7 @@ describe('AlertesPage container', () => {
     expect(screen.getByText('Résolue')).toBeInTheDocument();
     expect(screen.getByText('Active')).toBeInTheDocument();
     // The resolved alert shows its resolution time; the active one shows a dash.
-    expect(screen.getByText('15 sep. 2026 23:15')).toBeInTheDocument();
+    expect(screen.getByText(formatDateTime(A1_RESOLVED, 'fr'))).toBeInTheDocument();
   });
 
   it('defaults to the full history (status=all)', async () => {

@@ -128,20 +128,6 @@ export function formatDateFr(iso: string): string {
   return `${d.getUTCDate()} ${MONTHS_FR[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
-// ISO 8601 → French date + wall-clock time (e.g. "5 jan. 2023 14:32"). Uses
-// LOCAL parts so the time matches the on-site clock (the wire timestamp is UTC);
-// alerts are read for "when did this happen here", so the local hour is what the
-// operator expects — same choice as the IoT chart's axis.
-export function formatDateTimeFr(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    throw new Error(`Invalid ISO date: ${iso}`);
-  }
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  return `${d.getDate()} ${MONTHS_FR[d.getMonth()]} ${d.getFullYear()} ${hh}:${mm}`;
-}
-
 // Whole-day span between two instants (UTC), used for lot storage duration.
 export function daysBetween(fromIso: string, toIso: string): number {
   const from = new Date(fromIso).getTime();
@@ -265,15 +251,16 @@ export function adaptAlert(alert: ApiAlert): Alert {
     time: formatDateFr(alert.triggeredAt),
     bgColor: p.bgColor,
     borderColor: p.borderColor,
-    // Raw enum kept so views can translate the type label at render time
-    // (the French labels above are the `fr` canonical fallback).
+    // Raw enum + raw ISO instants kept so views translate the type label AND
+    // format the dates in the active language at render time (the French strings
+    // above are the `fr` canonical fallback).
     type: alert.type,
+    triggeredAt: alert.triggeredAt,
+    resolvedAt: alert.resolvedAt,
     // History-table fields.
     typeLabel,
     subject,
     status: resolved ? 'resolved' : 'active',
-    dateTime: formatDateTimeFr(alert.triggeredAt),
-    resolvedDateTime: alert.resolvedAt ? formatDateTimeFr(alert.resolvedAt) : null,
   };
 }
 
@@ -305,6 +292,7 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
     warehouse: api.currentWarehouse?.name ?? '',
     exploitationId: api.exploitation?.uuid ?? '',
     constitutedAt,
+    constitutedAtIso: api.constitutedAt,
     storageDate,
     stays: [],
     duration: api.durationDays != null ? `${api.durationDays} j` : '',
@@ -346,5 +334,7 @@ export function adaptStays(history: ApiStorageHistoryEntry[]): WarehouseStay[] {
     warehouse: entry.warehouse.name,
     entree: formatDateFr(entry.arrivedAt),
     sortie: entry.departedAt ? formatDateFr(entry.departedAt) : null,
+    entreeIso: entry.arrivedAt,
+    sortieIso: entry.departedAt,
   }));
 }
