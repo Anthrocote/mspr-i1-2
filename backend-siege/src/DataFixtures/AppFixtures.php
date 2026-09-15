@@ -153,6 +153,15 @@ class AppFixtures extends Fixture
             ->setEntrepot($entrepots['BRA'])
             ->setDeclencheeLe(new \DateTimeImmutable('-2 days')));
 
+        // A resolved alert so the history view (status=all / resolved filter) has
+        // a closed case to show alongside the two active ones.
+        $manager->persist((new Alerte())
+            ->setUuid(Uuid::v4())
+            ->setType(Alerte::TYPE_CAPTEUR_HORS_LIGNE)
+            ->setEntrepot($entrepots['BRA'])
+            ->setDeclencheeLe(new \DateTimeImmutable('-3 days'))
+            ->setResolueLe(new \DateTimeImmutable('-3 days +2 hours')));
+
         $manager->flush();
     }
 }

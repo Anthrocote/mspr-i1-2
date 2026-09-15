@@ -14,12 +14,33 @@ class AlerteRepository extends ServiceEntityRepository
         parent::__construct($registry, Alerte::class);
     }
 
-    /** @return array{items: list<Alerte>, total: int} Active (unresolved) alerts, with optional filters */
-    public function findActives(?string $type, ?int $paysId, int $limit, int $offset): array
-    {
+    public const STATUS_ACTIVE   = 'active';
+    public const STATUS_RESOLVED = 'resolved';
+    public const STATUS_ALL      = 'all';
+
+    /**
+     * @param string $status one of active|resolved|all (see STATUS_* constants)
+     * @return array{items: list<Alerte>, total: int} Alerts (newest first), filtered by
+     *   status, type, country and triggered-at date range
+     */
+    public function findFiltered(
+        string $status,
+        ?string $type,
+        ?int $paysId,
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $to,
+        int $limit,
+        int $offset,
+    ): array {
         $qb = $this->createQueryBuilder('a')
-            ->where('a.resolueLe IS NULL')
             ->orderBy('a.declencheeLe', 'DESC');
+
+        // Default (and any unknown value) keeps the historical active-only view.
+        if ($status === self::STATUS_RESOLVED) {
+            $qb->andWhere('a.resolueLe IS NOT NULL');
+        } elseif ($status !== self::STATUS_ALL) {
+            $qb->andWhere('a.resolueLe IS NULL');
+        }
 
         if ($type !== null) {
             $qb->andWhere('a.type = :type')->setParameter('type', $type);
@@ -29,6 +50,12 @@ class AlerteRepository extends ServiceEntityRepository
                ->leftJoin('e.pays', 'p')
                ->andWhere('p.id = :paysId')
                ->setParameter('paysId', $paysId);
+        }
+        if ($from !== null) {
+            $qb->andWhere('a.declencheeLe >= :from')->setParameter('from', $from);
+        }
+        if ($to !== null) {
+            $qb->andWhere('a.declencheeLe <= :to')->setParameter('to', $to);
         }
 
         return QueryPaginator::paginate($qb, $limit, $offset);
