@@ -25,12 +25,20 @@ class LotController extends AbstractController
     #[OA\Parameter(name: 'country_id',   in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
     #[OA\Parameter(name: 'page',         in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
     #[OA\Parameter(name: 'limit',        in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
+    #[OA\Parameter(name: 'search',       in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Case-insensitive substring on lot label, product, warehouse and country names')]
+    #[OA\Parameter(name: 'age',          in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['lt90', '90_180', '180_365', 'gt365']))]
+    #[OA\Parameter(name: 'sort',         in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['id', 'country', 'warehouse', 'duration', 'status']))]
+    #[OA\Parameter(name: 'order',        in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['asc', 'desc'], default: 'asc'))]
     #[OA\Response(response: 200, description: 'Paginated list of lots')]
     public function list(Request $request): JsonResponse
     {
         $entrepotUuid = $request->query->get('warehouse_id');
         $statut       = $request->query->get('status');
         $paysId       = $request->query->get('country_id');
+        $search       = $request->query->get('search');
+        $age          = $request->query->get('age');
+        $sort         = $request->query->get('sort');
+        $order        = $request->query->get('order');
         $pagination   = Pagination::fromRequest($request);
 
         $result = $this->lotRepository->findFiltered(
@@ -39,6 +47,10 @@ class LotController extends AbstractController
             $paysId !== null ? (int) $paysId : null,
             $pagination->getLimit(),
             $pagination->getOffset(),
+            $search,
+            $age,
+            $sort,
+            $order,
         );
 
         $data = array_map(fn ($l) => $this->serializeSummary($l), $result['items']);
