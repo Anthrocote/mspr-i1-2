@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-espresso-950: #120A04;
+  --color-espresso-900: #1E0F06;
+  --color-espresso-800: #2C1A0A;
+  --color-espresso-700: #3D2610;
+  --color-espresso-600: #5C3A1E;
+  --color-espresso-500: #7A5235;
+  --color-espresso-400: #A0714F;
+  --color-espresso-300: #C49A78;
+  --color-espresso-200: #DFC0A0;
+  --color-espresso-100: #F0DFD0;
+
+  --color-parchment-700: #A08060;
+  --color-parchment-600: #C4A882;
+  --color-parchment-400: #E8D9C4;
+  --color-parchment-300: #F0E6D8;
+  --color-parchment-200: #F5EDE0;
+  --color-parchment-100: #FAF4EC;
+  --color-parchment-50: #FDF9F4;
+  --color-parchment-0: #FFFCF8;
+
+  --color-fk-green-800: #1A3D1C;
+  --color-fk-green-700: #1E5220;
+  --color-fk-green-600: #2E7D32;
+  --color-fk-green-400: #5DB761;
+  --color-fk-green-300: #8ED492;
+  --color-fk-green-200: #C1EAC3;
+  --color-fk-green-100: #EDF7EE;
+
+  --color-fk-danger: #9B1C1C;
+  --color-fk-danger-bg: #FEF2F2;
+  --color-fk-danger-border: #FCA5A5;
+  --color-fk-warning: #B45309;
+  --color-fk-warning-bg: #FEF3E2;
+  --color-fk-warning-border: #F6CC7A;
+  --color-fk-success: #2E7D32;
+  --color-fk-success-bg: #EDF7EE;
+  --color-fk-success-border: #A5D6A7;
+  --color-fk-info: #1E4D8C;
+  --color-fk-info-bg: #EFF6FF;
+  --color-fk-info-border: #93C5FD;
+
+  --color-page-bg: #EFE7DA;
+  --color-neutral-700: #443524;
+  --color-neutral-600: #6B5540;
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-page-bg);
+  color: var(--color-espresso-900);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-espresso-200);
+  border-radius: 9999px;
+  border: 2px solid var(--color-page-bg);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

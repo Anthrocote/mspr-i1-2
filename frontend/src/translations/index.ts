@@ -1,0 +1,379 @@
+export type Language = 'fr' | 'en' | 'es';
+
+export const translations: Record<Language, Record<string, string>> = {
+  fr: {
+    // Secret game
+    "game_score": "Score",
+    "game_instructions": "Cliquez ou appuyez sur Espace pour sauter",
+    "game_over": "Partie terminée",
+    "game_best_score": "Meilleur score",
+
+    // Menu & Layout
+    "menu": "Menu",
+    "dashboard": "Dashboard",
+    "lots": "Gestion des Lots",
+    "iot": "Suivi des entrepôts",
+    "alertes": "Alertes",
+    "exploitations": "Exploitations",
+
+    // Page Subtitles
+    "dashboard_subtitle": "Vue globale · 3 pays · 248 lots en stock",
+    "lots_subtitle": "Traçabilité & rotation des stocks",
+    "iot_subtitle": "Température & humidité des entrepôts en temps réel",
+    "alertes_subtitle": "Alertes actives · vue consolidée",
+    "exploitations_subtitle": "Brésil · Équateur · Colombie",
+
+    // Dashboard Metrics
+    "total_lots": "Total Lots",
+    "in_alert": "En Alerte",
+    "in_transit": "En Transit",
+    "trend_lots": "↑ +12 ce mois",
+    "trend_transit": "↑ +2 aujourd'hui",
+
+    // Dashboard Sections
+    "recent_alerts": "Alertes récentes",
+    "see_all": "Voir tout →",
+    "see_all_alerts": "Tout voir →",
+    "watchlist_title": "À surveiller",
+    "watchlist_sub": "Entrepôts hors seuil, classés par criticité",
+    "watchlist_sub_ok": "Conditions de tous les entrepôts",
+    "watchlist_all_ok": "Tous les entrepôts sont dans leurs seuils.",
+    "within_threshold": "dans le seuil",
+    "vs_ideal": "vs idéal",
+    "alerts_label": "alertes",
+    "critical_label": "critiques",
+    "more_alerts": "autres alertes →",
+    "lots_status": "Statut des Lots",
+
+    // Country Names
+    "br": "Brésil",
+    "ec": "Équateur",
+    "co": "Colombie",
+
+    // Lots Filters
+
+    // Lots UI
+    "filter": "Filtrer",
+    "warehouse": "Entrepôt",
+    "status": "Statut",
+    "all_statuses": "Tous les statuts",
+    "status_ok": "Conforme",
+    "status_warn": "En Alerte",
+    "status_err": "Périmé",
+    "reset_filters": "Réinitialiser les filtres",
+    "id_lot": "ID Lot",
+    "country": "Pays",
+    "duration": "Durée",
+    "see": "Voir →",
+    "temperature": "Température",
+    "humidity": "Humidité",
+    "back_to_lots": "Retour aux lots",
+    "filters_title": "Filtres",
+    "close_filters": "Fermer les filtres",
+    "location": "Localisation",
+    "all_locations": "Toutes les localisations",
+    "location_all_suffix": "— tous",
+    "age": "Ancienneté",
+    "age_all": "Toutes les durées",
+    "age_lt90": "Moins de 90 j",
+    "age_90_180": "90 à 180 j",
+    "age_180_365": "180 à 365 j",
+    "age_gt365": "Plus de 365 j",
+    "constituted_on": "Constitué le",
+    "lot_journey": "Parcours du lot",
+    "constituted_step": "Constitué",
+    "stored_step": "Entreposé",
+    "exploitation": "Exploitation",
+    "duration_in_stock": "Durée en stock",
+    "no_lots_match": "Aucun lot ne correspond à ces filtres.",
+    "page_word": "Page",
+    "prev_page": "Précédent",
+    "next_page": "Suivant",
+    "in_progress": "en cours",
+    "current_conditions": "Conditions actuelles",
+    "ideal": "Idéal",
+
+    // IoT Page
+    "lots_count": "lots",
+
+    // Alerts Page
+    "all": "Toutes",
+    "critical": "Critiques",
+    "warnings": "Avertissements",
+
+    // Farms Page
+    "farms_count": "exploitations",
+    "warehouses_count": "entrepôts",
+    "active_lots": "Lots actifs",
+    "partner_farms": "Exploitations partenaires",
+    "countries_all": "Tous les pays",
+    "no_exploitation_country": "Aucune exploitation pour ce pays.",
+    "out_of_range": "Hors plage",
+    "farm": "Exploitation",
+    "lots_supplied": "Lots fournis",
+    "certification": "Certification",
+
+    "language": "Langue",
+
+    "compliant": "conformes",
+    "in_alert_chart": "En alerte",
+    "expired_chart": "Périmé",
+
+    "open_menu": "Ouvrir le menu",
+    "search": "Rechercher…",
+    "page_not_found": "Page non trouvée",
+    "error_404": "Erreur 404",
+    "back_to_dashboard": "Retour au tableau de bord",
+    "error_404_desc": "La page que vous recherchez n'existe pas ou a été déplacée."
+  },
+  en: {
+    // Secret game
+    "game_score": "Score",
+    "game_instructions": "Click or press Space to jump",
+    "game_over": "Game over",
+    "game_best_score": "Best score",
+
+    // Menu & Layout
+    "menu": "Menu",
+    "dashboard": "Dashboard",
+    "lots": "Lots Management",
+    "iot": "Warehouse monitoring",
+    "alertes": "Alerts",
+    "exploitations": "Farms",
+
+    // Page Subtitles
+    "dashboard_subtitle": "Global view · 3 countries · 248 lots in stock",
+    "lots_subtitle": "Traceability & stock rotation",
+    "iot_subtitle": "Warehouse temperature & humidity in real time",
+    "alertes_subtitle": "Active alerts · consolidated view",
+    "exploitations_subtitle": "Brazil · Ecuador · Colombia",
+
+    // Dashboard Metrics
+    "total_lots": "Total Lots",
+    "in_alert": "In Alert",
+    "in_transit": "In Transit",
+    "trend_lots": "↑ +12 this month",
+    "trend_transit": "↑ +2 today",
+
+    // Dashboard Sections
+    "recent_alerts": "Recent Alerts",
+    "see_all": "See all →",
+    "see_all_alerts": "See all →",
+    "watchlist_title": "To watch",
+    "watchlist_sub": "Warehouses over threshold, ranked by severity",
+    "watchlist_sub_ok": "Conditions of all warehouses",
+    "watchlist_all_ok": "All warehouses are within their thresholds.",
+    "within_threshold": "within limit",
+    "vs_ideal": "vs ideal",
+    "alerts_label": "alerts",
+    "critical_label": "critical",
+    "more_alerts": "more alerts →",
+    "lots_status": "Lots Status",
+
+    // Country Names
+    "br": "Brazil",
+    "ec": "Ecuador",
+    "co": "Colombia",
+
+    // Lots Filters
+
+    // Lots UI
+    "filter": "Filter",
+    "warehouse": "Warehouse",
+    "status": "Status",
+    "all_statuses": "All statuses",
+    "status_ok": "Compliant",
+    "status_warn": "In Alert",
+    "status_err": "Expired",
+    "reset_filters": "Reset filters",
+    "id_lot": "Lot ID",
+    "country": "Country",
+    "duration": "Duration",
+    "see": "See →",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "back_to_lots": "Back to lots",
+    "filters_title": "Filters",
+    "close_filters": "Close filters",
+    "location": "Location",
+    "all_locations": "All locations",
+    "location_all_suffix": "— all",
+    "age": "Age",
+    "age_all": "All durations",
+    "age_lt90": "Under 90 d",
+    "age_90_180": "90 to 180 d",
+    "age_180_365": "180 to 365 d",
+    "age_gt365": "Over 365 d",
+    "constituted_on": "Constituted on",
+    "lot_journey": "Lot journey",
+    "constituted_step": "Constituted",
+    "stored_step": "Stored",
+    "exploitation": "Farm",
+    "duration_in_stock": "Time in stock",
+    "no_lots_match": "No lot matches these filters.",
+    "page_word": "Page",
+    "prev_page": "Previous",
+    "next_page": "Next",
+    "in_progress": "ongoing",
+    "current_conditions": "Current conditions",
+    "ideal": "Ideal",
+
+    // IoT Page
+    "lots_count": "lots",
+
+    // Alerts Page
+    "all": "All",
+    "critical": "Critical",
+    "warnings": "Warnings",
+
+    // Farms Page
+    "farms_count": "farms",
+    "warehouses_count": "warehouses",
+    "active_lots": "Active lots",
+    "partner_farms": "Partner Farms",
+    "countries_all": "All countries",
+    "no_exploitation_country": "No farm for this country.",
+    "out_of_range": "Out of range",
+    "farm": "Farm",
+    "lots_supplied": "Lots supplied",
+    "certification": "Certification",
+
+    "language": "Language",
+
+    "compliant": "compliant",
+    "in_alert_chart": "In alert",
+    "expired_chart": "Expired",
+
+    "open_menu": "Open menu",
+    "search": "Search…",
+    "page_not_found": "Page not found",
+    "error_404": "Error 404",
+    "back_to_dashboard": "Back to dashboard",
+    "error_404_desc": "The page you are looking for does not exist or has been moved."
+  },
+  es: {
+    // Secret game
+    "game_score": "Puntuación",
+    "game_instructions": "Haz clic o pulsa Espacio para saltar",
+    "game_over": "Fin de la partida",
+    "game_best_score": "Mejor puntuación",
+
+    // Menu & Layout
+    "menu": "Menú",
+    "dashboard": "Dashboard",
+    "lots": "Gestión de Lotes",
+    "iot": "Seguimiento de almacenes",
+    "alertes": "Alertas",
+    "exploitations": "Explotaciones",
+
+    // Page Subtitles
+    "dashboard_subtitle": "Vista global · 3 países · 248 lotes en stock",
+    "lots_subtitle": "Trazabilidad y rotación de stock",
+    "iot_subtitle": "Temperatura y humedad de almacenes en tiempo real",
+    "alertes_subtitle": "Alertas activas · vista consolidada",
+    "exploitations_subtitle": "Brasil · Ecuador · Colombia",
+
+    // Dashboard Metrics
+    "total_lots": "Total Lotes",
+    "in_alert": "En Alerta",
+    "in_transit": "En Tránsito",
+    "trend_lots": "↑ +12 este mes",
+    "trend_transit": "↑ +2 hoy",
+
+    // Dashboard Sections
+    "recent_alerts": "Alertas recientes",
+    "see_all": "Ver todo →",
+    "see_all_alerts": "Ver todo →",
+    "watchlist_title": "Para vigilar",
+    "watchlist_sub": "Almacenes fuera de límite, ordenados por criticidad",
+    "watchlist_sub_ok": "Condiciones de todos los almacenes",
+    "watchlist_all_ok": "Todos los almacenes están dentro de sus límites.",
+    "within_threshold": "dentro del límite",
+    "vs_ideal": "vs ideal",
+    "alerts_label": "alertas",
+    "critical_label": "críticas",
+    "more_alerts": "más alertas →",
+    "lots_status": "Estado de Lotes",
+
+    // Country Names
+    "br": "Brasil",
+    "ec": "Ecuador",
+    "co": "Colombia",
+
+    // Lots Filters
+
+    // Lots UI
+    "filter": "Filtrar",
+    "warehouse": "Almacén",
+    "status": "Estado",
+    "all_statuses": "Todos los estados",
+    "status_ok": "Conforme",
+    "status_warn": "En Alerte",
+    "status_err": "Caducado",
+    "reset_filters": "Restablecer filtros",
+    "id_lot": "ID Lote",
+    "country": "País",
+    "duration": "Duración",
+    "see": "Ver →",
+    "temperature": "Temperatura",
+    "humidity": "Humedad",
+    "back_to_lots": "Volver a los lotes",
+    "filters_title": "Filtros",
+    "close_filters": "Cerrar los filtros",
+    "location": "Localización",
+    "all_locations": "Todas las localizaciones",
+    "location_all_suffix": "— todos",
+    "age": "Antigüedad",
+    "age_all": "Todas las duraciones",
+    "age_lt90": "Menos de 90 d",
+    "age_90_180": "90 a 180 d",
+    "age_180_365": "180 a 365 d",
+    "age_gt365": "Más de 365 d",
+    "constituted_on": "Constituido el",
+    "lot_journey": "Recorrido del lote",
+    "constituted_step": "Constituido",
+    "stored_step": "Almacenado",
+    "exploitation": "Explotación",
+    "duration_in_stock": "Tiempo en stock",
+    "no_lots_match": "Ningún lote coincide con estos filtros.",
+    "page_word": "Página",
+    "prev_page": "Anterior",
+    "next_page": "Siguiente",
+    "in_progress": "en curso",
+    "current_conditions": "Condiciones actuales",
+    "ideal": "Ideal",
+
+    // IoT Page
+    "lots_count": "lotes",
+
+    // Alerts Page
+    "all": "Todas",
+    "critical": "Críticas",
+    "warnings": "Advertencias",
+
+    // Farms Page
+    "farms_count": "explotaciones",
+    "warehouses_count": "almacenes",
+    "active_lots": "Lotes activos",
+    "partner_farms": "Explotaciones asociadas",
+    "countries_all": "Todos los países",
+    "no_exploitation_country": "Ninguna explotación para este país.",
+    "out_of_range": "Fuera de rango",
+    "farm": "Explotación",
+    "lots_supplied": "Lotes suministrados",
+    "certification": "Certificación",
+
+    "language": "Idioma",
+
+    "compliant": "conformes",
+    "in_alert_chart": "En alerta",
+    "expired_chart": "Caducado",
+
+    "open_menu": "Abrir menú",
+    "search": "Buscar…",
+    "page_not_found": "Página no encontrada",
+    "error_404": "Error 404",
+    "back_to_dashboard": "Volver al panel",
+    "error_404_desc": "La página que busca no existe o ha sido movida."
+  }
+};
