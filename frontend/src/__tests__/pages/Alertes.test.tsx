@@ -1,6 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AlertesPage from '@/app/alertes/page';
 import type { Alert } from '@/types';
+import type { AlertsPageResult } from '@/lib/api/queries';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
 import * as queries from '@/lib/api/queries';
@@ -9,22 +10,32 @@ jest.mock('@/lib/api/queries');
 
 const mockedQueries = queries as jest.Mocked<typeof queries>;
 
-function critique(id: string, title: string, description: string, time: string): Alert {
-  return { id, severity: 'critique', level: 'Critique', icon: '⛔', variant: 'err', title, description, time, bgColor: '#FEF2F2', borderColor: '#9B1C1C' };
-}
-function alerte(id: string, title: string, description: string, time: string): Alert {
-  return { id, severity: 'alerte', level: 'Alerte', icon: '🌡️', variant: 'warn', title, description, time, bgColor: '#FEF3E2', borderColor: '#B45309' };
+function alert(over: Partial<Alert> & { id: string; typeLabel: string; subject: string }): Alert {
+  return {
+    severity: 'alerte',
+    level: 'Alerte',
+    icon: '🌡️',
+    variant: 'warn',
+    title: `${over.typeLabel} — ${over.subject}`,
+    description: '',
+    time: '5 jan. 2026',
+    bgColor: '#FEF3E2',
+    borderColor: '#B45309',
+    status: 'active',
+    dateTime: '5 jan. 2026 14:32',
+    resolvedDateTime: null,
+    ...over,
+  };
 }
 
 const ALERTS: Alert[] = [
-  critique('a1', 'Lot périmé — LOT-BR-2023-00018', '387 j de stockage · seuil dépassé', 'il y a 5 min'),
-  critique('a2', 'Lot périmé — LOT-EC-2023-00045', '372 j de stockage', 'il y a 40 min'),
-  alerte('a3', 'Température hors plage — Quito B', '34°C relevé · seuil 31°C ±3', 'il y a 18 min'),
-  alerte('a4', 'Humidité élevée — Bogotá C', '83% relevé', 'il y a 1 h'),
-  alerte('a5', 'Péremption imminente — LOT-CO-2023-00077', '360 j de stockage', 'il y a 2 h'),
-  alerte('a6', 'Stockage prolongé — LOT-BR-2024-00760', '128 j', 'il y a 3 h'),
-  alerte('a7', 'Capteur dégradé — Guayaquil A', 'latence élevée', 'il y a 4 h'),
+  alert({ id: 'a1', typeLabel: 'Capteur hors ligne', subject: 'Entrepôt Équateur', icon: '📡', dateTime: '15 sep. 2026 23:13', status: 'resolved', resolvedDateTime: '15 sep. 2026 23:15' }),
+  alert({ id: 'a2', typeLabel: 'Condition hors plage', subject: 'Quito B', dateTime: '15 sep. 2026 22:25' }),
 ];
+
+function pageResult(over: Partial<AlertsPageResult> = {}): AlertsPageResult {
+  return { alerts: ALERTS, page: 1, pages: 1, total: ALERTS.length, ...over };
+}
 
 function renderPage() {
   return render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
@@ -32,73 +43,75 @@ function renderPage() {
 
 describe('AlertesPage container', () => {
   beforeEach(() => {
-    mockedQueries.fetchRecentAlerts.mockResolvedValue(ALERTS);
+    mockedQueries.fetchAlertsPage.mockResolvedValue(pageResult());
   });
 
   afterEach(() => jest.clearAllMocks());
 
-  it('renders all 7 alerts by default', async () => {
+  it('renders the current page of the alert history as a table', async () => {
     renderPage();
-    expect(await screen.findByText('Toutes · 7')).toBeInTheDocument();
-    expect(screen.getByText('Lot périmé — LOT-BR-2023-00018')).toBeInTheDocument();
-    expect(screen.getByText('Lot périmé — LOT-EC-2023-00045')).toBeInTheDocument();
-    expect(screen.getByText('Température hors plage — Quito B')).toBeInTheDocument();
-    expect(screen.getByText('Humidité élevée — Bogotá C')).toBeInTheDocument();
-    expect(screen.getByText('Capteur dégradé — Guayaquil A')).toBeInTheDocument();
+    expect(await screen.findByText('Capteur hors ligne')).toBeInTheDocument();
+    expect(screen.getByText('Condition hors plage')).toBeInTheDocument();
+    expect(screen.getByText('Entrepôt Équateur')).toBeInTheDocument();
+    expect(screen.getByText('Quito B')).toBeInTheDocument();
+    // Date AND time are shown.
+    expect(screen.getByText('15 sep. 2026 23:13')).toBeInTheDocument();
   });
 
-  it('renders filter chips with counts', async () => {
+  it('shows the total alert count', async () => {
     renderPage();
-    expect(await screen.findByText('Critiques · 2')).toBeInTheDocument();
-    expect(screen.getByText('Avertissements · 5')).toBeInTheDocument();
+    expect(await screen.findByText('2 alertes')).toBeInTheDocument();
   });
 
-  it('filters to only critiques when clicking Critiques filter', async () => {
+  it('shows the resolution status of each alert', async () => {
     renderPage();
-    fireEvent.click(await screen.findByText('Critiques · 2'));
-    expect(screen.getByText('Lot périmé — LOT-BR-2023-00018')).toBeInTheDocument();
-    expect(screen.getByText('Lot périmé — LOT-EC-2023-00045')).toBeInTheDocument();
-    expect(screen.queryByText('Température hors plage — Quito B')).not.toBeInTheDocument();
-    expect(screen.queryByText('Capteur dégradé — Guayaquil A')).not.toBeInTheDocument();
+    await screen.findByText('Capteur hors ligne');
+    expect(screen.getByText('Résolue')).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
+    // The resolved alert shows its resolution time; the active one shows a dash.
+    expect(screen.getByText('15 sep. 2026 23:15')).toBeInTheDocument();
   });
 
-  it('filters to only avertissements when clicking Avertissements filter', async () => {
+  it('defaults to the full history (status=all)', async () => {
     renderPage();
-    fireEvent.click(await screen.findByText('Avertissements · 5'));
-    expect(screen.queryByText('Lot périmé — LOT-BR-2023-00018')).not.toBeInTheDocument();
-    expect(screen.getByText('Température hors plage — Quito B')).toBeInTheDocument();
-    expect(screen.getByText('Humidité élevée — Bogotá C')).toBeInTheDocument();
-    expect(screen.getByText('Capteur dégradé — Guayaquil A')).toBeInTheDocument();
+    await screen.findByText('Capteur hors ligne');
+    expect(mockedQueries.fetchAlertsPage).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ status: 'all', page: 1 }),
+      expect.anything(),
+    );
   });
 
-  it('shows alert descriptions', async () => {
+  it('refetches with the chosen status when the filter changes', async () => {
     renderPage();
-    expect(await screen.findByText(/387 j de stockage/)).toBeInTheDocument();
-    expect(screen.getByText(/34°C relevé/)).toBeInTheDocument();
+    fireEvent.click(await screen.findByText('Filtrer'));
+    const select = screen.getByDisplayValue('Tous les statuts');
+    fireEvent.change(select, { target: { value: 'resolved' } });
+    await waitFor(() =>
+      expect(mockedQueries.fetchAlertsPage).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ status: 'resolved', page: 1 }),
+        expect.anything(),
+      ),
+    );
   });
 
-  it('shows alert times', async () => {
+  it('drives pagination from the server metadata', async () => {
+    mockedQueries.fetchAlertsPage.mockResolvedValue(pageResult({ page: 1, pages: 3, total: 30 }));
     renderPage();
-    expect(await screen.findByText('il y a 5 min')).toBeInTheDocument();
-    expect(screen.getByText('il y a 40 min')).toBeInTheDocument();
+    fireEvent.click(await screen.findByText('Suivant'));
+    await waitFor(() =>
+      expect(mockedQueries.fetchAlertsPage).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ page: 2 }),
+        expect.anything(),
+      ),
+    );
   });
 
-  it('shows severity badges', async () => {
+  it('shows an error state when the fetch fails', async () => {
+    mockedQueries.fetchAlertsPage.mockRejectedValue(new Error('boom'));
     renderPage();
-    await screen.findByText('Toutes · 7');
-    const critiqueBadges = screen.getAllByText('Critique');
-    expect(critiqueBadges.length).toBe(2);
-    const alerteBadges = screen.getAllByText('Alerte');
-    expect(alerteBadges.length).toBe(5);
-  });
-
-  it('exposes no write action (read-only siège view)', async () => {
-    renderPage();
-    await screen.findByText('Toutes · 7');
-    expect(screen.queryByText('Traiter →')).not.toBeInTheDocument();
-    expect(screen.queryByText(/Résoudre/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Reporter/)).not.toBeInTheDocument();
-    // Only the three filter chips remain interactive; no per-alert button.
-    expect(screen.getAllByRole('button').length).toBe(3);
+    expect(await screen.findByText(/Impossible de charger les données/)).toBeInTheDocument();
   });
 });
