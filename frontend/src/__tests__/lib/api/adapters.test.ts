@@ -107,7 +107,7 @@ describe('date formatting', () => {
 describe('tolerance policy', () => {
   it('builds a symmetric band around the ideal', () => {
     expect(toleranceBand(29, TEMP_TOLERANCE)).toEqual([26, 32]);
-    expect(toleranceBand(55, HUM_TOLERANCE)).toEqual([52, 58]);
+    expect(toleranceBand(55, HUM_TOLERANCE)).toEqual([53, 57]);
   });
 });
 
@@ -167,9 +167,9 @@ describe('warehouse composition', () => {
     expect(w.temp).toBe('31°C');
     expect(w.hum).toBe('57%');
     expect(w.tempRange).toEqual([26, 32]);
-    expect(w.humRange).toEqual([52, 58]);
+    expect(w.humRange).toEqual([53, 57]);
     expect(w.idealTemp).toBe('29°C ±3');
-    expect(w.idealHum).toBe('55% ±3');
+    expect(w.idealHum).toBe('55% ±2');
     expect(w.lots).toBe(48);
   });
 

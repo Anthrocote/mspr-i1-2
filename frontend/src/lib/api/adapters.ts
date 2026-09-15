@@ -142,8 +142,9 @@ export function daysBetween(fromIso: string, toIso: string): number {
 // The siège gives each country an ideal temp/humidity but NO tolerance band.
 // The acceptable band is a front-side policy decision, centralised here so it
 // is explicit and testable rather than scattered as magic numbers.
+// Tolerance bands from the MSPR spec: ±3 °C on temperature, ±2 % on humidity.
 export const TEMP_TOLERANCE = 3;
-export const HUM_TOLERANCE = 3;
+export const HUM_TOLERANCE = 2;
 
 export function toleranceBand(ideal: number, tolerance: number): [number, number] {
   return [ideal - tolerance, ideal + tolerance];
