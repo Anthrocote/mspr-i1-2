@@ -38,7 +38,7 @@ export const ALERTS: Alert[] = [
   { id: 'a4', severity: 'alerte',   level: 'Alerte',   icon: '💧', variant: 'warn', title: 'Humidité élevée — Bogotá C',       description: '83% relevé · seuil Colombie 80% ±3',                                     time: 'il y a 1 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
   { id: 'a5', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Péremption imminente — LOT-CO-2023-00077', description: '360 j de stockage · 5 j avant péremption',                                time: 'il y a 2 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
   { id: 'a6', severity: 'alerte',   level: 'Alerte',   icon: '⏳', variant: 'warn', title: 'Stockage prolongé — LOT-BR-2024-00760', description: '128 j · température ponctuellement à 32°C',                               time: 'il y a 3 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
-  { id: 'a7', severity: 'alerte',   level: 'Alerte',   icon: '📡', variant: 'warn', title: 'Capteur dégradé — Guayaquil A',     description: 'Latence MQTT élevée · dernière mesure il y a 22 min',                     time: 'il y a 4 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
+  { id: 'a7', severity: 'alerte',   level: 'Alerte',   icon: '📡', variant: 'warn', title: 'Capteur dégradé — Guayaquil A',     description: 'Latence de relevé élevée · dernière mesure il y a 22 min',                     time: 'il y a 4 h',   bgColor: '#FEF3E2', borderColor: '#B45309' },
 ];
 
 export const DASHBOARD_ALERTS: DashboardAlert[] = [

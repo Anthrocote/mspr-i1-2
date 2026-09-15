@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import LotsPage from '@/app/lots/page';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import { SearchProvider } from '@/contexts/SearchContext';
+import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
+import { SearchProvider, useSearch } from '@/contexts/SearchContext';
 
 function renderLots() {
   return render(
@@ -19,6 +20,10 @@ function openRow(id: string) {
 }
 
 describe('LotsPage', () => {
+  // setLanguage() persists to localStorage; keep language state from leaking
+  // between tests.
+  afterEach(() => localStorage.clear());
+
   it('renders the single Filtrer control and no create/quick-chip affordances', () => {
     renderLots();
     expect(screen.getByText('Filtrer')).toBeInTheDocument();
@@ -82,6 +87,28 @@ describe('LotsPage', () => {
     expect(screen.getByText('Conditions actuelles')).toBeInTheDocument();
     expect(screen.getByText('Température')).toBeInTheDocument();
     expect(screen.getByText('Humidité')).toBeInTheDocument();
+  });
+
+  it('searches on the translated labels the user actually sees', () => {
+    function Harness() {
+      const { setLanguage } = useLanguage();
+      const { setSearchQuery } = useSearch();
+      useEffect(() => {
+        setLanguage('en');
+        setSearchQuery('brazil');
+      }, [setLanguage, setSearchQuery]);
+      return <LotsPage />;
+    }
+    render(
+      <LanguageProvider>
+        <SearchProvider>
+          <Harness />
+        </SearchProvider>
+      </LanguageProvider>
+    );
+    // In English the country renders as "Brazil"; searching it must find BR lots.
+    expect(screen.getByText('LOT-BR-2023-00018')).toBeInTheDocument();
+    expect(screen.queryByText('LOT-EC-2024-00107')).not.toBeInTheDocument();
   });
 
   it('returns to the list from the detail view', () => {

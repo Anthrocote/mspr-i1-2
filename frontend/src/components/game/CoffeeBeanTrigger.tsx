@@ -2,8 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { PAGE_META } from '@/types';
+import type { PageId } from '@/types';
 
-const CANDIDATE_PATHS = ['/', '/lots', '/iot', '/alertes', '/exploitations', '/analytique', '/parametres'];
+// Derived from the live page registry so a deleted route can never leave a
+// dead target here (which would make the easter egg unreachable that session).
+const CANDIDATE_PATHS = (Object.keys(PAGE_META) as PageId[]).map((id) => (id === 'dashboard' ? '/' : `/${id}`));
 const STORAGE_KEY = 'coffee-bean-target';
 const CLICKS_TO_TRIGGER = 5;
 const CLICK_WINDOW_MS = 1000;

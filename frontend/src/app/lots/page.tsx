@@ -127,11 +127,13 @@ export default function LotsPage() {
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
+      // Match the labels actually rendered (translated), so a search in the
+      // active language finds what the user sees.
       const match =
         l.id.toLowerCase().includes(q) ||
-        l.country.toLowerCase().includes(q) ||
+        t(l.countryCode).toLowerCase().includes(q) ||
         l.warehouse.toLowerCase().includes(q) ||
-        l.status.toLowerCase().includes(q);
+        t('status_' + l.statusVariant).toLowerCase().includes(q);
       if (!match) return false;
     }
 
