@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LOTS, FARMS } from '@/data/mock';
+import { LOTS, FARMS, WAREHOUSES } from '@/data/mock';
 import type { Lot, CountryCode, BadgeVariant } from '@/types';
 import Badge from '@/components/ui/Badge';
 import CountryTag from '@/components/ui/CountryTag';
@@ -25,11 +25,13 @@ type AgeFilter = 'all' | 'lt90' | '90_180' | '180_365' | 'gt365';
 
 // Location is a single hierarchy (country > warehouse), so country and warehouse
 // can't be set to a contradictory pair.
-const LOCATIONS: { code: CountryCode; warehouses: string[] }[] = [
-  { code: 'br', warehouses: ['São Paulo A', 'Rio C'] },
-  { code: 'ec', warehouses: ['Quito B', 'Guayaquil A'] },
-  { code: 'co', warehouses: ['Bogotá C', 'Medellín D'] },
-];
+// Derived from the warehouse list so a warehouse added to the mock shows up in
+// this filter automatically (and can't diverge from the IoT selector).
+const COUNTRY_ORDER: CountryCode[] = ['br', 'ec', 'co'];
+const LOCATIONS = COUNTRY_ORDER.map((code) => ({
+  code,
+  warehouses: WAREHOUSES.filter((w) => w.countryCode === code).map((w) => w.name),
+}));
 
 const STATUS_OPTIONS: { value: StatusFilter; key: string }[] = [
   { value: 'all', key: 'all_statuses' },

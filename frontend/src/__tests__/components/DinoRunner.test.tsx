@@ -76,4 +76,11 @@ describe('DinoRunner', () => {
     renderGame();
     expect(screen.getAllByText(/Meilleur score: 42/).length).toBeGreaterThan(0);
   });
+
+  it('falls back to 0 when the stored best score is not a number', () => {
+    localStorage.setItem('dino-best-score', 'abc');
+    renderGame();
+    expect(screen.getAllByText(/Meilleur score: 0/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
+  });
 });

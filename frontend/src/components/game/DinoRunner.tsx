@@ -38,8 +38,8 @@ function randomSpawnMs(): number {
 }
 
 function readBestScore(): number {
-  const raw = localStorage.getItem(BEST_SCORE_KEY);
-  return raw ? parseInt(raw, 10) : 0;
+  const parsed = parseInt(localStorage.getItem(BEST_SCORE_KEY) ?? '', 10);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 export default function DinoRunner() {
@@ -239,16 +239,23 @@ export default function DinoRunner() {
     }
   }
 
+  // Keep a ref to the latest handler so the keydown listener registers once,
+  // instead of re-registering on every frame's setScore.
+  const handleActionRef = useRef(handleAction);
+  useEffect(() => {
+    handleActionRef.current = handleAction;
+  });
+
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.code === 'Space') {
         e.preventDefault();
-        handleAction();
+        handleActionRef.current();
       }
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  });
+  }, []);
 
   return (
     <div
