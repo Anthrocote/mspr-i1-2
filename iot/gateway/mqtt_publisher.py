@@ -30,6 +30,9 @@ class MqttPublisher:
         # background reconnects, so the retained status never stays stuck offline.
         client.publish(self._status_topic(), "online", qos=1, retain=True)
 
+    def publish_online(self):
+        self._client.publish(self._status_topic(), "online", qos=1, retain=True)
+
     def connect(self):
         self._client.connect(self._broker, self._port, keepalive=self._keepalive)
         self._client.loop_start()

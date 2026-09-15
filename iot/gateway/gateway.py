@@ -70,6 +70,12 @@ def run():
         if reading and is_plausible(*reading):
             last_reading = reading
             last_valid_at = time.monotonic()
+            # Recovery from a reported sensor_error: the MQTT session never
+            # dropped, so _on_connect won't fire — republish online explicitly,
+            # otherwise the retained status stays stuck on sensor_error and the
+            # backend alert never resolves once readings resume.
+            if sensor_error_reported:
+                publisher.publish_online()
             sensor_error_reported = False
 
         now = time.monotonic()
