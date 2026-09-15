@@ -1,0 +1,36 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+    ports:
+      - "1883:1883"
+
+  app:
+    build: .
+    depends_on:
+      - mosquitto
+    environment:
+      COUNTRY: ${COUNTRY:-br}
+      API_KEY: ${API_KEY:?API_KEY requis}
+      DATABASE_URL: sqlite:////data/backend-local.db
+      MQTT_BROKER: mosquitto
+      MQTT_PORT: "1883"
+      MQTT_CLIENT_ID: ${MQTT_CLIENT_ID:-backend-local-br}
+      EXPIRY_CHECK_INTERVAL_S: ${EXPIRY_CHECK_INTERVAL_S:-3600}
+      SMTP_HOST: ${SMTP_HOST:?SMTP_HOST requis}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-alertes@futurekawa.local}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      ALERT_RECIPIENT: ${ALERT_RECIPIENT:?ALERT_RECIPIENT requis}
+    volumes:
+      - app-data:/data
+    ports:
+      - "8000:8000"
+
+volumes:
+  mosquitto-data:
+  app-data:
