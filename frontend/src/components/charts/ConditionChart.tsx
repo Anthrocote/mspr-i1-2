@@ -3,6 +3,8 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, ReferenceArea, ReferenceLine, Tooltip } from 'recharts';
 import type { ConditionSeries } from '@/lib/series';
 import { readingParts } from '@/lib/series';
+import { formatAxisDate } from '@/lib/format';
+import type { Language } from '@/translations';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ConditionChartProps {
@@ -12,8 +14,10 @@ interface ConditionChartProps {
 
 // Two-line x-axis tick: date on top, time below. `payload.value` is the epoch ms
 // of the reading (numeric time axis).
-function TwoLineTick({ x = 0, y = 0, payload }: { x?: number; y?: number; payload?: { value: number } }) {
-  const { date, time } = readingParts(payload?.value ?? 0);
+function TwoLineTick({ x = 0, y = 0, payload, lang = 'fr' }: { x?: number; y?: number; payload?: { value: number }; lang?: Language }) {
+  const ts = payload?.value ?? 0;
+  const date = formatAxisDate(ts, lang);
+  const { time } = readingParts(ts);
   return (
     <g transform={`translate(${x},${y})`}>
       <text textAnchor="middle" fill="#A08060" fontSize={11}>
@@ -25,7 +29,7 @@ function TwoLineTick({ x = 0, y = 0, payload }: { x?: number; y?: number; payloa
 }
 
 export default function ConditionChart({ title, series }: ConditionChartProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { readings, min, max, ideal, unit, current, breached } = series;
   const metricLabel = series.metric === 'temp' ? t('temperature') : t('humidity');
   const values = readings.map((r) => r.value);
@@ -95,7 +99,7 @@ export default function ConditionChart({ title, series }: ConditionChartProps) {
               domain={[tMin, domainMaxTs]}
               ticks={ticks}
               interval={0}
-              tick={<TwoLineTick />}
+              tick={<TwoLineTick lang={language} />}
               height={38}
               axisLine={false}
               tickLine={false}

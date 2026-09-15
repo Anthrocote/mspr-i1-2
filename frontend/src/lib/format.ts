@@ -21,6 +21,13 @@ export function formatDate(iso: string, lang: Language): string {
   }).format(d);
 }
 
+// Compact day + month for a chart axis tick, e.g. "15 sept." / "15 Sept".
+export function formatAxisDate(ts: number, lang: Language): string {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return '';
+  return new Intl.DateTimeFormat(LOCALE[lang], { day: 'numeric', month: 'short' }).format(d);
+}
+
 // Date + wall-clock time (24h), e.g. "15 sept. 2026, 22:57". Uses the runtime's
 // local timezone so the hour matches the on-site clock (the wire instant is UTC).
 export function formatDateTime(iso: string, lang: Language): string {
