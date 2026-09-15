@@ -32,9 +32,12 @@ function alert(id: string, severity: Alert['severity'], title: string): Alert {
     ? { level: 'Critique', icon: '⛔', variant: 'err' as const, bgColor: '#FEF2F2', borderColor: '#9B1C1C' }
     : { level: 'Alerte', icon: '🌡️', variant: 'warn' as const, bgColor: '#FEF3E2', borderColor: '#B45309' };
   const [typeLabel, subject] = title.split(' — ');
+  const type = typeLabel === 'Lot périmé' ? 'expired_lot'
+    : typeLabel === 'Capteur hors ligne' ? 'sensor_offline'
+    : 'out_of_range';
   return {
     id, severity, title, description: 'Déclenchée le 5 jan. 2025', time: '5 jan. 2025',
-    typeLabel, subject: subject ?? '—', status: 'active' as const,
+    type, typeLabel, subject: subject ?? '—', status: 'active' as const,
     dateTime: '5 jan. 2025 09:00', resolvedDateTime: null,
     ...p,
   };

@@ -36,6 +36,7 @@ describe('DashboardPage container', () => {
         time: '5 jan. 2025',
         bgColor: '#FEF2F2',
         borderColor: '#9B1C1C',
+        type: 'expired_lot',
         typeLabel: 'Lot périmé',
         subject: 'LOT-BRA-2025-001',
         status: 'active',

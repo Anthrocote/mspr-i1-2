@@ -265,6 +265,9 @@ export function adaptAlert(alert: ApiAlert): Alert {
     time: formatDateFr(alert.triggeredAt),
     bgColor: p.bgColor,
     borderColor: p.borderColor,
+    // Raw enum kept so views can translate the type label at render time
+    // (the French labels above are the `fr` canonical fallback).
+    type: alert.type,
     // History-table fields.
     typeLabel,
     subject,

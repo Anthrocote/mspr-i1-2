@@ -76,6 +76,10 @@ export interface Alert {
   variant: BadgeVariant;
   bgColor: string;
   borderColor: string;
+  // Raw wire alert type (out_of_range | expired_lot | sensor_offline). Views
+  // translate it at render time via t('alert_type_' + type); `typeLabel`/`title`
+  // hold the French canonical fallback.
+  type: string;
   // History-table fields (Alertes page). `title` bundles type + subject for the
   // dashboard card; the table keeps them apart.
   typeLabel: string;

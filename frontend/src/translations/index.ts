@@ -113,6 +113,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "date_from": "Du",
     "date_to": "Au",
     "no_alerts_match": "Aucune alerte ne correspond à ces filtres.",
+    "alert_type_out_of_range": "Condition hors plage",
+    "alert_type_expired_lot": "Lot périmé",
+    "alert_type_sensor_offline": "Capteur hors ligne",
 
     // Farms Page
     "farms_count": "exploitations",
@@ -253,6 +256,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "date_from": "From",
     "date_to": "To",
     "no_alerts_match": "No alert matches these filters.",
+    "alert_type_out_of_range": "Out-of-range condition",
+    "alert_type_expired_lot": "Expired lot",
+    "alert_type_sensor_offline": "Sensor offline",
 
     // Farms Page
     "farms_count": "farms",
@@ -393,6 +399,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "date_from": "Desde",
     "date_to": "Hasta",
     "no_alerts_match": "Ninguna alerta coincide con estos filtros.",
+    "alert_type_out_of_range": "Condición fuera de rango",
+    "alert_type_expired_lot": "Lote caducado",
+    "alert_type_sensor_offline": "Sensor desconectado",
 
     // Farms Page
     "farms_count": "explotaciones",

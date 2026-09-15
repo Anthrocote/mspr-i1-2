@@ -238,6 +238,7 @@ describe('alert adaptation', () => {
       lot: null,
       warehouse: { uuid: 'wh-1', name: 'Entrepôt Quito' },
     });
+    expect(a.type).toBe('out_of_range');
     expect(a.typeLabel).toBe('Condition hors plage');
     expect(a.subject).toBe('Entrepôt Quito');
     expect(a.status).toBe('active');

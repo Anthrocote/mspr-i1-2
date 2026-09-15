@@ -200,7 +200,7 @@ export default function AlertesView({
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-[15px] shrink-0">{a.icon}</span>
-                  <span className="text-[13px] font-semibold text-[#1E0F06] truncate">{a.typeLabel}</span>
+                  <span className="text-[13px] font-semibold text-[#1E0F06] truncate">{t('alert_type_' + a.type)}</span>
                 </div>
                 <div className="text-[13px] text-[#443524] truncate">{a.subject}</div>
                 <div className="text-[13px] text-[#443524]">{a.dateTime}</div>

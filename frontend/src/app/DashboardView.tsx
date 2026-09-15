@@ -109,8 +109,8 @@ export default function DashboardView({
             <div key={a.id} className="flex items-start gap-3 py-[13px] px-[15px] rounded-xl" style={{ background: a.bgColor, borderLeft: `4px solid ${a.borderColor}` }}>
               <span className="text-base leading-none mt-0.5">{a.icon}</span>
               <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-semibold text-[#1E0F06]">{a.title}</div>
-                <div className="text-xs text-[#6B5540] mt-0.5">{a.description}</div>
+                <div className="text-[13px] font-semibold text-[#1E0F06]">{t('alert_type_' + a.type)} — {a.subject}</div>
+                <div className="text-xs text-[#6B5540] mt-0.5">{t('triggered_at')} {a.time}</div>
               </div>
               <span className="text-[11px] text-[#A08060] whitespace-nowrap self-center">{a.time}</span>
             </div>

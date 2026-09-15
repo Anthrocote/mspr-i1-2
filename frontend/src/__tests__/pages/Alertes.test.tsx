@@ -11,11 +11,15 @@ jest.mock('@/lib/api/queries');
 const mockedQueries = queries as jest.Mocked<typeof queries>;
 
 function alert(over: Partial<Alert> & { id: string; typeLabel: string; subject: string }): Alert {
+  const type = over.typeLabel === 'Capteur hors ligne' ? 'sensor_offline'
+    : over.typeLabel === 'Lot périmé' ? 'expired_lot'
+    : 'out_of_range';
   return {
     severity: 'alerte',
     level: 'Alerte',
     icon: '🌡️',
     variant: 'warn',
+    type,
     title: `${over.typeLabel} — ${over.subject}`,
     description: '',
     time: '5 jan. 2026',
