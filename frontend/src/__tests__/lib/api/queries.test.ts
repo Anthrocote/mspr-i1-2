@@ -1,7 +1,10 @@
 import { ApiClient } from '@/lib/api/client';
 import {
   fetchConsolidatedSummary,
+  fetchExploitations,
   fetchLatestMeasurement,
+  fetchLotDetail,
+  fetchLots,
   fetchRecentAlerts,
   fetchWarehouseConditions,
 } from '@/lib/api/queries';
@@ -126,6 +129,109 @@ describe('fetchWarehouseConditions', () => {
       humNum: 56,
       lots: 48,
     });
+  });
+});
+
+const ENRICHED_LOT = {
+  uuid: 'lot-1',
+  label: 'LOT-BRA-2025-001',
+  quantity: 500,
+  status: 'compliant',
+  syncedAt: '2026-09-15T10:00:00+00:00',
+  product: { uuid: 'p-1', name: 'Arabica' },
+  currentWarehouse: { uuid: 'wh-1', name: 'Entrepôt Manaus' },
+  country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+  exploitation: { uuid: 'exp-1', name: 'Fazenda Serra Verde' },
+  constitutedAt: '2026-07-17T00:00:00+00:00',
+  arrivedAt: '2026-07-17T00:00:00+00:00',
+  durationDays: 60,
+};
+
+describe('fetchLots', () => {
+  it('pulls a wide page and adapts each summary', async () => {
+    const fetchMock = router([{ match: /\/api\/lots/, body: page([ENRICHED_LOT]) }]);
+    const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
+
+    const lots = await fetchLots(client);
+
+    expect(fetchMock.mock.calls[0][0]).toContain('limit=200');
+    expect(lots).toHaveLength(1);
+    expect(lots[0]).toMatchObject({
+      id: 'LOT-BRA-2025-001',
+      uuid: 'lot-1',
+      countryCode: 'br',
+      warehouse: 'Entrepôt Manaus',
+      exploitationId: 'exp-1',
+      duration: '60 j',
+      statusVariant: 'ok',
+    });
+  });
+});
+
+describe('fetchExploitations', () => {
+  it('adapts the exploitations with their API lot count', async () => {
+    const fetchMock = router([
+      {
+        match: /\/api\/exploitations/,
+        body: page([
+          { uuid: 'exp-1', name: 'Fazenda Serra Verde', country: { id: 1, name: 'Brésil', isoCode: 'BRA' }, lotsCount: 7 },
+        ]),
+      },
+    ]);
+    const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
+
+    const farms = await fetchExploitations(client);
+
+    expect(farms).toHaveLength(1);
+    expect(farms[0]).toMatchObject({
+      id: 'exp-1',
+      name: 'Fazenda Serra Verde',
+      countryCode: 'br',
+      lots: 7,
+      certification: '—',
+      certVariant: 'neutral',
+    });
+  });
+});
+
+describe('fetchLotDetail', () => {
+  it('composes the lot, its stays and the latest warehouse reading', async () => {
+    const detail = {
+      ...ENRICHED_LOT,
+      storageHistory: [
+        { warehouse: { uuid: 'wh-1', name: 'Entrepôt Manaus' }, arrivedAt: '2026-07-17T00:00:00Z', departedAt: null },
+      ],
+    };
+    const fetchMock = jest.fn((url: string) => {
+      if (/\/api\/lots\/lot-1/.test(url)) return Promise.resolve(json(detail));
+      // Single measurement -> probe returns it directly.
+      if (/measurements/.test(url)) {
+        return Promise.resolve(json(page([{ uuid: 'm-1', warehouseUuid: 'wh-1', temperature: 31.4, humidity: 56.8, measuredAt: 'x', syncedAt: 'x' }], 1, 1, 1)));
+      }
+      throw new Error(`Unrouted ${url}`);
+    });
+    const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
+
+    const result = await fetchLotDetail(client, 'lot-1');
+
+    expect(result.lot.id).toBe('LOT-BRA-2025-001');
+    expect(result.stays).toEqual([
+      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: null },
+    ]);
+    expect(result.temp).toBe(31.4);
+    expect(result.hum).toBe(56.8);
+  });
+
+  it('omits temp/hum when the lot has no current warehouse', async () => {
+    const detail = { ...ENRICHED_LOT, currentWarehouse: null, storageHistory: [] };
+    const fetchMock = router([{ match: /\/api\/lots\/lot-1/, body: detail }]);
+    const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
+
+    const result = await fetchLotDetail(client, 'lot-1');
+
+    expect(result.temp).toBeUndefined();
+    expect(result.hum).toBeUndefined();
+    expect(result.stays).toEqual([]);
   });
 });
 

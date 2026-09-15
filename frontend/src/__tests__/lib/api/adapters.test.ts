@@ -1,6 +1,8 @@
 import {
   adaptAlert,
+  adaptExploitation,
   adaptLotSummary,
+  adaptStays,
   adaptWarehouse,
   countryFlag,
   countryLabelFr,
@@ -17,7 +19,13 @@ import {
   TEMP_TOLERANCE,
   toleranceBand,
 } from '@/lib/api/adapters';
-import type { ApiAlert, ApiCountry, ApiWarehouse } from '@/lib/api/types';
+import type {
+  ApiAlert,
+  ApiCountry,
+  ApiExploitation,
+  ApiLotSummary,
+  ApiWarehouse,
+} from '@/lib/api/types';
 
 describe('country iso mapping', () => {
   it('maps 3-letter iso codes to 2-letter presentation codes', () => {
@@ -208,30 +216,114 @@ describe('alert adaptation', () => {
   });
 });
 
-describe('partial lot adaptation', () => {
-  it('maps the fields the thin lot summary provides', () => {
-    const lot = adaptLotSummary({
-      uuid: 'l-1',
-      label: 'LOT-BRA-2025-001',
-      status: 'expired',
-      syncedAt: '2025-01-05T00:00:00Z',
-    });
-    expect(lot.id).toBe('LOT-BRA-2025-001');
-    expect(lot.status).toBe('Périmé');
-    expect(lot.statusVariant).toBe('err');
-    expect(lot.durationVariant).toBe('err');
-  });
+const ENRICHED_LOT: ApiLotSummary = {
+  uuid: 'lot-uuid-1',
+  label: 'LOT-BRA-2025-001',
+  quantity: 500,
+  status: 'compliant',
+  syncedAt: '2026-09-15T10:00:00+00:00',
+  product: { uuid: 'p-1', name: 'Arabica Minas Gerais' },
+  currentWarehouse: { uuid: 'wh-1', name: 'Entrepôt Manaus' },
+  country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+  exploitation: { uuid: 'exp-1', name: 'Fazenda Serra Verde' },
+  constitutedAt: '2026-07-17T00:00:00+00:00',
+  arrivedAt: '2026-08-01T00:00:00+00:00',
+  durationDays: 60,
+};
 
-  it('fills the gap fields from an optional context', () => {
-    const lot = adaptLotSummary(
-      { uuid: 'l-1', label: 'LOT-BRA-2025-001', status: 'compliant', syncedAt: '2025-01-05T00:00:00Z' },
-      { countryCode: 'br', country: 'Brésil', flag: '🇧🇷', warehouse: 'Entrepôt Manaus', temperature: 29, humidity: 55 },
-    );
+describe('enriched lot adaptation', () => {
+  it('maps every enriched field to the presentation lot', () => {
+    const lot = adaptLotSummary(ENRICHED_LOT);
+    expect(lot.id).toBe('LOT-BRA-2025-001');
+    expect(lot.uuid).toBe('lot-uuid-1');
     expect(lot.countryCode).toBe('br');
+    expect(lot.country).toBe('Brésil');
+    expect(lot.flag).toBe('🇧🇷');
     expect(lot.warehouse).toBe('Entrepôt Manaus');
-    expect(lot.temp).toBe('29°C');
-    expect(lot.hum).toBe('55%');
+    expect(lot.exploitationId).toBe('exp-1');
+    expect(lot.constitutedAt).toBe('17 juil. 2026');
+    // storageDate comes from the warehouse arrival date, not the constitution.
+    expect(lot.storageDate).toBe('1 août 2026');
+    expect(lot.durationDays).toBe(60);
+    expect(lot.duration).toBe('60 j');
+    expect(lot.status).toBe('Conforme');
     expect(lot.statusVariant).toBe('ok');
     expect(lot.durationVariant).toBe('');
+    // Conditions + stays are detail-only, never on the list summary.
+    expect(lot.temp).toBe('');
+    expect(lot.hum).toBe('');
+    expect(lot.idealTemp).toBe('');
+    expect(lot.idealHum).toBe('');
+    expect(lot.stays).toEqual([]);
+  });
+
+  it('derives err/warn duration variants from the status', () => {
+    expect(adaptLotSummary({ ...ENRICHED_LOT, status: 'expired' }).durationVariant).toBe('err');
+    expect(adaptLotSummary({ ...ENRICHED_LOT, status: 'in_alert' }).durationVariant).toBe('warn');
+  });
+
+  it('falls back to the constitution date for storage when arrival is null', () => {
+    const lot = adaptLotSummary({ ...ENRICHED_LOT, arrivedAt: null });
+    expect(lot.storageDate).toBe('17 juil. 2026');
+  });
+
+  it('degrades gracefully when every nullable relation/date is null', () => {
+    const lot = adaptLotSummary({
+      ...ENRICHED_LOT,
+      currentWarehouse: null,
+      country: null,
+      exploitation: null,
+      constitutedAt: null,
+      arrivedAt: null,
+      durationDays: null,
+    });
+    // No country -> safe placeholder code but blank name/flag, nothing invented.
+    expect(lot.countryCode).toBe('br');
+    expect(lot.country).toBe('');
+    expect(lot.flag).toBe('');
+    expect(lot.warehouse).toBe('');
+    expect(lot.exploitationId).toBe('');
+    expect(lot.constitutedAt).toBe('');
+    expect(lot.storageDate).toBe('');
+    expect(lot.durationDays).toBe(0);
+    expect(lot.duration).toBe('');
+  });
+});
+
+describe('exploitation adaptation', () => {
+  const api: ApiExploitation = {
+    uuid: 'exp-1',
+    name: 'Fazenda Serra Verde',
+    country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+    lotsCount: 7,
+  };
+
+  it('maps to the presentation farm with the API lot count', () => {
+    const farm = adaptExploitation(api);
+    expect(farm.id).toBe('exp-1');
+    expect(farm.name).toBe('Fazenda Serra Verde');
+    expect(farm.countryCode).toBe('br');
+    expect(farm.country).toBe('Brésil');
+    expect(farm.flag).toBe('🇧🇷');
+    expect(farm.lots).toBe(7);
+  });
+
+  it('uses a neutral em-dash certification (siège has no certification field)', () => {
+    const farm = adaptExploitation(api);
+    expect(farm.certification).toBe('—');
+    expect(farm.certVariant).toBe('neutral');
+  });
+});
+
+describe('storage history adaptation', () => {
+  it('maps entries and keeps a null departure as an open stay', () => {
+    const stays = adaptStays([
+      { warehouse: { uuid: 'w-1', name: 'Entrepôt Manaus' }, arrivedAt: '2026-07-17T00:00:00Z', departedAt: '2026-08-01T00:00:00Z' },
+      { warehouse: { uuid: 'w-2', name: 'Entrepôt Rio' }, arrivedAt: '2026-08-02T00:00:00Z', departedAt: null },
+    ]);
+    expect(stays).toEqual([
+      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: '1 août 2026' },
+      { warehouse: 'Entrepôt Rio', entree: '2 août 2026', sortie: null },
+    ]);
   });
 });

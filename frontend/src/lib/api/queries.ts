@@ -2,11 +2,14 @@
 // presentation data. Kept separate from the client (transport) and adapters
 // (pure mapping) so the fetch orchestration is testable in isolation.
 
-import type { Alert, StatusDistribution, Warehouse } from '@/types';
+import type { Alert, Farm, Lot, StatusDistribution, Warehouse, WarehouseStay } from '@/types';
 import { LOT_STATUSES, type ApiLotStatus, type ApiMeasurement } from './types';
-import { ApiClient, type Page, type RequestOptions } from './client';
+import { ApiClient, type Page, type QueryParams, type RequestOptions } from './client';
 import {
   adaptAlert,
+  adaptExploitation,
+  adaptLotSummary,
+  adaptStays,
   adaptWarehouse,
   distributionFromCounts,
 } from './adapters';
@@ -105,12 +108,65 @@ export async function fetchRecentAlerts(
     .map(adaptAlert);
 }
 
-// Raw lots page (transport-level). Presentation Lot adaptation is partial while
-// the siège lot payload stays thin — see `adaptLotSummary`.
+// Raw lots page (transport-level), for callers that need pagination metadata.
 export function fetchLotsPage(
   client: ApiClient,
-  params?: Record<string, string | number>,
+  params?: QueryParams,
   options?: RequestOptions,
 ): Promise<Page<import('./types').ApiLotSummary>> {
   return client.getLots(params, options);
+}
+
+// The lots table renders a filtered/sorted/paged client-side view, so pull a
+// wide page in one call and adapt it. `limit` defaults to 200 but stays
+// overridable through `params`.
+export async function fetchLots(
+  client: ApiClient,
+  params?: QueryParams,
+  options?: RequestOptions,
+): Promise<Lot[]> {
+  const page = await client.getLots({ limit: 200, ...params }, options);
+  return page.items.map(adaptLotSummary);
+}
+
+// Partner exploitations with their resolved country and API lot count.
+export async function fetchExploitations(
+  client: ApiClient,
+  options?: RequestOptions,
+): Promise<Farm[]> {
+  const page = await client.getExploitations({ limit: 200 }, options);
+  return page.items.map(adaptExploitation);
+}
+
+export interface LotDetailData {
+  lot: Lot;
+  stays: WarehouseStay[];
+  temp?: number;
+  hum?: number;
+}
+
+// Compose the lot detail view: the lot itself (enriched summary), its warehouse
+// stay history, and the current warehouse's latest reading. Temperature and
+// humidity live on measurements at the warehouse level, so they are resolved
+// from `currentWarehouse`; a lot with no current warehouse or no reading yet
+// simply comes back without temp/hum.
+export async function fetchLotDetail(
+  client: ApiClient,
+  uuid: string,
+  options?: RequestOptions,
+): Promise<LotDetailData> {
+  const detail = await client.getLot(uuid, options);
+  const lot = adaptLotSummary(detail);
+  const stays = adaptStays(detail.storageHistory);
+
+  if (!detail.currentWarehouse) {
+    return { lot, stays };
+  }
+
+  const latest = await fetchLatestMeasurement(client, detail.currentWarehouse.uuid, options);
+  if (!latest) {
+    return { lot, stays };
+  }
+
+  return { lot, stays, temp: latest.temperature, hum: latest.humidity };
 }

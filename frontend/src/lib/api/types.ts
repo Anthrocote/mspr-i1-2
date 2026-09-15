@@ -8,7 +8,9 @@
 //   - The pagination envelope nests page/limit/total/pages under `pagination`.
 //   - Country iso field is `isoCode` (not `codeIso`) and is 3 letters (BRA/ECU/COL).
 //   - Warehouses carry NO temperature/humidity readings; those live on measurements.
-//   - Lot summaries are thin: no country, warehouse, dates, or conditions.
+//   - Lot summaries are now enriched: they carry the current warehouse, country,
+//     exploitation, constitution/arrival dates and a precomputed duration. Any of
+//     these relations/dates can be null; `durationDays` is an integer or null.
 //   - Alerts carry no severity/title/description; only `type` + relations.
 
 export const LOT_STATUSES = ['compliant', 'in_alert', 'expired'] as const;
@@ -35,6 +37,16 @@ export interface ApiProductRef {
   name: string;
 }
 
+export interface ApiWarehouseRef {
+  uuid: string;
+  name: string;
+}
+
+export interface ApiExploitationRef {
+  uuid: string;
+  name: string;
+}
+
 export interface ApiLotSummary {
   uuid: string;
   label: string;
@@ -42,6 +54,19 @@ export interface ApiLotSummary {
   status: ApiLotStatus;
   syncedAt: string; // ISO 8601 (ATOM)
   product: ApiProductRef;
+  currentWarehouse: ApiWarehouseRef | null;
+  country: ApiCountryRef | null;
+  exploitation: ApiExploitationRef | null;
+  constitutedAt: string | null; // ISO 8601
+  arrivedAt: string | null; // ISO 8601, entry date in the current warehouse
+  durationDays: number | null;
+}
+
+export interface ApiExploitation {
+  uuid: string;
+  name: string;
+  country: ApiCountryRef;
+  lotsCount: number;
 }
 
 export interface ApiStorageHistoryEntry {

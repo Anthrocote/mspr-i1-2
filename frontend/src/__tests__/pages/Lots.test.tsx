@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import LotsPage from '@/app/lots/page';
+import LotsView from '@/app/lots/LotsView';
+import { LOTS, FARMS } from '@/data/mock';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { SearchProvider, useSearch } from '@/contexts/SearchContext';
 
+// The pure view is exercised with the mock fixtures as complete presentation
+// data (stays/conditions embedded), so no detail fetch is wired here.
 function renderLots() {
   return render(
     <LanguageProvider>
       <SearchProvider>
-        <LotsPage />
+        <LotsView lots={LOTS} farms={FARMS} />
       </SearchProvider>
     </LanguageProvider>
   );
@@ -97,7 +100,7 @@ describe('LotsPage', () => {
         setLanguage('en');
         setSearchQuery('brazil');
       }, [setLanguage, setSearchQuery]);
-      return <LotsPage />;
+      return <LotsView lots={LOTS} farms={FARMS} />;
     }
     render(
       <LanguageProvider>

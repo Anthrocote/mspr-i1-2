@@ -2,6 +2,7 @@ import type {
   ApiAlert,
   ApiCountry,
   ApiEnvelope,
+  ApiExploitation,
   ApiHealth,
   ApiLotDetail,
   ApiLotSummary,
@@ -150,6 +151,15 @@ export class ApiClient {
 
   getLot(uuid: string, options?: RequestOptions): Promise<ApiLotDetail> {
     return this.request<ApiLotDetail>(`/api/lots/${encodeURIComponent(uuid)}`, {}, options);
+  }
+
+  // ── Exploitations ──
+  getExploitations(params?: QueryParams, options?: RequestOptions): Promise<Page<ApiExploitation>> {
+    return this.getPage<ApiExploitation>('/api/exploitations', params, options);
+  }
+
+  getExploitation(uuid: string, options?: RequestOptions): Promise<ApiExploitation> {
+    return this.request<ApiExploitation>(`/api/exploitations/${encodeURIComponent(uuid)}`, {}, options);
   }
 
   // ── Measurements ──

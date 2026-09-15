@@ -9,17 +9,22 @@ import type {
   AlertSeverity,
   BadgeVariant,
   CountryCode,
+  Farm,
   Lot,
   LotStatus,
   StatusDistribution,
   Warehouse,
+  WarehouseStay,
 } from '@/types';
 import type {
   ApiAlert,
   ApiAlertType,
   ApiCountry,
+  ApiExploitation,
   ApiLotStatus,
+  ApiLotSummary,
   ApiMeasurement,
+  ApiStorageHistoryEntry,
   ApiWarehouse,
 } from './types';
 
@@ -51,6 +56,12 @@ export function isoToCountryCode(iso: string): CountryCode {
   }
   return code;
 }
+
+// A lot's country can be null (relation not resolved at the source). The
+// presentation CountryCode is a closed union with no empty member, so a lot with
+// no country falls back to this placeholder code; callers keep the label/flag
+// blank so nothing misleading is rendered.
+export const DEFAULT_COUNTRY_CODE: CountryCode = 'br';
 
 export function countryFlag(code: CountryCode): string {
   return CODE_TO_FLAG[code];
@@ -230,49 +241,72 @@ export function adaptAlert(alert: ApiAlert): Alert {
   };
 }
 
-// ── Lot (partial) ──
-// A presentation Lot is far richer than the wire lot summary, which lacks
-// country, warehouse, constitution date, duration and conditions. This adapter
-// maps only the fields the siège actually provides; the rest are filled from an
-// optional `context` (e.g. resolved from the lot detail's storage history and a
-// warehouse→country lookup) or left as neutral defaults. Callers that need a
-// faithful table must supply the context or accept the gaps.
-export interface LotContext {
-  countryCode?: CountryCode;
-  country?: string;
-  flag?: string;
-  warehouse?: string;
-  constitutedAt?: string; // ISO
-  temperature?: number;
-  humidity?: number;
-}
+// ── Lot ──
+// Maps the enriched wire lot summary to the presentation Lot. Every relation and
+// date on the wire can be null, so each one degrades to a blank/neutral value
+// rather than throwing. List-level conditions (temp/hum/ideal) and the stay
+// history are NOT on the summary — they are filled only in the detail path (see
+// `adaptStays` + `fetchLotDetail`), so they stay empty here.
+export function adaptLotSummary(api: ApiLotSummary): Lot {
+  const statusLabel = lotStatusLabelFr(api.status);
+  const statusVariant = lotStatusToVariant(api.status);
+  const countryCode = api.country ? isoToCountryCode(api.country.isoCode) : DEFAULT_COUNTRY_CODE;
 
-export function adaptLotSummary(
-  lot: { uuid: string; label: string; status: ApiLotStatus; syncedAt: string },
-  context: LotContext = {},
-): Lot {
-  const statusLabel = lotStatusLabelFr(lot.status);
-  const statusVariant = lotStatusToVariant(lot.status);
-  const constitutedIso = context.constitutedAt ?? lot.syncedAt;
+  const constitutedAt = api.constitutedAt ? formatDateFr(api.constitutedAt) : '';
+  const storageDate = api.arrivedAt
+    ? formatDateFr(api.arrivedAt)
+    : constitutedAt;
 
   return {
-    id: lot.label,
-    countryCode: context.countryCode ?? 'br',
-    country: context.country ?? '',
-    flag: context.flag ?? '',
-    warehouse: context.warehouse ?? '',
-    exploitationId: '',
-    constitutedAt: formatDateFr(constitutedIso),
-    storageDate: formatDateFr(constitutedIso),
+    id: api.label,
+    uuid: api.uuid,
+    countryCode,
+    country: api.country?.name ?? '',
+    // Never invent a flag for a country-less lot.
+    flag: api.country ? countryFlag(countryCode) : '',
+    warehouse: api.currentWarehouse?.name ?? '',
+    exploitationId: api.exploitation?.uuid ?? '',
+    constitutedAt,
+    storageDate,
     stays: [],
-    duration: '',
-    durationDays: 0,
+    duration: api.durationDays != null ? `${api.durationDays} j` : '',
+    durationDays: api.durationDays ?? 0,
     status: statusLabel,
     statusVariant,
     durationVariant: statusVariant === 'err' ? 'err' : statusVariant === 'warn' ? 'warn' : '',
-    temp: context.temperature !== undefined ? formatTemperature(context.temperature) : '',
-    hum: context.humidity !== undefined ? formatHumidity(context.humidity) : '',
+    temp: '',
+    hum: '',
     idealTemp: '',
     idealHum: '',
   };
+}
+
+// ── Exploitation ──
+// The siège exposes exploitations with a resolved country and a precomputed lot
+// count. There is NO certification field on the siège model, so certification is
+// a neutral em dash placeholder — inventing a certification would misrepresent
+// unaudited data.
+export function adaptExploitation(api: ApiExploitation): Farm {
+  const code = isoToCountryCode(api.country.isoCode);
+  return {
+    id: api.uuid,
+    name: api.name,
+    countryCode: code,
+    country: api.country.name,
+    flag: countryFlag(code),
+    lots: api.lotsCount,
+    certification: '—',
+    certVariant: 'neutral',
+  };
+}
+
+// ── Storage history → warehouse stays ──
+// The detail endpoint carries the lot's warehouse history; a null `departedAt`
+// means the lot is still in that warehouse.
+export function adaptStays(history: ApiStorageHistoryEntry[]): WarehouseStay[] {
+  return history.map((entry) => ({
+    warehouse: entry.warehouse.name,
+    entree: formatDateFr(entry.arrivedAt),
+    sortie: entry.departedAt ? formatDateFr(entry.departedAt) : null,
+  }));
 }

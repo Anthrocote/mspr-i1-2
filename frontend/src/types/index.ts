@@ -31,6 +31,9 @@ export interface WarehouseStay {
 
 export interface Lot {
   id: string;
+  // Siège lot uuid, used to fetch the lot detail. Absent on mock fixtures (which
+  // key everything on the human-readable label `id`); never rendered.
+  uuid?: string;
   countryCode: CountryCode;
   country: string;
   flag: string;
