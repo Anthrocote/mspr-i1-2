@@ -3,12 +3,14 @@
 namespace App\DataFixtures;
 
 use App\Entity\Entrepot;
+use App\Entity\Exploitation;
 use App\Entity\HistoriqueStockage;
 use App\Entity\Lot;
 use App\Entity\Pays;
 use App\Entity\Produit;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Uid\Uuid;
 
 class AppFixtures extends Fixture
 {
@@ -42,6 +44,7 @@ class AppFixtures extends Fixture
 
         foreach ($entrepotData as [$iso, $nom, $num, $adresse, $cp, $ville]) {
             $e = (new Entrepot())
+                ->setUuid(Uuid::v4())
                 ->setNom($nom)
                 ->setNumeroRue($num)
                 ->setAdresse($adresse)
@@ -52,8 +55,26 @@ class AppFixtures extends Fixture
             $entrepots[$iso] = $e;
         }
 
+        // Exploitations (une par pays)
+        $exploitations = [];
+        $exploitationData = [
+            ['BRA', 'Fazenda Serra Verde'],
+            ['ECU', 'Finca El Cóndor'],
+            ['COL', 'Hacienda La Esperanza'],
+        ];
+
+        foreach ($exploitationData as [$iso, $nom]) {
+            $exploitation = (new Exploitation())
+                ->setUuid(Uuid::v4())
+                ->setNom($nom)
+                ->setPays($paysEntities[$iso]);
+            $manager->persist($exploitation);
+            $exploitations[$iso] = $exploitation;
+        }
+
         // Produit exemple
         $produit = (new Produit())
+            ->setUuid(Uuid::v4())
             ->setNom('Arabica Minas Gerais')
             ->setDescription('Café vert Arabica de haute qualité, récolte 2025')
             ->setVariete('Arabica')
@@ -72,9 +93,12 @@ class AppFixtures extends Fixture
 
         foreach ($lotsData as [$iso, $libelle, $quantite, $dateOffset]) {
             $lot = (new Lot())
+                ->setUuid(Uuid::v4())
                 ->setLibelle($libelle)
                 ->setQuantite($quantite)
                 ->setProduit($produit)
+                ->setExploitation($exploitations[$iso])
+                ->setConstitueeLe(new \DateTimeImmutable($dateOffset))
                 ->setStatut(Lot::STATUT_CONFORME);
             $manager->persist($lot);
 

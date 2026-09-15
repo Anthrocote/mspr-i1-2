@@ -6,7 +6,6 @@ use App\Repository\LotRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -18,11 +17,11 @@ class Lot
     public const STATUT_EN_ALERTE = 'in_alert';
     public const STATUT_PERIME    = 'expired';
 
+    // The uuid is assigned from the producing tier's payload during sync, never
+    // generated here, so the siège shares the same identity as the local record.
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    private ?Uuid $uuid = null;
+    private Uuid $uuid;
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
@@ -37,6 +36,13 @@ class Lot
     #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: false)]
     #[Assert\NotNull]
     private Produit $produit;
+
+    #[ORM\ManyToOne(targetEntity: Exploitation::class)]
+    #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: true)]
+    private ?Exploitation $exploitation = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $constitueeLe = null;
 
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank]
@@ -56,7 +62,8 @@ class Lot
         $this->syncedAt = new \DateTimeImmutable();
     }
 
-    public function getUuid(): ?Uuid { return $this->uuid; }
+    public function getUuid(): ?Uuid { return $this->uuid ?? null; }
+    public function setUuid(Uuid $uuid): static { $this->uuid = $uuid; return $this; }
 
     public function getLibelle(): ?string { return $this->libelle; }
     public function setLibelle(?string $libelle): static { $this->libelle = $libelle; return $this; }
@@ -66,6 +73,12 @@ class Lot
 
     public function getProduit(): Produit { return $this->produit; }
     public function setProduit(Produit $produit): static { $this->produit = $produit; return $this; }
+
+    public function getExploitation(): ?Exploitation { return $this->exploitation; }
+    public function setExploitation(?Exploitation $exploitation): static { $this->exploitation = $exploitation; return $this; }
+
+    public function getConstitueeLe(): ?\DateTimeImmutable { return $this->constitueeLe; }
+    public function setConstitueeLe(?\DateTimeImmutable $constitueeLe): static { $this->constitueeLe = $constitueeLe; return $this; }
 
     public function getStatut(): string { return $this->statut; }
     public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
