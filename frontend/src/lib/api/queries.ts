@@ -92,21 +92,18 @@ export async function fetchWarehouseConditions(
   );
 }
 
-// Measurements for one warehouse, used to build the IoT charts. The API returns
-// them newest-first, so page 1 holds the most recent window; we reverse to
-// oldest-first so the chart plots left-to-right in time. `params` carries the
-// window bound (`from`); the page size is the API maximum.
+// Measurements for one warehouse, used to build the IoT charts. The siège
+// returns the FULL range in one response when a date filter (`from`/`to`) is
+// present — the chart always passes `from`, so this is a single request, not a
+// page walk. The API returns them newest-first; reverse to oldest-first so the
+// chart plots left-to-right in time.
 export async function fetchWarehouseMeasurements(
   client: ApiClient,
   warehouseUuid: string,
   params?: QueryParams,
   options?: RequestOptions,
 ): Promise<ApiMeasurement[]> {
-  const page = await client.getWarehouseMeasurements(
-    warehouseUuid,
-    { ...params, limit: 200, page: 1 },
-    options,
-  );
+  const page = await client.getWarehouseMeasurements(warehouseUuid, params, options);
   return page.items.slice().reverse();
 }
 
