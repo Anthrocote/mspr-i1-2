@@ -17,7 +17,8 @@ def test_sync_lots_shape(client):
     assert r.status_code == 200
     item = r.json()[0]
     assert set(item) == {"uuid", "label", "quantity", "status", "in_transit",
-                         "warehouse_uuid", "product_uuid", "arrived_at", "departed_at"}
+                         "warehouse_uuid", "product_uuid", "arrived_at", "departed_at",
+                         "exploitation_uuid", "constituted_at"}
     assert item["product_uuid"]  # linked by uuid, product synced separately
     assert item["status"] in {"compliant", "in_alert", "expired"}
 

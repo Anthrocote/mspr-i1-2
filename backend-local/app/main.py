@@ -67,6 +67,7 @@ def create_app(start_background: bool = True) -> FastAPI:
 
     application = FastAPI(title="FutureKawa backend-local", lifespan=lifespan)
 
+    from app.api.exploitations import router as exploitations_router
     from app.api.lots import router as lots_router
     from app.api.products import router as products_router
     from app.api.readonly import router as readonly_router
@@ -74,6 +75,7 @@ def create_app(start_background: bool = True) -> FastAPI:
 
     application.include_router(lots_router)
     application.include_router(products_router)
+    application.include_router(exploitations_router)
     application.include_router(sync_router)
     application.include_router(readonly_router)
 

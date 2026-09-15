@@ -7,7 +7,7 @@ from app.alerting import recompute_lot_status, resolve_expiry_alerts
 from app.api.deps import require_api_key
 from app.db import get_session
 from app.ingest import get_or_create_warehouse
-from app.models import StorageRecord, Lot, Product, mark_unacked
+from app.models import Exploitation, StorageRecord, Lot, Product, mark_unacked
 from app.schemas import ArrivalIn, DepartIn, LotIn, LotOut
 
 router = APIRouter(dependencies=[Depends(require_api_key)])
@@ -33,8 +33,13 @@ def create_lot(payload: LotIn, session=Depends(get_session)):
     product = session.get(Product, payload.product_uuid)
     if product is None:
         raise HTTPException(404, "Product not found")
+    if payload.exploitation_uuid is not None:
+        if session.get(Exploitation, payload.exploitation_uuid) is None:
+            raise HTTPException(404, "Exploitation not found")
     lot = Lot(label=payload.label, quantity=payload.quantity,
-              product=product, created_at=_now())
+              product=product, created_at=_now(),
+              exploitation_uuid=payload.exploitation_uuid,
+              constituted_at=payload.constituted_at or _now())
     session.add(lot)
     w = get_or_create_warehouse(session, get_country(), payload.warehouse_code)
     session.add(StorageRecord(lot=lot, warehouse_uuid=w.uuid,
