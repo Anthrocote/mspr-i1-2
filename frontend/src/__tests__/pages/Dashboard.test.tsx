@@ -1,12 +1,26 @@
 import { render, screen } from '@testing-library/react';
-import DashboardPage from '@/app/page';
+import DashboardView from '@/app/DashboardView';
+import { CONSOLIDATED, WAREHOUSES, ALERTS } from '@/data/mock';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
+// The pure view is tested against the mock fixtures: same presentation data the
+// adapters produce at runtime, without needing the network. The container's
+// fetch wiring is covered in Dashboard.integration.test.tsx.
 function renderDashboard() {
-  return render(<LanguageProvider><DashboardPage /></LanguageProvider>);
+  return render(
+    <LanguageProvider>
+      <DashboardView
+        totalLots={CONSOLIDATED.totalLots}
+        enTransit={CONSOLIDATED.enTransit}
+        distribution={CONSOLIDATED.distribution}
+        warehouses={WAREHOUSES}
+        alerts={ALERTS}
+      />
+    </LanguageProvider>,
+  );
 }
 
-describe('DashboardPage', () => {
+describe('DashboardView', () => {
   it('renders the Total Lots KPI with the consolidated value', () => {
     renderDashboard();
     expect(screen.getByText('Total Lots')).toBeInTheDocument();
@@ -45,5 +59,20 @@ describe('DashboardPage', () => {
     renderDashboard();
     // 7 alerts, 4 previewed -> "+3 autres alertes"
     expect(screen.getByText(/\+3 autres alertes/)).toBeInTheDocument();
+  });
+
+  it('renders an em dash for En Transit when the value is unavailable', () => {
+    render(
+      <LanguageProvider>
+        <DashboardView
+          totalLots={10}
+          enTransit={null}
+          distribution={{ conforme: 8, alerte: 2, perime: 0 }}
+          warehouses={[]}
+          alerts={[]}
+        />
+      </LanguageProvider>,
+    );
+    expect(screen.getByText('—')).toBeInTheDocument();
   });
 });

@@ -121,6 +121,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     "open_menu": "Ouvrir le menu",
     "search": "Rechercher…",
+    "loading": "Chargement…",
+    "load_error": "Impossible de charger les données. Vérifiez la connexion au serveur.",
     "page_not_found": "Page non trouvée",
     "error_404": "Erreur 404",
     "back_to_dashboard": "Retour au tableau de bord",
@@ -246,6 +248,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     "open_menu": "Open menu",
     "search": "Search…",
+    "loading": "Loading…",
+    "load_error": "Could not load data. Check the server connection.",
     "page_not_found": "Page not found",
     "error_404": "Error 404",
     "back_to_dashboard": "Back to dashboard",
@@ -371,6 +375,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     "open_menu": "Abrir menú",
     "search": "Buscar…",
+    "loading": "Cargando…",
+    "load_error": "No se pudieron cargar los datos. Comprueba la conexión con el servidor.",
     "page_not_found": "Página no encontrada",
     "error_404": "Error 404",
     "back_to_dashboard": "Volver al panel",
