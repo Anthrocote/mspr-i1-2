@@ -31,7 +31,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = (key: string): string => {
-    return translations[language]?.[key] || translations['fr']?.[key] || key;
+    // Object.hasOwn guards against inherited members ('constructor', 'toString'…)
+    // being returned as if they were translations.
+    const dict = translations[language] ?? translations.fr;
+    if (Object.hasOwn(dict, key)) return dict[key];
+    if (Object.hasOwn(translations.fr, key)) return translations.fr[key];
+    return key;
   };
 
   return (

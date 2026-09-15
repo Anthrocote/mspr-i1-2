@@ -23,6 +23,23 @@ describe('ClientShell', () => {
     expect(screen.getByText('page content')).toBeInTheDocument();
   });
 
+  it('treats an Object.prototype segment as not-found, not a real page', () => {
+    // Before the fix `'constructor' in PAGE_META` was true and t('constructor')
+    // returned the Object constructor, crashing the <h1>.
+    mockPathname = '/constructor';
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() =>
+      render(
+        <ClientShell>
+          <div>page content</div>
+        </ClientShell>
+      )
+    ).not.toThrow();
+    expect(screen.getByText('Page non trouvée')).toBeInTheDocument();
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
   it('bypasses the sidebar chrome on /secret', () => {
     mockPathname = '/secret';
     render(

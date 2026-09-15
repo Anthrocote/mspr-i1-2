@@ -12,7 +12,8 @@ import { SearchProvider } from '@/contexts/SearchContext';
 function pageIdFromPath(pathname: string): string {
   if (pathname === '/') return 'dashboard';
   const seg = pathname.split('/').filter(Boolean)[0];
-  if (seg && seg in PAGE_META) return seg;
+  // Object.hasOwn, not `in`: `/constructor` must not match Object.prototype.
+  if (seg && Object.hasOwn(PAGE_META, seg)) return seg;
   return 'not-found';
 }
 
