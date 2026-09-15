@@ -32,8 +32,12 @@ class AlerteRepository extends ServiceEntityRepository
         int $limit,
         int $offset,
     ): array {
+        // Active (unresolved) alerts first, then most-recent first within each
+        // group: what still needs attention rises to the top of the history.
         $qb = $this->createQueryBuilder('a')
-            ->orderBy('a.declencheeLe', 'DESC');
+            ->addSelect('CASE WHEN a.resolueLe IS NULL THEN 0 ELSE 1 END AS HIDDEN activeOrder')
+            ->orderBy('activeOrder', 'ASC')
+            ->addOrderBy('a.declencheeLe', 'DESC');
 
         // Default (and any unknown value) keeps the historical active-only view.
         if ($status === self::STATUS_RESOLVED) {

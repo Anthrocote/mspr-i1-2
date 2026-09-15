@@ -82,6 +82,22 @@ class AlerteControllerTest extends ApiTestCase
         $this->assertSame(1, $total, 'the 10-day-old alert must fall outside the from bound');
     }
 
+    public function testActiveAlertsAreListedFirst(): void
+    {
+        // A resolved alert triggered later than an active one: active must still
+        // come first (what needs attention rises to the top), then date DESC.
+        $this->seedAlert('out_of_range', new \DateTimeImmutable('-2 hours'), null);            // active, older
+        $this->seedAlert('sensor_offline', new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('-30 minutes')); // resolved, newer
+
+        $this->client->request('GET', '/api/alerts?status=all');
+        $this->assertResponseIsSuccessful();
+        $data = json_decode($this->client->getResponse()->getContent(), true)['data'];
+
+        $this->assertCount(2, $data);
+        $this->assertNull($data[0]['resolvedAt'], 'the active alert must be first even though it is older');
+        $this->assertNotNull($data[1]['resolvedAt']);
+    }
+
     private function seedAlert(string $type, \DateTimeImmutable $triggeredAt, ?\DateTimeImmutable $resolvedAt): void
     {
         $em = static::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
