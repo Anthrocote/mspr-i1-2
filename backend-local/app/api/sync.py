@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from app.api.deps import require_api_key
 from app.db import get_session
-from app.models import Alert, Exploitation, Lot, Measurement, Product
+from app.models import Alert, Exploitation, Lot, Measurement, Product, Warehouse
 from app.schemas import AckIn
 
 router = APIRouter(prefix="/sync", dependencies=[Depends(require_api_key)])
@@ -70,6 +70,17 @@ def serialize_alert(a: Alert) -> dict:
     }
 
 
+def serialize_warehouse(w: Warehouse) -> dict:
+    return {
+        "uuid": w.uuid,
+        "code": w.code,
+        "name": w.name,
+        "country": w.country,
+        "last_status": w.last_status,
+        "last_status_at": _iso(w.last_status_at),
+    }
+
+
 @router.get("/products")
 def sync_products(session=Depends(get_session)):
     ps = session.scalars(select(Product).where(Product.acked_at.is_(None)))
@@ -98,6 +109,14 @@ def sync_measurements(session=Depends(get_session)):
 def sync_alerts(session=Depends(get_session)):
     al = session.scalars(select(Alert).where(Alert.acked_at.is_(None)))
     return [serialize_alert(a) for a in al]
+
+
+@router.get("/warehouses")
+def sync_warehouses(session=Depends(get_session)):
+    # Current status of every warehouse (not buffered/acked): the siège upserts it
+    # on each sync so the head office sees which sensors are online.
+    ws = session.scalars(select(Warehouse))
+    return [serialize_warehouse(w) for w in ws]
 
 
 def _is_lot_terminal(lot: Lot) -> bool:

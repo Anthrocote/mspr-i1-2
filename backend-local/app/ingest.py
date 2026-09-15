@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
-from app.alerting import evaluate_condition, send_pending
+from app.alerting import evaluate_condition, evaluate_sensor_status, send_pending
 from app.ids import measurement_uuid
 from app.models import DeviceWatermark, Measurement, Warehouse
 
@@ -33,9 +33,12 @@ def handle_message(session, country: str, topic: str, payload: bytes,
 
     if kind == "status":
         w = get_or_create_warehouse(session, country, code)
-        w.last_status = payload.decode().strip()
+        status = payload.decode().strip()
+        w.last_status = status
         w.last_status_at = now_fn()
+        pending = evaluate_sensor_status(session, w, status, now_fn())
         session.commit()
+        send_pending(sender, pending)  # after commit: off the SQLite write transaction
         return
 
     if kind != "mesures":
