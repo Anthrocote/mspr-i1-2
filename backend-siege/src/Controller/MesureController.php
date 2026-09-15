@@ -38,13 +38,8 @@ class MesureController extends AbstractController
 
         $from = $request->query->get('from') ? new \DateTimeImmutable($request->query->get('from')) : null;
         $to   = $request->query->get('to')   ? new \DateTimeImmutable($request->query->get('to'))   : null;
-        $pagination = Pagination::fromRequest($request);
 
-        $result = $this->mesureRepository->findByEntrepot($entrepotUuid, $from, $to, $pagination->getLimit(), $pagination->getOffset());
-
-        $data = array_map(fn ($m) => $this->serialize($m), $result['items']);
-
-        return $this->json($pagination->envelope($data, $result['total']));
+        return $this->measurementsResponse($entrepotUuid, $from, $to, $request);
     }
 
     #[Route('/api/warehouses/{uuid}/measurements', name: 'api_entrepots_mesures', methods: ['GET'])]
@@ -64,10 +59,30 @@ class MesureController extends AbstractController
 
         $from = $request->query->get('from') ? new \DateTimeImmutable($request->query->get('from')) : null;
         $to   = $request->query->get('to')   ? new \DateTimeImmutable($request->query->get('to'))   : null;
+
+        return $this->measurementsResponse($uuid, $from, $to, $request);
+    }
+
+    /**
+     * A date filter bounds the result, so the whole range is returned in one
+     * (unpaginated) response — the chart needs the full window, not a 200-row
+     * slice. Without a date filter the default pagination still caps the payload.
+     */
+    private function measurementsResponse(string $uuid, ?\DateTimeImmutable $from, ?\DateTimeImmutable $to, Request $request): JsonResponse
+    {
+        if ($from !== null || $to !== null) {
+            $items = $this->mesureRepository->findAllByEntrepot($uuid, $from, $to);
+            $data = array_map(fn ($m) => $this->serialize($m), $items);
+            $count = count($data);
+
+            return $this->json([
+                'data'       => $data,
+                'pagination' => ['page' => 1, 'limit' => $count, 'total' => $count, 'pages' => 1],
+            ]);
+        }
+
         $pagination = Pagination::fromRequest($request);
-
         $result = $this->mesureRepository->findByEntrepot($uuid, $from, $to, $pagination->getLimit(), $pagination->getOffset());
-
         $data = array_map(fn ($m) => $this->serialize($m), $result['items']);
 
         return $this->json($pagination->envelope($data, $result['total']));
