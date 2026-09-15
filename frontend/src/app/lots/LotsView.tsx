@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WAREHOUSES } from '@/data/mock';
 import type { Farm, Lot, CountryCode, BadgeVariant, WarehouseStay } from '@/types';
 import { formatHumidity, formatTemperature } from '@/lib/api/adapters';
 import Badge from '@/components/ui/Badge';
@@ -26,13 +25,22 @@ type AgeFilter = 'all' | 'lt90' | '90_180' | '180_365' | 'gt365';
 
 // Location is a single hierarchy (country > warehouse), so country and warehouse
 // can't be set to a contradictory pair.
-// Derived from the warehouse list so a warehouse added to the mock shows up in
-// this filter automatically (and can't diverge from the IoT selector).
 const COUNTRY_ORDER: CountryCode[] = ['br', 'ec', 'co'];
-const LOCATIONS = COUNTRY_ORDER.map((code) => ({
-  code,
-  warehouses: WAREHOUSES.filter((w) => w.countryCode === code).map((w) => w.name),
-}));
+
+// Derive the location filter from the lots actually received, so it can never
+// diverge from the data on screen and needs no separate warehouse source.
+function locationsFromLots(lots: Lot[]): { code: CountryCode; warehouses: string[] }[] {
+  return COUNTRY_ORDER.map((code) => ({
+    code,
+    warehouses: Array.from(
+      new Set(
+        lots
+          .filter((l) => l.countryCode === code && l.warehouse)
+          .map((l) => l.warehouse),
+      ),
+    ),
+  })).filter((c) => lots.some((l) => l.countryCode === c.code));
+}
 
 const STATUS_OPTIONS: { value: StatusFilter; key: string }[] = [
   { value: 'all', key: 'all_statuses' },
@@ -88,6 +96,7 @@ export interface LotsViewProps {
 export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
   const { t } = useLanguage();
   const { searchQuery } = useSearch();
+  const locations = locationsFromLots(lots);
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [detailExtras, setDetailExtras] = useState<LotDetailExtras | null>(null);
 
@@ -264,7 +273,7 @@ export default function LotsView({ lots, farms, loadDetail }: LotsViewProps) {
 
                 <FilterSelect label={t('location')} value={locationFilter} onChange={setLocation}>
                   <option value="all">{t('all_locations')}</option>
-                  {LOCATIONS.map((c) => (
+                  {locations.map((c) => (
                     <optgroup key={c.code} label={`${lots.find((l) => l.countryCode === c.code)?.flag ?? ''} ${t(c.code)}`}>
                       <option value={`country:${c.code}`}>{t(c.code)} {t('location_all_suffix')}</option>
                       {c.warehouses.map((w) => (

@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { WAREHOUSES } from '@/data/mock';
-import type { CountryCode } from '@/types';
+import type { CountryCode, Warehouse } from '@/types';
+import { apiClient } from '@/lib/api/client';
+import { fetchWarehouseConditions, fetchWarehouseMeasurements } from '@/lib/api/queries';
+import type { ApiMeasurement } from '@/lib/api/types';
 import Badge from '@/components/ui/Badge';
 import ConditionChart from '@/components/charts/ConditionChart';
-import { warehouseSeries, type TimeRange } from '@/lib/series';
+import { buildConditionSeries, type TimeRange } from '@/lib/series';
 import { warehouseStatus, warehouseExceptions } from '@/lib/dashboard';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -18,24 +20,92 @@ const RANGES: { key: TimeRange; label: string }[] = [
 
 const COUNTRY_ORDER: CountryCode[] = ['br', 'ec', 'co'];
 
-// Default to the warehouse with the worst derived deviation.
-const firstAtRisk = warehouseExceptions(WAREHOUSES)[0]?.warehouse ?? WAREHOUSES[0];
+const DAY_MS = 24 * 60 * 60 * 1000;
+const RANGE_MS: Record<TimeRange, number> = {
+  '24h': DAY_MS,
+  '7j': 7 * DAY_MS,
+  '30j': 30 * DAY_MS,
+};
 
+// A warehouse's ideal/tolerance are encoded as the [min, max] tolerance band the
+// adapters derive from the country thresholds: the midpoint is the ideal, half
+// the span is the tolerance.
+function bandCenter([min, max]: [number, number]): { ideal: number; tolerance: number } {
+  return { ideal: (min + max) / 2, tolerance: (max - min) / 2 };
+}
+
+type LoadState =
+  | { status: 'loading' }
+  | { status: 'error' }
+  | { status: 'ready'; warehouses: Warehouse[] };
+
+// Client container: fetches the warehouse conditions (grouped by country in the
+// selector), then the measurements of the selected warehouse over the chosen
+// window, and builds the temperature/humidity series from the real readings.
 export default function IoTPage() {
   const { t } = useLanguage();
-  const [selectedId, setSelectedId] = useState<string>(firstAtRisk.id);
+  const [state, setState] = useState<LoadState>({ status: 'loading' });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [range, setRange] = useState<TimeRange>('24h');
+  const [measurements, setMeasurements] = useState<ApiMeasurement[]>([]);
+
+  // Warehouse list, once. Default the selection to the worst derived deviation.
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchWarehouseConditions(apiClient, { signal: controller.signal })
+      .then((warehouses) => {
+        setState({ status: 'ready', warehouses });
+        const first = warehouseExceptions(warehouses)[0]?.warehouse ?? warehouses[0];
+        setSelectedId((current) => current ?? first?.id ?? null);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        setState({ status: 'error' });
+      });
+    return () => controller.abort();
+  }, []);
+
+  // Measurements for the selected warehouse + window. Refetched on either change.
+  useEffect(() => {
+    if (!selectedId) return;
+    const controller = new AbortController();
+    const from = new Date(Date.now() - RANGE_MS[range]).toISOString();
+    setMeasurements([]);
+    fetchWarehouseMeasurements(apiClient, selectedId, { from }, { signal: controller.signal })
+      .then(setMeasurements)
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        // Leave the series empty; the chart renders a neutral in-band state.
+      });
+    return () => controller.abort();
+  }, [selectedId, range]);
+
+  if (state.status === 'loading') {
+    return <div className="py-16 text-center text-sm text-[#A08060]">{t('loading')}</div>;
+  }
+
+  if (state.status === 'error') {
+    return <div className="py-16 text-center text-sm text-[#9B1C1C]">{t('load_error')}</div>;
+  }
+
+  const { warehouses } = state;
+  const selected = warehouses.find((w) => w.id === selectedId) ?? warehouses[0];
+
+  if (!selected) {
+    return <div className="py-16 text-center text-sm text-[#A08060]">{t('load_error')}</div>;
+  }
 
   const groups = COUNTRY_ORDER.map((code) => ({
     code,
-    flag: WAREHOUSES.find((w) => w.countryCode === code)?.flag ?? '',
-    items: WAREHOUSES.filter((w) => w.countryCode === code),
-  }));
+    flag: warehouses.find((w) => w.countryCode === code)?.flag ?? '',
+    items: warehouses.filter((w) => w.countryCode === code),
+  })).filter((g) => g.items.length > 0);
 
-  const selected = WAREHOUSES.find((w) => w.id === selectedId) ?? WAREHOUSES[0];
   const selectedStatus = warehouseStatus(selected);
-  const tempSeries = warehouseSeries(selected, 'temp', range);
-  const humSeries = warehouseSeries(selected, 'hum', range);
+  const tempBand = bandCenter(selected.tempRange);
+  const humBand = bandCenter(selected.humRange);
+  const tempSeries = buildConditionSeries(measurements, 'temp', tempBand.ideal, tempBand.tolerance, range);
+  const humSeries = buildConditionSeries(measurements, 'hum', humBand.ideal, humBand.tolerance, range);
 
   return (
     <motion.div
@@ -50,7 +120,7 @@ export default function IoTPage() {
           <label htmlFor="wh-select" className="text-[11px] font-semibold text-[#A08060] uppercase tracking-wider">{t('warehouse')}</label>
           <select
             id="wh-select"
-            value={selectedId}
+            value={selected.id}
             onChange={(e) => setSelectedId(e.target.value)}
             className="border-[1.5px] border-[#E8D9C4] rounded-[10px] py-2 px-3 text-[13px] font-semibold text-[#1E0F06] bg-[#FDF9F4] outline-none focus:border-[#A0714F] transition-colors cursor-pointer"
           >

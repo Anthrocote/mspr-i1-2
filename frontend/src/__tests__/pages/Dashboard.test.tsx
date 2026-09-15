@@ -1,18 +1,56 @@
 import { render, screen } from '@testing-library/react';
 import DashboardView from '@/app/DashboardView';
-import { CONSOLIDATED, WAREHOUSES, ALERTS } from '@/data/mock';
+import type { Alert, Warehouse } from '@/types';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
-// The pure view is tested against the mock fixtures: same presentation data the
-// adapters produce at runtime, without needing the network. The container's
-// fetch wiring is covered in Dashboard.integration.test.tsx.
+// Inline presentation fixtures: the same adapted shape the queries produce at
+// runtime, built here so the view test needs neither the network nor the mock
+// data module. The container's fetch wiring is covered in
+// Dashboard.integration.test.tsx.
+const WAREHOUSES: Warehouse[] = [
+  {
+    id: 'wh-sp', name: 'São Paulo A', country: 'Brésil', countryCode: 'br', flag: '🇧🇷',
+    temp: '29°C', hum: '55%', tempNum: 29, humNum: 55, tempRange: [26, 32], humRange: [53, 57],
+    idealTemp: '29°C ±3', idealHum: '55% ±2', lots: 48,
+  },
+  {
+    // Temperature sits at the tolerance edge -> derived exception.
+    id: 'wh-qt', name: 'Quito B', country: 'Équateur', countryCode: 'ec', flag: '🇪🇨',
+    temp: '34°C', hum: '60%', tempNum: 34, humNum: 60, tempRange: [28, 34], humRange: [57, 63],
+    idealTemp: '31°C ±3', idealHum: '60% ±3', lots: 37,
+  },
+  {
+    // Humidity beyond its band -> derived exception.
+    id: 'wh-gy', name: 'Guayaquil A', country: 'Équateur', countryCode: 'ec', flag: '🇪🇨',
+    temp: '30°C', hum: '64%', tempNum: 30, humNum: 64, tempRange: [28, 34], humRange: [57, 63],
+    idealTemp: '31°C ±3', idealHum: '60% ±3', lots: 21,
+  },
+];
+
+function alert(id: string, severity: Alert['severity'], title: string): Alert {
+  const p = severity === 'critique'
+    ? { level: 'Critique', icon: '⛔', variant: 'err' as const, bgColor: '#FEF2F2', borderColor: '#9B1C1C' }
+    : { level: 'Alerte', icon: '🌡️', variant: 'warn' as const, bgColor: '#FEF3E2', borderColor: '#B45309' };
+  return { id, severity, title, description: 'Déclenchée le 5 jan. 2025', time: '5 jan. 2025', ...p };
+}
+
+const ALERTS: Alert[] = [
+  alert('a1', 'critique', 'Lot périmé — LOT-BR-2023-00018'),
+  alert('a2', 'critique', 'Lot périmé — LOT-EC-2023-00045'),
+  alert('a3', 'alerte', 'Condition hors plage — Quito B'),
+  alert('a4', 'alerte', 'Condition hors plage — Bogotá C'),
+  alert('a5', 'alerte', 'Condition hors plage — Guayaquil A'),
+  alert('a6', 'alerte', 'Lot périmé — LOT-CO-2023-00077'),
+  alert('a7', 'alerte', 'Lot périmé — LOT-BR-2024-00760'),
+];
+
 function renderDashboard() {
   return render(
     <LanguageProvider>
       <DashboardView
-        totalLots={CONSOLIDATED.totalLots}
-        enTransit={CONSOLIDATED.enTransit}
-        distribution={CONSOLIDATED.distribution}
+        totalLots={248}
+        enTransit={14}
+        distribution={{ conforme: 174, alerte: 72, perime: 2 }}
         warehouses={WAREHOUSES}
         alerts={ALERTS}
       />
@@ -43,8 +81,6 @@ describe('DashboardView', () => {
   it('renders the watchlist with warehouses over their threshold', () => {
     renderDashboard();
     expect(screen.getByText('À surveiller')).toBeInTheDocument();
-    // Quito B (temp at tolerance edge) and Guayaquil A (humidity over range)
-    // are derived exceptions, so they must surface here.
     expect(screen.getByText('Quito B')).toBeInTheDocument();
     expect(screen.getByText('Guayaquil A')).toBeInTheDocument();
   });

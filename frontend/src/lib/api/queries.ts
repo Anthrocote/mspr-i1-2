@@ -2,7 +2,7 @@
 // presentation data. Kept separate from the client (transport) and adapters
 // (pure mapping) so the fetch orchestration is testable in isolation.
 
-import type { Alert, Farm, Lot, StatusDistribution, Warehouse, WarehouseStay } from '@/types';
+import type { Alert, CountryCode, Farm, Lot, StatusDistribution, Warehouse, WarehouseStay } from '@/types';
 import { LOT_STATUSES, type ApiLotStatus, type ApiMeasurement } from './types';
 import { ApiClient, type Page, type QueryParams, type RequestOptions } from './client';
 import {
@@ -11,7 +11,11 @@ import {
   adaptLotSummary,
   adaptStays,
   adaptWarehouse,
+  countryFlag,
   distributionFromCounts,
+  formatHumidity,
+  formatTemperature,
+  isoToCountryCode,
 } from './adapters';
 
 // Consolidated headline the dashboard shows. `enTransit` is intentionally
@@ -91,6 +95,77 @@ export async function fetchWarehouseConditions(
         client.getLots({ warehouse_id: warehouse.uuid, limit: 1, page: 1 }, options),
       ]);
       return adaptWarehouse({ warehouse, country, latest, lots: lotsPage.total });
+    }),
+  );
+}
+
+// Time-ordered (oldest-first) measurements for one warehouse, used to build the
+// IoT charts. `params` carries the window bound (`from`) and paging; the wide
+// default limit keeps a single call enough for the visible ranges.
+export async function fetchWarehouseMeasurements(
+  client: ApiClient,
+  warehouseUuid: string,
+  params?: QueryParams,
+  options?: RequestOptions,
+): Promise<ApiMeasurement[]> {
+  const page = await client.getWarehouseMeasurements(
+    warehouseUuid,
+    { limit: 500, ...params },
+    options,
+  );
+  return page.items;
+}
+
+// Per-country roll-up for the exploitations page. Every figure is sourced:
+//   - ideal temp/humidity from /api/countries;
+//   - lots / warehouses / alerts counts from the pagination total of a size-1
+//     query filtered by `country_id` (a verified filter on all three routes);
+//   - farms counted client-side from the exploitations list (the exploitations
+//     route exposes no verified country filter, so grouping the fetched farms is
+//     the honest source).
+export interface CountrySummary {
+  countryCode: CountryCode;
+  name: string;
+  flag: string;
+  ideal: string;
+  farms: number;
+  warehouses: number;
+  lots: number;
+  alerts: number;
+}
+
+export async function fetchCountrySummaries(
+  client: ApiClient,
+  options?: RequestOptions,
+): Promise<CountrySummary[]> {
+  const [countriesPage, farms] = await Promise.all([
+    client.getCountries({ limit: 200 }, options),
+    fetchExploitations(client, options),
+  ]);
+
+  const farmsByCode = farms.reduce((acc, farm) => {
+    acc.set(farm.countryCode, (acc.get(farm.countryCode) ?? 0) + 1);
+    return acc;
+  }, new Map<CountryCode, number>());
+
+  return Promise.all(
+    countriesPage.items.map(async (country) => {
+      const code = isoToCountryCode(country.isoCode);
+      const [lots, warehouses, alerts] = await Promise.all([
+        client.getLots({ country_id: country.id, limit: 1, page: 1 }, options),
+        client.getWarehouses({ country_id: country.id, limit: 1, page: 1 }, options),
+        client.getAlerts({ country_id: country.id, limit: 1, page: 1 }, options),
+      ]);
+      return {
+        countryCode: code,
+        name: country.name,
+        flag: countryFlag(code),
+        ideal: `${formatTemperature(country.idealTemperature)} · ${formatHumidity(country.idealHumidity)}`,
+        farms: farmsByCode.get(code) ?? 0,
+        warehouses: warehouses.total,
+        lots: lots.total,
+        alerts: alerts.total,
+      };
     }),
   );
 }

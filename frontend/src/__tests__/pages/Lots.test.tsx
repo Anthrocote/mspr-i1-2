@@ -1,12 +1,63 @@
 import { useEffect } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import LotsView from '@/app/lots/LotsView';
-import { LOTS, FARMS } from '@/data/mock';
+import type { BadgeVariant, CountryCode, Farm, Lot } from '@/types';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { SearchProvider, useSearch } from '@/contexts/SearchContext';
 
-// The pure view is exercised with the mock fixtures as complete presentation
-// data (stays/conditions embedded), so no detail fetch is wired here.
+// Inline presentation fixtures: the same adapted shape the queries produce, so
+// the view test needs neither the network nor the mock data module. The
+// container's fetch wiring is covered in Lots.integration.test.tsx.
+const COUNTRY_LABEL: Record<CountryCode, string> = { br: 'Brésil', ec: 'Équateur', co: 'Colombie' };
+const COUNTRY_FLAG: Record<CountryCode, string> = { br: '🇧🇷', ec: '🇪🇨', co: '🇨🇴' };
+
+function lot(over: Partial<Lot> & { id: string; countryCode: CountryCode; warehouse: string }): Lot {
+  const { countryCode } = over;
+  return {
+    country: COUNTRY_LABEL[countryCode],
+    flag: COUNTRY_FLAG[countryCode],
+    exploitationId: '',
+    constitutedAt: '5 jan. 2023',
+    storageDate: '12 jan. 2023',
+    stays: [],
+    duration: '90 j',
+    durationDays: 90,
+    status: 'Conforme',
+    statusVariant: 'ok' as BadgeVariant,
+    durationVariant: '',
+    temp: '',
+    hum: '',
+    idealTemp: '',
+    idealHum: '',
+    ...over,
+  };
+}
+
+const LOTS: Lot[] = [
+  lot({
+    id: 'LOT-BR-2023-00018', countryCode: 'br', warehouse: 'São Paulo A', exploitationId: 'br-santa-lucia',
+    constitutedAt: '5 jan. 2023', duration: '387 j', durationDays: 387, status: 'Périmé', statusVariant: 'err', durationVariant: 'err',
+    temp: '31°C', hum: '56%', idealTemp: '29°C ±3', idealHum: '55% ±2',
+    stays: [
+      { warehouse: 'Rio C', entree: '12 jan. 2023', sortie: '20 juin 2023' },
+      { warehouse: 'São Paulo A', entree: '21 juin 2023', sortie: null },
+    ],
+  }),
+  lot({ id: 'LOT-EC-2024-00107', countryCode: 'ec', warehouse: 'Quito B', duration: '240 j', durationDays: 240, status: 'En Alerte', statusVariant: 'warn', durationVariant: 'warn' }),
+  lot({ id: 'LOT-CO-2024-00342', countryCode: 'co', warehouse: 'Bogotá C', duration: '134 j', durationDays: 134 }),
+  lot({ id: 'LOT-BR-2024-00891', countryCode: 'br', warehouse: 'Rio C' }),
+  lot({ id: 'LOT-EC-2024-00204', countryCode: 'ec', warehouse: 'Guayaquil A', duration: '52 j', durationDays: 52 }),
+  lot({ id: 'LOT-CO-2023-00077', countryCode: 'co', warehouse: 'Bogotá C', duration: '360 j', durationDays: 360, status: 'En Alerte', statusVariant: 'warn', durationVariant: 'warn' }),
+  lot({ id: 'LOT-BR-2024-00992', countryCode: 'br', warehouse: 'São Paulo A', duration: '32 j', durationDays: 32 }),
+  lot({ id: 'LOT-EC-2023-00045', countryCode: 'ec', warehouse: 'Quito B', duration: '372 j', durationDays: 372, status: 'Périmé', statusVariant: 'err', durationVariant: 'err' }),
+  lot({ id: 'LOT-CO-2024-00501', countryCode: 'co', warehouse: 'Medellín D', duration: '96 j', durationDays: 96 }),
+  lot({ id: 'LOT-BR-2024-00760', countryCode: 'br', warehouse: 'Rio C', duration: '128 j', durationDays: 128, status: 'En Alerte', statusVariant: 'warn', durationVariant: 'warn' }),
+];
+
+const FARMS: Farm[] = [
+  { id: 'br-santa-lucia', name: 'Fazenda Santa Lúcia', countryCode: 'br', country: 'Brésil', flag: '🇧🇷', lots: 42, certification: '—', certVariant: 'neutral' },
+];
+
 function renderLots() {
   return render(
     <LanguageProvider>

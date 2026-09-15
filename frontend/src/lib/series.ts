@@ -1,4 +1,4 @@
-import type { Warehouse } from '@/types';
+import type { ApiMeasurement } from './api/types';
 
 export type TimeRange = '24h' | '7j' | '30j';
 export type Metric = 'temp' | 'hum';
@@ -22,70 +22,57 @@ export interface ConditionSeries {
   readings: Reading[];
 }
 
-function hash(str: string): number {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
-// Deterministic pseudo-noise in [-1, 1] from a seed and index.
-function noise(seed: number, i: number): number {
-  const x = Math.sin(seed * 0.0001 + i * 12.9898) * 43758.5453;
-  return (x - Math.floor(x)) * 2 - 1;
-}
-
-function labelsFor(range: TimeRange, n: number): string[] {
-  if (range === '7j') return ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].slice(0, n);
-  if (range === '24h') return Array.from({ length: n }, (_, i) => `${String(i).padStart(2, '0')} h`);
-  return Array.from({ length: n }, (_, i) => `J-${n - 1 - i}`);
-}
+const MONTHS_FR = [
+  'jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin',
+  'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.',
+];
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-// A per-warehouse condition series lives in the data layer, derived deterministically
-// from the warehouse's own baseline and threshold band — so the chart is fully
-// data-driven rather than a fixed illustrative curve. Conforme warehouses stay inside
-// their band; at-risk warehouses drift out of it over the window.
-export function warehouseSeries(w: Warehouse, metric: Metric, range: TimeRange): ConditionSeries {
-  const n = RANGE_POINTS[range];
-  const [lo, hi] = metric === 'temp' ? w.tempRange : w.humRange;
-  const ideal = (lo + hi) / 2;
-  const tolerance = (hi - lo) / 2;
-  const baseline = metric === 'temp' ? w.tempNum : w.humNum;
-  // Per-metric: this metric's own baseline reaching its own tolerance edge.
-  // A warehouse out of band on humidity must not paint its temperature chart
-  // "out of range" when the temperature is on target.
-  const atRisk = tolerance > 0 && Math.abs(baseline - ideal) / tolerance >= 1;
-  const seed = hash(`${w.id}-${metric}-${range}`);
-  const amp = tolerance * 0.4;
+// Axis label for a measurement, chosen by the visible window: hour of day for a
+// 24 h window, day + short month otherwise. Uses UTC parts so the rendered label
+// is stable regardless of the runtime timezone.
+function readingLabel(iso: string, range: TimeRange): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  if (range === '24h') {
+    return `${String(d.getUTCHours()).padStart(2, '0')} h`;
+  }
+  return `${d.getUTCDate()} ${MONTHS_FR[d.getUTCMonth()]}`;
+}
 
-  const readings: Reading[] = Array.from({ length: n }, (_, i) => {
-    const wave = Math.sin((i / n) * Math.PI * 4 + (seed % 100) / 16) * amp;
-    const jitter = noise(seed, i) * tolerance * 0.15;
-    // At-risk warehouses ramp toward (and past) their limit over the window.
-    const drift = atRisk ? (i / (n - 1)) * tolerance * 1.4 : 0;
-    let value = baseline - (atRisk ? tolerance * 0.9 : 0) + wave + jitter + drift;
-    if (!atRisk) value = clamp(value, lo, hi);
-    return { label: '', value: round1(value) };
-  });
+// Build a chart-ready condition series from real warehouse measurements. The
+// measurements arrive oldest-first (backend contract), so the last one is the
+// current reading. The acceptable band is [ideal - tolerance, ideal + tolerance];
+// `breached` reflects the current reading only, matching the header verdict.
+export function buildConditionSeries(
+  measurements: ApiMeasurement[],
+  metric: Metric,
+  ideal: number,
+  tolerance: number,
+  range: TimeRange = '24h',
+): ConditionSeries {
+  const min = ideal - tolerance;
+  const max = ideal + tolerance;
 
-  // The last reading matches the warehouse's currently reported value.
-  readings[n - 1] = { label: '', value: baseline };
+  const readings: Reading[] = measurements.map((m) => ({
+    label: readingLabel(m.measuredAt, range),
+    value: round1(metric === 'temp' ? m.temperature : m.humidity),
+  }));
 
-  const labels = labelsFor(range, n);
-  for (let i = 0; i < n; i++) readings[i].label = labels[i] ?? '';
-
-  const breached = readings.some((r) => r.value < lo || r.value > hi);
+  // No reading yet: sit exactly at the ideal so the chart renders a neutral,
+  // in-band state rather than a misleading spike.
+  const current = readings.length > 0 ? readings[readings.length - 1].value : round1(ideal);
+  const breached = current < min || current > max;
 
   return {
     metric,
     unit: metric === 'temp' ? '°C' : '%',
     ideal,
     tolerance,
-    min: lo,
-    max: hi,
-    current: baseline,
+    min,
+    max,
+    current,
     breached,
     readings,
   };

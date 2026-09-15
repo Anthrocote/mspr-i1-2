@@ -17,7 +17,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "exploitations": "Exploitations",
 
     // Page Subtitles
-    "dashboard_subtitle": "Vue globale · 3 pays · 248 lots en stock",
+    "dashboard_subtitle": "Vue globale consolidée",
     "lots_subtitle": "Traçabilité & rotation des stocks",
     "iot_subtitle": "Température & humidité des entrepôts en temps réel",
     "alertes_subtitle": "Alertes actives · vue consolidée",
@@ -144,7 +144,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "exploitations": "Farms",
 
     // Page Subtitles
-    "dashboard_subtitle": "Global view · 3 countries · 248 lots in stock",
+    "dashboard_subtitle": "Consolidated global view",
     "lots_subtitle": "Traceability & stock rotation",
     "iot_subtitle": "Warehouse temperature & humidity in real time",
     "alertes_subtitle": "Active alerts · consolidated view",
@@ -271,7 +271,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "exploitations": "Explotaciones",
 
     // Page Subtitles
-    "dashboard_subtitle": "Vista global · 3 países · 248 lotes en stock",
+    "dashboard_subtitle": "Vista global consolidada",
     "lots_subtitle": "Trazabilidad y rotación de stock",
     "iot_subtitle": "Temperatura y humedad de almacenes en tiempo real",
     "alertes_subtitle": "Alertas activas · vista consolidada",
