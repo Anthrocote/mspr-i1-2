@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
-import CoffeeBeanTrigger from '@/components/game/CoffeeBeanTrigger';
 import { PAGE_META } from '@/types';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
@@ -38,7 +37,6 @@ function InnerClientShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen" style={{ background: '#EFE7DA' }}>
-      <CoffeeBeanTrigger />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 min-w-0 flex flex-col">
         <Topbar 
