@@ -23,6 +23,13 @@ export const translations: Record<Language, Record<string, string>> = {
     "alertes_subtitle": "Historique complet · toutes les alertes",
     "exploitations_subtitle": "Brésil · Équateur · Colombie",
 
+    // Help center
+    "aide": "Aide",
+    "aide_subtitle": "Guide d'utilisation",
+    "help_open": "Ouvrir l'aide de cette page",
+    "help_open_full": "Ouvrir dans le centre d'aide",
+    "help_close": "Fermer l'aide",
+
     // Dashboard Metrics
     "total_lots": "Total Lots",
     "in_alert": "En Alerte",
@@ -165,6 +172,13 @@ export const translations: Record<Language, Record<string, string>> = {
     "alertes_subtitle": "Full history · all alerts",
     "exploitations_subtitle": "Brazil · Ecuador · Colombia",
 
+    // Help center
+    "aide": "Help",
+    "aide_subtitle": "User guide",
+    "help_open": "Open help for this page",
+    "help_open_full": "Open in the help center",
+    "help_close": "Close help",
+
     // Dashboard Metrics
     "total_lots": "Total Lots",
     "in_alert": "In Alert",
@@ -306,6 +320,13 @@ export const translations: Record<Language, Record<string, string>> = {
     "iot_subtitle": "Temperatura y humedad de almacenes en tiempo real",
     "alertes_subtitle": "Historial completo · todas las alertas",
     "exploitations_subtitle": "Brasil · Ecuador · Colombia",
+
+    // Help center
+    "aide": "Ayuda",
+    "aide_subtitle": "Guía de uso",
+    "help_open": "Abrir la ayuda de esta página",
+    "help_open_full": "Abrir en el centro de ayuda",
+    "help_close": "Cerrar la ayuda",
 
     // Dashboard Metrics
     "total_lots": "Total Lotes",

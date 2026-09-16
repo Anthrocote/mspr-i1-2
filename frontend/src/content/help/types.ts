@@ -25,7 +25,8 @@ export const HELP_SLUGS: HelpSlug[] = [
 
 // Which help section the contextual "?" opens for each navigable page. The
 // dashboard has no dedicated section, so it points to the getting-started one.
-export const PAGE_TO_SLUG: Record<PageId, HelpSlug> = {
+// `aide` is itself the help center and carries no drawer, hence Partial.
+export const PAGE_TO_SLUG: Partial<Record<PageId, HelpSlug>> = {
   dashboard: 'prise-en-main',
   lots: 'lots',
   iot: 'courbes',
