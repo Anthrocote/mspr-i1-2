@@ -51,3 +51,9 @@ cd firmware && arduino-cli compile --fqbn arduino:avr:uno futurekawa_sensor
 - `gateway/` passerelle Python (logique pure + glue série/MQTT)
 - `tests/` tests pytest de la logique pure
 - `demo/` broker Mosquitto + abonné + faux device (pty)
+
+## Liens
+
+- README racine (architecture, ordre de démarrage) : [`../README.md`](../README.md)
+- Backend pays (consomme les mesures publiées ici) : [`../backend-local/README.md`](../backend-local/README.md)
+- Dossier technique argumenté : PDF dans [`../docs/`](../docs/)
