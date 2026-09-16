@@ -70,7 +70,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             <button
               onClick={onClose}
               className="p-1 rounded-md text-espresso-300 hover:text-parchment-100 hover:bg-white/10 transition-colors cursor-pointer"
-              aria-label="Fermer le menu"
+              aria-label={t('close_menu')}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -91,7 +91,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           {!collapsed && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
               <div className="font-display text-[21px] font-semibold text-parchment-100 tracking-[.02em] leading-none">FutureKawa</div>
-              <div className="text-[10px] text-espresso-400 tracking-[.14em] uppercase mt-[3px]">Suivi des stocks</div>
+              <div className="text-[10px] text-espresso-400 tracking-[.14em] uppercase mt-[3px]">{t('app_subtitle')}</div>
             </motion.div>
           )}
         </div>
@@ -141,7 +141,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             className={`flex items-center justify-center py-2.5 mt-auto text-espresso-300 hover:text-parchment-100 hover:bg-white/10 rounded-xl transition-all cursor-pointer border border-transparent hover:border-white/[.08] ${
               collapsed ? 'w-full px-0' : 'w-full px-3 gap-3 justify-start'
             }`}
-            title={collapsed ? "Agrandir le menu" : "Réduire le menu"}
+            title={collapsed ? t('expand_menu') : t('collapse_menu')}
           >
             {collapsed ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -152,7 +152,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
-                <span className="text-sm font-medium">Réduire le menu</span>
+                <span className="text-sm font-medium">{t('collapse_menu')}</span>
               </>
             )}
           </button>

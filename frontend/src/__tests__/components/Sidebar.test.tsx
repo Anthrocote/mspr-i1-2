@@ -11,6 +11,7 @@ jest.mock('next/navigation', () => ({
 describe('Sidebar', () => {
   beforeEach(() => {
     mockPathname = '/';
+    localStorage.clear();
   });
 
   it('renders FutureKawa logo text', () => {
@@ -21,6 +22,12 @@ describe('Sidebar', () => {
   it('renders the jargon-free subtitle', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Suivi des stocks')).toBeInTheDocument();
+  });
+
+  it('translates the subtitle to the active language', () => {
+    localStorage.setItem('app-language', 'es');
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
+    expect(screen.getByText('Seguimiento de stocks')).toBeInTheDocument();
   });
 
   it('renders all menu navigation items', () => {
