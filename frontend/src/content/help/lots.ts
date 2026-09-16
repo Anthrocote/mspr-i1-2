@@ -28,8 +28,8 @@ export const lots: HelpArticle = {
       { kind: 'heading', text: 'Ouvrir le détail d\'un lot' },
       { kind: 'steps', items: [
         'Cliquez sur une ligne de la liste.',
-        'Consultez l\'historique de stockage : chaque entrepôt traversé, avec ses dates d\'entrée et de sortie.',
-        'Lisez les courbes de température et d\'humidité relevées pendant le stockage du lot.',
+        'Suivez le parcours du lot : sa constitution, puis chaque entrepôt traversé avec ses dates d\'entrée et de sortie.',
+        'Repérez les conditions actuelles : la température et l\'humidité du lot, comparées à leurs valeurs idéales.',
       ] },
       { kind: 'callout', tone: 'info', text: 'Règle FIFO : expédiez d\'abord les lots les plus anciens. C\'est le sens du tri par défaut et de l\'alerte « périmé ».' },
     ],
@@ -53,8 +53,8 @@ export const lots: HelpArticle = {
       { kind: 'heading', text: 'Opening a lot\'s details' },
       { kind: 'steps', items: [
         'Click a row in the list.',
-        'Review the storage history: each warehouse it went through, with entry and exit dates.',
-        'Read the temperature and humidity charts recorded while the lot was stored.',
+        'Follow the lot\'s journey: its constitution, then each warehouse it went through with entry and exit dates.',
+        'Check the current conditions: the lot\'s temperature and humidity, compared to their ideal values.',
       ] },
       { kind: 'callout', tone: 'info', text: 'FIFO rule: ship the oldest lots first. That is what the default sort and the "expired" alert are for.' },
     ],
@@ -78,8 +78,8 @@ export const lots: HelpArticle = {
       { kind: 'heading', text: 'Abrir el detalle de un lote' },
       { kind: 'steps', items: [
         'Haga clic en una fila de la lista.',
-        'Consulte el historial de almacenamiento: cada almacén por el que pasó, con sus fechas de entrada y salida.',
-        'Lea las curvas de temperatura y humedad registradas durante el almacenamiento del lote.',
+        'Siga el recorrido del lote: su constitución y cada almacén por el que pasó con sus fechas de entrada y salida.',
+        'Consulte las condiciones actuales: la temperatura y la humedad del lote, comparadas con sus valores ideales.',
       ] },
       { kind: 'callout', tone: 'info', text: 'Regla FIFO: expida primero los lotes más antiguos. Ese es el sentido del orden predeterminado y de la alerta «caducado».' },
     ],
