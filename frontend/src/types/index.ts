@@ -6,7 +6,6 @@ export type CountryCode = 'br' | 'ec' | 'co';
 export interface Warehouse {
   id: string;
   name: string;
-  country: string;
   countryCode: CountryCode;
   flag: string;
   temp: string;
@@ -40,7 +39,6 @@ export interface Lot {
   // key everything on the human-readable label `id`); never rendered.
   uuid?: string;
   countryCode: CountryCode;
-  country: string;
   // Siège current-warehouse uuid, used to drive the server-side location filter
   // (warehouse_id). Null when the relation is unresolved at the source.
   warehouseId: string | null;
@@ -51,7 +49,7 @@ export interface Lot {
   // the active language. Duration is counted from here, not the current storage.
   constitutedAtIso: string | null;
   stays: WarehouseStay[];
-  duration: string;
+  // Storage age in whole days; the view appends the localized unit (t('day_unit')).
   durationDays: number;
   statusVariant: BadgeVariant;
   durationVariant: '' | 'warn' | 'err';
@@ -85,7 +83,6 @@ export interface Farm {
   id: string;
   name: string;
   countryCode: CountryCode;
-  country: string;
   flag: string;
   lots: number;
 }
@@ -101,7 +98,8 @@ export type PageId =
   | 'lots'
   | 'iot'
   | 'alertes'
-  | 'exploitations';
+  | 'exploitations'
+  | 'aide';
 
 export interface PageMeta {
   title: string;
@@ -114,4 +112,5 @@ export const PAGE_META: Record<PageId, PageMeta> = {
   iot:           { title: 'Surveillance IoT',   subtitle: 'Capteurs température & humidité en temps réel' },
   alertes:       { title: 'Alertes',            subtitle: 'Alertes actives · vue consolidée' },
   exploitations: { title: 'Exploitations',      subtitle: 'Brésil · Équateur · Colombie' },
+  aide:          { title: 'Aide',               subtitle: 'Guide d\'utilisation' },
 };

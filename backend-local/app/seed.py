@@ -28,8 +28,11 @@ def seed_if_empty(session) -> None:
     robusta = _get_or_create_product(session, "cafe-vert-robusta", name="Café vert",
                                      description="Grade B", variety="Robusta")
 
-    recent = Lot(label="Lot récent", quantity=500.0, product=arabica, created_at=now)
-    old = Lot(label="Lot ancien", quantity=300.0, product=robusta, created_at=now)
+    # Language-neutral batch codes: the demo dataset is shown in the trilingual
+    # documentation, so labels must not read as one language. Old vs recent is
+    # conveyed by the storage duration and status columns, not by the label.
+    recent = Lot(label="BR-0512", quantity=500.0, product=arabica, created_at=now)
+    old = Lot(label="BR-0407", quantity=300.0, product=robusta, created_at=now)
     session.add_all([recent, old])
     session.flush()
 

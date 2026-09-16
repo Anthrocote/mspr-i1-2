@@ -135,7 +135,6 @@ export function adaptWarehouse(input: WarehouseCompositionInput): Warehouse {
   return {
     id: warehouse.uuid,
     name: warehouse.name,
-    country: country.name,
     countryCode: code,
     flag: countryFlag(code),
     temp: formatTemperature(tempNum),
@@ -208,7 +207,6 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
     id: api.label,
     uuid: api.uuid,
     countryCode,
-    country: api.country?.name ?? '',
     warehouseId: api.currentWarehouse?.uuid ?? null,
     // Never invent a flag for a country-less lot.
     flag: api.country ? countryFlag(countryCode) : '',
@@ -216,7 +214,6 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
     exploitationId: api.exploitation?.uuid ?? '',
     constitutedAtIso: api.constitutedAt,
     stays: [],
-    duration: api.durationDays != null ? `${api.durationDays} j` : '',
     durationDays: api.durationDays ?? 0,
     statusVariant,
     durationVariant: statusVariant === 'err' ? 'err' : statusVariant === 'warn' ? 'warn' : '',
@@ -237,7 +234,6 @@ export function adaptExploitation(api: ApiExploitation): Farm {
     id: api.uuid,
     name: api.name,
     countryCode: code,
-    country: api.country.name,
     flag: countryFlag(code),
     lots: api.lotsCount,
   };

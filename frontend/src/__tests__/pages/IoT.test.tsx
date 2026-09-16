@@ -12,7 +12,7 @@ const mockedQueries = queries as jest.Mocked<typeof queries>;
 
 function warehouse(over: Partial<Warehouse> & { id: string; name: string; countryCode: Warehouse['countryCode'] }): Warehouse {
   return {
-    country: 'Brésil', flag: '🇧🇷',
+    flag: '🇧🇷',
     temp: '29°C', hum: '55%', tempNum: 29, humNum: 55, tempRange: [26, 32], humRange: [53, 57],
     idealTemp: '29°C ±3', idealHum: '55% ±2', lots: 10,
     ...over,
@@ -23,8 +23,8 @@ const WAREHOUSES: Warehouse[] = [
   warehouse({ id: 'wh-sp', name: 'São Paulo A', countryCode: 'br' }),
   // Humidity beyond its band -> worst derived deviation -> default selection.
   warehouse({ id: 'wh-rio', name: 'Rio C', countryCode: 'br', humNum: 59 }),
-  warehouse({ id: 'wh-qt', name: 'Quito B', countryCode: 'ec', country: 'Équateur', flag: '🇪🇨', tempRange: [28, 34], humRange: [57, 63], tempNum: 31, humNum: 60 }),
-  warehouse({ id: 'wh-md', name: 'Medellín D', countryCode: 'co', country: 'Colombie', flag: '🇨🇴', tempRange: [23, 29], humRange: [77, 83], tempNum: 25, humNum: 80 }),
+  warehouse({ id: 'wh-qt', name: 'Quito B', countryCode: 'ec', flag: '🇪🇨', tempRange: [28, 34], humRange: [57, 63], tempNum: 31, humNum: 60 }),
+  warehouse({ id: 'wh-md', name: 'Medellín D', countryCode: 'co', flag: '🇨🇴', tempRange: [23, 29], humRange: [77, 83], tempNum: 25, humNum: 80 }),
 ];
 
 // One breaching humidity reading for the default warehouse (Rio C, band 53–57).
@@ -85,7 +85,7 @@ describe('IoTPage container', () => {
     // A silent sensor makes the last reading stale, so the control bar must show
     // the sensor state INSTEAD of a (misleading) "Hors plage"/"Conforme" badge.
     const silent = warehouse({
-      id: 'wh-silent', name: 'Quito B', countryCode: 'ec', country: 'Équateur', flag: '🇪🇨',
+      id: 'wh-silent', name: 'Quito B', countryCode: 'ec', flag: '🇪🇨',
       tempRange: [28, 34], humRange: [57, 63], tempNum: 40, humNum: 60, sensorStatus: 'sensor_error',
     });
     mockedQueries.fetchWarehouseConditions.mockResolvedValue([silent]);

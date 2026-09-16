@@ -24,17 +24,18 @@ class AppFixtures extends Fixture
         $brApiUrl = getenv('PAYS_BR_API_URL') ?: null;
         $brApiKey = getenv('PAYS_BR_API_KEY') ?: null;
 
+        // Country identity is the ISO code only; the display name is derived from
+        // it (frontend i18n, server-side CountryName map), never stored.
         $pays = [
-            ['br', 'Brésil',   29.0, 55.0, $brApiUrl, $brApiKey],
-            ['ec', 'Équateur', 31.0, 60.0, null,      null],
-            ['co', 'Colombie', 26.0, 80.0, null,      null],
+            ['br', 29.0, 55.0, $brApiUrl, $brApiKey],
+            ['ec', 31.0, 60.0, null,      null],
+            ['co', 26.0, 80.0, null,      null],
         ];
 
-        foreach ($pays as [$code, $nom, $temp, $humid, $apiUrl, $apiKey]) {
+        foreach ($pays as [$code, $temp, $humid, $apiUrl, $apiKey]) {
             $manager->persist(
                 (new Pays())
                     ->setCode($code)
-                    ->setNom($nom)
                     ->setTempIdeale($temp)
                     ->setHumiditeIdeale($humid)
                     ->setApiUrl($apiUrl)

@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/Topbar';
-import { PAGE_META } from '@/types';
+import HelpDrawer from '@/components/help/HelpDrawer';
+import { PAGE_META, type PageId } from '@/types';
+import { PAGE_TO_SLUG } from '@/content/help/types';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
 
@@ -26,6 +28,7 @@ function InnerClientShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   if (pathname === '/secret') {
     return <>{children}</>;
@@ -35,19 +38,27 @@ function InnerClientShell({ children }: { children: React.ReactNode }) {
   const title = pageId === 'not-found' ? t('page_not_found') : t(pageId);
   const subtitle = pageId === 'not-found' ? t('error_404') : t(`${pageId}_subtitle`);
 
+  // The contextual "?" only exists where the current page maps to an article.
+  // The help center (/aide) and not-found carry no drawer of their own.
+  const helpSlug = pageId === 'not-found' ? undefined : PAGE_TO_SLUG[pageId as PageId];
+
   return (
     <div className="flex min-h-screen" style={{ background: '#EFE7DA' }}>
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 min-w-0 flex flex-col">
-        <Topbar 
-          title={title} 
-          subtitle={subtitle} 
-          onMenuClick={() => setSidebarOpen(true)} 
+        <Topbar
+          title={title}
+          subtitle={subtitle}
+          onMenuClick={() => setSidebarOpen(true)}
+          onHelpClick={helpSlug ? () => setHelpOpen(true) : undefined}
         />
         <main className="flex-1 p-4 sm:p-6 lg:p-[30px_32px_48px]">
           {children}
         </main>
       </div>
+      {helpSlug && (
+        <HelpDrawer slug={helpSlug} open={helpOpen} onClose={() => setHelpOpen(false)} />
+      )}
     </div>
   );
 }

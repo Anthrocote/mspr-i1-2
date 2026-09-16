@@ -187,3 +187,10 @@ curl -s -H "X-API-KEY: demo" localhost:8000/sync/alerts
 
 Republier une mesure dans la plage (température 29 °C) résout l'alerte et envoie l'email de
 retour à la normale.
+
+## Liens
+
+- README racine (architecture, ordre de démarrage) : [`../README.md`](../README.md)
+- Backend siège (consomme `/sync/*`) : [`../backend-siege/README.md`](../backend-siege/README.md)
+- Module IoT (produit le contrat MQTT consommé ici) : [`../iot/README.md`](../iot/README.md)
+- Dossier technique argumenté : PDF dans [`../docs/`](../docs/)

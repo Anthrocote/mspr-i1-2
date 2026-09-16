@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Country\CountryName;
 use App\Entity\HistoriqueStockage;
 use App\Entity\Lot;
 use App\Pagination\QueryPaginator;
@@ -74,10 +75,17 @@ class LotRepository extends ServiceEntityRepository
 
         if ($search !== null && $search !== '') {
             // Match against any joined storage warehouse/country, not only the current one.
-            $qb->andWhere(
-                "LOWER(l.libelle) LIKE :search ESCAPE '=' OR LOWER(p.nom) LIKE :search ESCAPE '=' "
-                ."OR LOWER(e.nom) LIKE :search ESCAPE '=' OR LOWER(pays.nom) LIKE :search ESCAPE '='"
-            )->setParameter('search', '%'.$this->escapeLike(mb_strtolower($search)).'%');
+            // Country has no stored name: a typed country name is resolved to the
+            // matching ISO code(s) via the CountryName map, then matched on pays.code.
+            $conditions = "LOWER(l.libelle) LIKE :search ESCAPE '=' OR LOWER(p.nom) LIKE :search ESCAPE '=' "
+                ."OR LOWER(e.nom) LIKE :search ESCAPE '='";
+            $countryCodes = CountryName::codesMatching($search);
+            if ($countryCodes !== []) {
+                $conditions .= ' OR pays.code IN (:searchCountryCodes)';
+                $qb->setParameter('searchCountryCodes', $countryCodes);
+            }
+            $qb->andWhere($conditions)
+                ->setParameter('search', '%'.$this->escapeLike(mb_strtolower($search)).'%');
         }
 
         $this->applyAgeFilter($qb, $age);
@@ -145,7 +153,7 @@ class LotRepository extends ServiceEntityRepository
                 break;
             case 'country':
                 $this->joinCurrentStorage($qb);
-                $qb->addSelect('MIN(cpays.nom) AS HIDDEN currentCountry')
+                $qb->addSelect('MIN(cpays.code) AS HIDDEN currentCountry')
                     ->orderBy('currentCountry', $direction);
                 break;
             case 'warehouse':

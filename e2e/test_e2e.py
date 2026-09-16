@@ -125,16 +125,16 @@ def test_e2e_08_frontend_lists_lots(page):
     page.goto(f"{FRONTEND_URL}/lots")
     page.wait_for_load_state("networkidle")
     body = page.inner_text("body")
-    assert "Lot ancien" in body and "Lot récent" in body
-    # The 400-day lot is expired and, FIFO, listed before the recent one.
-    assert body.index("Lot ancien") < body.index("Lot récent")
+    assert "BR-0407" in body and "BR-0512" in body
+    # The 400-day lot (BR-0407) is expired and, oldest-first, listed before the recent one.
+    assert body.index("BR-0407") < body.index("BR-0512")
 
 
-# ── E2E-09: the lot detail shows the temperature curve with the spike ──
+# ── E2E-09: the lot detail shows the storage journey and current conditions ──
 def test_e2e_09_frontend_lot_detail(page):
     page.goto(f"{FRONTEND_URL}/lots")
     page.wait_for_load_state("networkidle")
-    page.get_by_text("Lot ancien").first.click()
+    page.get_by_text("BR-0407").first.click()
     page.wait_for_load_state("networkidle")
     assert "entrepot-sao-paulo" in page.inner_text("body").lower() \
         or "brésil" in page.inner_text("body").lower()

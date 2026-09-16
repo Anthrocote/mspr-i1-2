@@ -11,6 +11,7 @@ jest.mock('next/navigation', () => ({
 describe('Sidebar', () => {
   beforeEach(() => {
     mockPathname = '/';
+    localStorage.clear();
   });
 
   it('renders FutureKawa logo text', () => {
@@ -23,6 +24,12 @@ describe('Sidebar', () => {
     expect(screen.getByText('Suivi des stocks')).toBeInTheDocument();
   });
 
+  it('translates the subtitle to the active language', () => {
+    localStorage.setItem('app-language', 'es');
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
+    expect(screen.getByText('Seguimiento de stocks')).toBeInTheDocument();
+  });
+
   it('renders all menu navigation items', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
@@ -31,6 +38,11 @@ describe('Sidebar', () => {
     expect(screen.getByText('Alertes')).toBeInTheDocument();
     expect(screen.getByText('Exploitations')).toBeInTheDocument();
     expect(screen.queryByText('Analytique')).not.toBeInTheDocument();
+  });
+
+  it('links to the help center', () => {
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
+    expect(screen.getByText('Aide')).toBeInTheDocument();
   });
 
   it('no longer links to the removed Paramètres page', () => {

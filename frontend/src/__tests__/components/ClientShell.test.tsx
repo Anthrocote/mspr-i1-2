@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ClientShell from '@/app/ClientShell';
 
 let mockPathname = '/';
@@ -11,6 +11,7 @@ jest.mock('next/navigation', () => ({
 describe('ClientShell', () => {
   beforeEach(() => {
     mockPathname = '/';
+    localStorage.clear();
   });
 
   it('renders the sidebar chrome on normal routes', () => {
@@ -38,6 +39,19 @@ describe('ClientShell', () => {
     expect(screen.getByText('Page non trouvée')).toBeInTheDocument();
     expect(errorSpy).not.toHaveBeenCalled();
     errorSpy.mockRestore();
+  });
+
+  it('opens the contextual help drawer for the current page', () => {
+    mockPathname = '/lots';
+    render(
+      <ClientShell>
+        <div>page content</div>
+      </ClientShell>
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir l\'aide de cette page' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('Gérer les lots')).toBeInTheDocument();
   });
 
   it('bypasses the sidebar chrome on /secret', () => {

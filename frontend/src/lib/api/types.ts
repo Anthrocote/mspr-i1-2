@@ -90,7 +90,6 @@ export interface ApiMeasurement {
 
 export interface ApiCountryRef {
   code: string; // 2 letters, lowercase, e.g. br/ec/co
-  name: string;
 }
 
 export interface ApiWarehouse {
@@ -110,7 +109,6 @@ export interface ApiWarehouse {
 
 export interface ApiCountry {
   code: string; // 2 letters, lowercase, e.g. br/ec/co
-  name: string;
   idealTemperature: number; // float, °C
   idealHumidity: number; // float, %
   lastSyncedAt: string | null;

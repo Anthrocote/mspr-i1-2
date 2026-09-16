@@ -117,7 +117,6 @@ export async function fetchWarehouseMeasurements(
 //     the honest source).
 export interface CountrySummary {
   countryCode: CountryCode;
-  name: string;
   flag: string;
   ideal: string;
   farms: number;
@@ -150,7 +149,6 @@ export async function fetchCountrySummaries(
       ]);
       return {
         countryCode: code,
-        name: country.name,
         flag: countryFlag(code),
         ideal: `${formatTemperature(country.idealTemperature)} · ${formatHumidity(country.idealHumidity)}`,
         farms: farmsByCode.get(code) ?? 0,
@@ -298,7 +296,6 @@ export async function fetchLotsServer(
 // sourced from the dedicated list endpoints instead of the page on screen.
 export interface LotFilterCountry {
   code: CountryCode;
-  name: string;
   flag: string;
 }
 export interface LotFilterWarehouse {
@@ -322,7 +319,7 @@ export async function fetchLotFilterOptions(
   return {
     countries: countries.items.map((c) => {
       const code = toCountryCode(c.code);
-      return { code, name: c.name, flag: countryFlag(code) };
+      return { code, flag: countryFlag(code) };
     }),
     warehouses: warehouses.items.map((w) => ({
       id: w.uuid,

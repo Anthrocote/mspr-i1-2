@@ -94,7 +94,6 @@ class LotController extends AbstractController
             ],
             'country'          => $entrepot === null ? null : [
                 'code' => $entrepot->getPays()->getCode(),
-                'name' => $entrepot->getPays()->getNom(),
             ],
             'exploitation'     => $exploitation === null ? null : [
                 'uuid' => (string) $exploitation->getUuid(),

@@ -9,19 +9,19 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 // Dashboard.integration.test.tsx.
 const WAREHOUSES: Warehouse[] = [
   {
-    id: 'wh-sp', name: 'São Paulo A', country: 'Brésil', countryCode: 'br', flag: '🇧🇷',
+    id: 'wh-sp', name: 'São Paulo A', countryCode: 'br', flag: '🇧🇷',
     temp: '29°C', hum: '55%', tempNum: 29, humNum: 55, tempRange: [26, 32], humRange: [53, 57],
     idealTemp: '29°C ±3', idealHum: '55% ±2', lots: 48,
   },
   {
     // Temperature sits at the tolerance edge -> derived exception.
-    id: 'wh-qt', name: 'Quito B', country: 'Équateur', countryCode: 'ec', flag: '🇪🇨',
+    id: 'wh-qt', name: 'Quito B', countryCode: 'ec', flag: '🇪🇨',
     temp: '34°C', hum: '60%', tempNum: 34, humNum: 60, tempRange: [28, 34], humRange: [57, 63],
     idealTemp: '31°C ±3', idealHum: '60% ±3', lots: 37,
   },
   {
     // Humidity beyond its band -> derived exception.
-    id: 'wh-gy', name: 'Guayaquil A', country: 'Équateur', countryCode: 'ec', flag: '🇪🇨',
+    id: 'wh-gy', name: 'Guayaquil A', countryCode: 'ec', flag: '🇪🇨',
     temp: '30°C', hum: '64%', tempNum: 30, humNum: 64, tempRange: [28, 34], humRange: [57, 63],
     idealTemp: '31°C ±3', idealHum: '60% ±3', lots: 21,
   },
