@@ -18,12 +18,24 @@ class ProductOut(BaseModel):
     variety: str | None
 
 
+class ExploitationIn(BaseModel):
+    name: str
+
+
+class ExploitationOut(BaseModel):
+    uuid: str
+    name: str
+    country: str
+
+
 class LotIn(BaseModel):
     quantity: float = Field(gt=0)
     warehouse_code: str = Field(min_length=1, max_length=100)
     product_uuid: str
     label: str | None = Field(default=None, max_length=100)
     arrived_at: datetime | None = None
+    exploitation_uuid: str | None = None
+    constituted_at: datetime | None = None
 
 
 class DepartIn(BaseModel):
@@ -51,3 +63,4 @@ class AckIn(BaseModel):
     measurements: list[str] = []
     alerts: list[str] = []
     products: list[str] = []
+    exploitations: list[str] = []

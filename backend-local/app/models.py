@@ -53,6 +53,16 @@ class Product(Base):
     acked_at: Mapped[datetime | None] = mapped_column(UtcDateTime, nullable=True, index=True)
 
 
+class Exploitation(Base):
+    # Farm where a lot is constituted. Catalog data like Product: marked on ack,
+    # never deleted.
+    __tablename__ = "exploitation"
+    uuid: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid_str)
+    name: Mapped[str] = mapped_column(String)
+    country: Mapped[str] = mapped_column(String)
+    acked_at: Mapped[datetime | None] = mapped_column(UtcDateTime, nullable=True, index=True)
+
+
 class Warehouse(Base):
     __tablename__ = "warehouse"
     uuid: Mapped[str] = mapped_column(String, primary_key=True)
@@ -76,6 +86,10 @@ class Lot(Base):
     label: Mapped[str | None] = mapped_column(String(100), nullable=True)
     quantity: Mapped[float] = mapped_column(Float)
     product_uuid: Mapped[str | None] = mapped_column(ForeignKey("product.uuid"), nullable=True)
+    exploitation_uuid: Mapped[str | None] = mapped_column(
+        ForeignKey("exploitation.uuid"), nullable=True
+    )
+    constituted_at: Mapped[datetime | None] = mapped_column(UtcDateTime, nullable=True)
     status: Mapped[str] = mapped_column(String, default="compliant")
     in_transit: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(

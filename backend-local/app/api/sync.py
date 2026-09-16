@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from app.api.deps import require_api_key
 from app.db import get_session
-from app.models import Alert, Lot, Measurement, Product
+from app.models import Alert, Exploitation, Lot, Measurement, Product, Warehouse
 from app.schemas import AckIn
 
 router = APIRouter(prefix="/sync", dependencies=[Depends(require_api_key)])
@@ -24,6 +24,14 @@ def serialize_product(p: Product) -> dict:
     }
 
 
+def serialize_exploitation(e: Exploitation) -> dict:
+    return {
+        "uuid": e.uuid,
+        "name": e.name,
+        "country": e.country,
+    }
+
+
 def serialize_lot(lot: Lot) -> dict:
     storage = lot.latest_storage()
     return {
@@ -34,6 +42,8 @@ def serialize_lot(lot: Lot) -> dict:
         "in_transit": lot.in_transit,
         "warehouse_uuid": storage.warehouse_uuid if storage else None,
         "product_uuid": lot.product_uuid,  # product synced separately, linked by uuid
+        "exploitation_uuid": lot.exploitation_uuid,  # exploitation synced separately
+        "constituted_at": _iso(lot.constituted_at),
         "arrived_at": _iso(storage.arrived_at) if storage else None,
         "departed_at": _iso(storage.departed_at) if storage else None,
     }
@@ -60,10 +70,27 @@ def serialize_alert(a: Alert) -> dict:
     }
 
 
+def serialize_warehouse(w: Warehouse) -> dict:
+    return {
+        "uuid": w.uuid,
+        "code": w.code,
+        "name": w.name,
+        "country": w.country,
+        "last_status": w.last_status,
+        "last_status_at": _iso(w.last_status_at),
+    }
+
+
 @router.get("/products")
 def sync_products(session=Depends(get_session)):
     ps = session.scalars(select(Product).where(Product.acked_at.is_(None)))
     return [serialize_product(p) for p in ps]
+
+
+@router.get("/exploitations")
+def sync_exploitations(session=Depends(get_session)):
+    es = session.scalars(select(Exploitation).where(Exploitation.acked_at.is_(None)))
+    return [serialize_exploitation(e) for e in es]
 
 
 @router.get("/lots")
@@ -82,6 +109,14 @@ def sync_measurements(session=Depends(get_session)):
 def sync_alerts(session=Depends(get_session)):
     al = session.scalars(select(Alert).where(Alert.acked_at.is_(None)))
     return [serialize_alert(a) for a in al]
+
+
+@router.get("/warehouses")
+def sync_warehouses(session=Depends(get_session)):
+    # Current status of every warehouse (not buffered/acked): the siège upserts it
+    # on each sync so the head office sees which sensors are online.
+    ws = session.scalars(select(Warehouse))
+    return [serialize_warehouse(w) for w in ws]
 
 
 def _is_lot_terminal(lot: Lot) -> bool:
@@ -122,6 +157,12 @@ def sync_ack(payload: AckIn, session=Depends(get_session)):
         if p is None:
             continue
         p.acked_at = now  # catalog reference data: marked, never deleted
+
+    for uuid in payload.exploitations:
+        e = session.get(Exploitation, uuid)
+        if e is None:
+            continue
+        e.acked_at = now  # catalog reference data: marked, never deleted
 
     session.commit()
     return {"status": "ok"}

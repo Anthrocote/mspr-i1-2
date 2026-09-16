@@ -31,6 +31,48 @@ def active_condition_alert(session, warehouse_uuid: str) -> Alert | None:
     return session.scalars(stmt).first()
 
 
+# Non-"online" MQTT statuses that mean the warehouse is no longer reporting:
+# sensor_error (serial silent) or offline (gateway/broker last-will).
+SENSOR_OFFLINE_STATES = {"offline", "sensor_error"}
+
+
+def active_sensor_alert(session, warehouse_uuid: str) -> Alert | None:
+    stmt = select(Alert).where(
+        Alert.warehouse_uuid == warehouse_uuid,
+        Alert.type == "sensor_offline",
+        Alert.resolved_at.is_(None),
+    )
+    return session.scalars(stmt).first()
+
+
+def evaluate_sensor_status(session, warehouse: Warehouse, status: str,
+                           now: datetime) -> list[Notification]:
+    # Open a sensor_offline alert when the warehouse stops reporting and resolve it
+    # when it comes back — same open/resolve/email pattern as condition alerts.
+    active = active_sensor_alert(session, warehouse.uuid)
+    pending: list[Notification] = []
+
+    if status in SENSOR_OFFLINE_STATES and active is None:
+        alert = Alert(type="sensor_offline", warehouse_uuid=warehouse.uuid, triggered_at=now)
+        session.add(alert)
+        session.flush()
+        pending.append((
+            f"[FutureKawa] Capteur hors ligne — {warehouse.name}",
+            f"Le capteur de l'entrepôt {warehouse.name} ne répond plus "
+            f"(statut : {status}) depuis le {now.isoformat()}.",
+        ))
+    elif status == "online" and active is not None:
+        active.resolved_at = now
+        mark_unacked(active)
+        session.flush()
+        pending.append((
+            f"[FutureKawa] Capteur de nouveau en ligne — {warehouse.name}",
+            f"Le capteur de l'entrepôt {warehouse.name} émet à nouveau le {now.isoformat()}.",
+        ))
+
+    return pending
+
+
 def _lots_in_warehouse(session, warehouse_uuid: str) -> list[Lot]:
     stmt = (
         select(Lot)
