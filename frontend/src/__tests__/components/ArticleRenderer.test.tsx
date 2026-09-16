@@ -9,6 +9,7 @@ const blocks: HelpBlock[] = [
   { kind: 'steps', items: ['Étape 1', 'Étape 2'] },
   { kind: 'callout', tone: 'warning', text: 'Attention.' },
   { kind: 'image', src: '/help/lots/fr/liste.png', alt: 'Liste des lots' },
+  { kind: 'qa', q: 'Une question ?', a: 'Une réponse.' },
 ];
 
 describe('ArticleRenderer', () => {
@@ -27,5 +28,11 @@ describe('ArticleRenderer', () => {
     render(<ArticleRenderer blocks={blocks} />);
     expect(screen.getByText('Attention.')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Liste des lots' })).toBeInTheDocument();
+  });
+
+  it('renders a qa block as a question and answer pair', () => {
+    render(<ArticleRenderer blocks={blocks} />);
+    expect(screen.getByText('Une question ?')).toBeInTheDocument();
+    expect(screen.getByText('Une réponse.')).toBeInTheDocument();
   });
 });

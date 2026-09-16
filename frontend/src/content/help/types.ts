@@ -7,7 +7,8 @@ export type HelpBlock =
   | { kind: 'list'; items: string[] }
   | { kind: 'steps'; items: string[] }
   | { kind: 'callout'; tone: 'info' | 'warning'; text: string }
-  | { kind: 'image'; src: string; alt: string };
+  | { kind: 'image'; src: string; alt: string }
+  | { kind: 'qa'; q: string; a: string };
 
 export type HelpSlug =
   | 'prise-en-main' | 'lots' | 'courbes' | 'alertes' | 'exploitations' | 'faq';

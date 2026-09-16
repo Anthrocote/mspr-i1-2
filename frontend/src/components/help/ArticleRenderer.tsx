@@ -47,6 +47,13 @@ export default function ArticleRenderer({ blocks }: { blocks: HelpBlock[] }) {
                 className="rounded-lg border border-parchment-400 w-full h-auto"
               />
             );
+          case 'qa':
+            return (
+              <div key={i} className="rounded-lg border border-parchment-300 bg-parchment-50 px-4 py-3.5">
+                <p className="font-semibold text-espresso-900 mb-1.5">{block.q}</p>
+                <p className="text-sm leading-relaxed text-parchment-700">{block.a}</p>
+              </div>
+            );
         }
       })}
     </div>
