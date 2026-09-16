@@ -351,12 +351,6 @@ describe('exploitation adaptation', () => {
     expect(farm.flag).toBe('🇧🇷');
     expect(farm.lots).toBe(7);
   });
-
-  it('uses a neutral em-dash certification (siège has no certification field)', () => {
-    const farm = adaptExploitation(api);
-    expect(farm.certification).toBe('—');
-    expect(farm.certVariant).toBe('neutral');
-  });
 });
 
 describe('storage history adaptation', () => {

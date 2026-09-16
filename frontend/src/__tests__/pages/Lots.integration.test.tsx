@@ -42,8 +42,6 @@ const FARM: Farm = {
   country: 'Brésil',
   flag: '🇧🇷',
   lots: 7,
-  certification: '—',
-  certVariant: 'neutral',
 };
 
 const FILTER_OPTIONS: LotFilterOptions = {

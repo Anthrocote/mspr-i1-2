@@ -127,7 +127,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "out_of_range": "Hors plage",
     "farm": "Exploitation",
     "lots_supplied": "Lots fournis",
-    "certification": "Certification",
 
     "language": "Langue",
 
@@ -270,7 +269,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "out_of_range": "Out of range",
     "farm": "Farm",
     "lots_supplied": "Lots supplied",
-    "certification": "Certification",
 
     "language": "Language",
 
@@ -413,7 +411,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "out_of_range": "Fuera de rango",
     "farm": "Explotación",
     "lots_supplied": "Lotes suministrados",
-    "certification": "Certificación",
 
     "language": "Idioma",
 

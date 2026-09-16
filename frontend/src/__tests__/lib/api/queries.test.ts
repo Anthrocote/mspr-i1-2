@@ -198,8 +198,6 @@ describe('fetchExploitations', () => {
       name: 'Fazenda Serra Verde',
       countryCode: 'br',
       lots: 7,
-      certification: '—',
-      certVariant: 'neutral',
     });
   });
 });

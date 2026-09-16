@@ -51,7 +51,7 @@ const LOTS: Lot[] = [
 ];
 
 const FARMS: Farm[] = [
-  { id: 'br-santa-lucia', name: 'Fazenda Santa Lúcia', countryCode: 'br', country: 'Brésil', flag: '🇧🇷', lots: 42, certification: '—', certVariant: 'neutral' },
+  { id: 'br-santa-lucia', name: 'Fazenda Santa Lúcia', countryCode: 'br', country: 'Brésil', flag: '🇧🇷', lots: 42 },
 ];
 
 const FILTER_OPTIONS: LotFilterOptions = {

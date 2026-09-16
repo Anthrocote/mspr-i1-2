@@ -102,8 +102,6 @@ export interface Farm {
   country: string;
   flag: string;
   lots: number;
-  certification: string;
-  certVariant: BadgeVariant;
 }
 
 export interface StatusDistribution {

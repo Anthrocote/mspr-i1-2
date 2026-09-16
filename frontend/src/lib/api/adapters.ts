@@ -309,9 +309,8 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
 
 // ── Exploitation ──
 // The siège exposes exploitations with a resolved country and a precomputed lot
-// count. There is NO certification field on the siège model, so certification is
-// a neutral em dash placeholder — inventing a certification would misrepresent
-// unaudited data.
+// count. There is no certification (or other audited attribute) on the model, so
+// only the sourced fields are mapped.
 export function adaptExploitation(api: ApiExploitation): Farm {
   const code = isoToCountryCode(api.country.isoCode);
   return {
@@ -321,8 +320,6 @@ export function adaptExploitation(api: ApiExploitation): Farm {
     country: api.country.name,
     flag: countryFlag(code),
     lots: api.lotsCount,
-    certification: '—',
-    certVariant: 'neutral',
   };
 }
 
