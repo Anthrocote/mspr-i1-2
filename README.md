@@ -76,7 +76,7 @@ README du composant concerné.
 
 | Variable | Composant | Rôle |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | frontend | URL de l'API du siège (défaut `http://localhost:8080/api`) |
+| `NEXT_PUBLIC_API_URL` | frontend | URL de l'API du siège. À renseigner : `http://localhost:8080/api`. Le défaut intégré (`http://localhost:8000`) vise un backend pays, pas le siège. |
 | `COUNTRY` | backend-local | Code pays, dérive les seuils : `br`, `ec`, `co` |
 | `API_KEY` | backend-local | Valeur attendue du header `X-API-KEY`, doit matcher la clé du pays côté siège |
 | `PAYS_BR_API_URL` / `PAYS_BR_API_KEY` | backend-siège | URL et clé de synchro du backend pays (Brésil) |

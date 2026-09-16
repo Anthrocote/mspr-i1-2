@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FutureKawa — Frontend
 
-## Getting Started
+Interface web du siège : la vue de pilotage consolidée sur les stocks de café vert,
+les entrepôts, les alertes et les exploitations des trois pays. Lecture seule — le
+frontend n'écrit rien, il affiche ce que le siège consolide.
 
-First, run the development server:
+## Place dans la chaîne
+
+Le frontend ne parle qu'au **backend siège**, via HTTP, à l'URL donnée par
+`NEXT_PUBLIC_API_URL`. Il ne connaît ni le MQTT, ni les backends pays, ni la base :
+tout transite par le siège.
+
+## Prérequis
+
+- Node 22
+
+## Lancement
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm ci
+npm run dev      # développement, http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Production :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Configuration
 
-## Learn More
+| Variable | Rôle | Défaut |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | URL de base de l'API du siège | `http://localhost:8000` |
 
-To learn more about Next.js, take a look at the following resources:
+> **Important.** Le défaut intégré (`http://localhost:8000`) pointe le port d'un
+> backend **pays**, pas le siège. Pour une stack complète, renseignez explicitement
+> l'URL du siège :
+>
+> ```bash
+> NEXT_PUBLIC_API_URL=http://localhost:8080/api npm run dev
+> ```
+>
+> Sans backend joignable à cette URL, les pages affichent leur état d'erreur de
+> chargement — il n'existe pas de mode « données de démonstration » côté frontend.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Internationalisation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Trois langues : français, anglais, espagnol, via `LanguageContext`. Le sélecteur est
+en haut à droite (topbar) ; le choix est mémorisé dans le navigateur.
 
-## Deploy on Vercel
+## Documentation utilisateur intégrée
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Centre d'aide** : route `/aide`, sommaire des six sections + article. Entrée
+  « Aide » en bas de la sidebar.
+- **Aide contextuelle** : un bouton « ? » dans la topbar ouvre, en tiroir, l'article
+  de la page où l'on se trouve, avec un lien vers le centre d'aide.
+- Le contenu vit dans `src/content/help/` : un module TypeScript typé par section,
+  chaque article portant ses variantes fr/en/es. Les captures d'écran sont sous
+  `public/help/{section}/{langue}/`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tests
+
+```bash
+npm test              # suite Jest + Testing Library
+npm run test:coverage # avec couverture
+npm run lint          # ESLint
+```
+
+## Stack
+
+Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, framer-motion.
