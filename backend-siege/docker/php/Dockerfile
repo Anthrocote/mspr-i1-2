@@ -22,6 +22,12 @@ WORKDIR /var/www/app
 
 COPY . .
 
+# Build the production image: the committed .env defaults to APP_ENV=dev, but a
+# --no-dev install drops the dev-only bundles (fixtures, maker), so the post-install
+# cache:clear must run in prod or it fails on a now-missing bundle class.
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN chmod -R 777 var/

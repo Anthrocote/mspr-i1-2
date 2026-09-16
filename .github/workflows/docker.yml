@@ -1,0 +1,95 @@
+name: docker
+
+# Only on main and tags: build the three images and publish them to the
+# repository's GitHub Container Registry, tagged by commit SHA and latest.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: backend-siege
+            context: backend-siege
+            dockerfile: backend-siege/docker/php/Dockerfile
+          - name: backend-local
+            context: backend-local
+            dockerfile: backend-local/Dockerfile
+          - name: frontend
+            context: frontend
+            dockerfile: frontend/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.name }}
+          tags: |
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=tag
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Demonstration bundle: the compose files plus a script that pulls the images
+  # published above, so a demo host boots the stack without the source tree.
+  demo-artifact:
+    needs: images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble demo bundle
+        run: |
+          mkdir -p demo-bundle
+          cp backend-local/docker-compose.yml demo-bundle/compose.pays.yml
+          cp backend-local/docker-compose.demo.yml demo-bundle/compose.pays.demo.yml
+          cp backend-siege/docker-compose.yml demo-bundle/compose.siege.yml
+          cat > demo-bundle/README.md <<'EOF'
+          # Bundle de démonstration FutureKawa
+
+          Ce dossier démarre la démonstration à partir des images publiées sur GHCR,
+          sans le code source. Renseignez le SHA voulu dans `IMAGE_TAG`, connectez-vous
+          au registre (`docker login ghcr.io`), puis `./pull-and-run.sh`.
+          EOF
+          cat > demo-bundle/pull-and-run.sh <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          REGISTRY="ghcr.io/${GITHUB_REPOSITORY:?exporter GITHUB_REPOSITORY=owner/repo}"
+          IMAGE_TAG="${IMAGE_TAG:-latest}"
+          for img in backend-siege backend-local frontend; do
+            docker pull "$REGISTRY/$img:$IMAGE_TAG"
+          done
+          echo "Images tirées. Adaptez les composes puis lancez docker compose up."
+          EOF
+          chmod +x demo-bundle/pull-and-run.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: demo-bundle
+          path: demo-bundle/
