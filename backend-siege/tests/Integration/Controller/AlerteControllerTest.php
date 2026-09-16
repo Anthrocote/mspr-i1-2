@@ -25,4 +25,88 @@ class AlerteControllerTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
+    public function testListDefaultReturnsOnlyActiveAlerts(): void
+    {
+        $this->seedAlert('out_of_range', new \DateTimeImmutable('-1 hour'), null);
+        $this->seedAlert('sensor_offline', new \DateTimeImmutable('-3 hours'), new \DateTimeImmutable('-2 hours'));
+
+        $this->client->request('GET', '/api/alerts');
+        $this->assertResponseIsSuccessful();
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(1, $body['pagination']['total']);
+        foreach ($body['data'] as $alert) {
+            $this->assertNull($alert['resolvedAt'], 'the default list must expose only active alerts');
+        }
+    }
+
+    public function testListStatusResolvedReturnsOnlyResolvedAlerts(): void
+    {
+        $this->seedAlert('out_of_range', new \DateTimeImmutable('-1 hour'), null);
+        $this->seedAlert('sensor_offline', new \DateTimeImmutable('-3 hours'), new \DateTimeImmutable('-2 hours'));
+
+        $this->client->request('GET', '/api/alerts?status=resolved');
+        $this->assertResponseIsSuccessful();
+        $data = json_decode($this->client->getResponse()->getContent(), true)['data'];
+        $this->assertNotEmpty($data);
+        foreach ($data as $alert) {
+            $this->assertNotNull($alert['resolvedAt'], 'the resolved list must expose only resolved alerts');
+        }
+    }
+
+    public function testListStatusAllIncludesResolvedAndActive(): void
+    {
+        $this->seedAlert('out_of_range', new \DateTimeImmutable('-1 hour'), null);
+        $this->seedAlert('sensor_offline', new \DateTimeImmutable('-3 hours'), new \DateTimeImmutable('-2 hours'));
+
+        $this->client->request('GET', '/api/alerts?status=active');
+        $activeTotal = json_decode($this->client->getResponse()->getContent(), true)['pagination']['total'];
+
+        $this->client->request('GET', '/api/alerts?status=all');
+        $allTotal = json_decode($this->client->getResponse()->getContent(), true)['pagination']['total'];
+
+        $this->assertSame(1, $activeTotal);
+        $this->assertSame(2, $allTotal, 'status=all must include the resolved alert on top of the active one');
+    }
+
+    public function testListDateRangeFiltersByTriggeredAt(): void
+    {
+        $this->seedAlert('out_of_range', new \DateTimeImmutable('-1 hour'), null);
+        $this->seedAlert('sensor_offline', new \DateTimeImmutable('-10 days'), null);
+
+        // Only alerts triggered within the last day.
+        $from = (new \DateTimeImmutable('-1 day'))->format(\DateTimeInterface::ATOM);
+        $this->client->request('GET', '/api/alerts?status=all&from=' . urlencode($from));
+        $this->assertResponseIsSuccessful();
+        $total = json_decode($this->client->getResponse()->getContent(), true)['pagination']['total'];
+        $this->assertSame(1, $total, 'the 10-day-old alert must fall outside the from bound');
+    }
+
+    public function testActiveAlertsAreListedFirst(): void
+    {
+        // A resolved alert triggered later than an active one: active must still
+        // come first (what needs attention rises to the top), then date DESC.
+        $this->seedAlert('out_of_range', new \DateTimeImmutable('-2 hours'), null);            // active, older
+        $this->seedAlert('sensor_offline', new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('-30 minutes')); // resolved, newer
+
+        $this->client->request('GET', '/api/alerts?status=all');
+        $this->assertResponseIsSuccessful();
+        $data = json_decode($this->client->getResponse()->getContent(), true)['data'];
+
+        $this->assertCount(2, $data);
+        $this->assertNull($data[0]['resolvedAt'], 'the active alert must be first even though it is older');
+        $this->assertNotNull($data[1]['resolvedAt']);
+    }
+
+    private function seedAlert(string $type, \DateTimeImmutable $triggeredAt, ?\DateTimeImmutable $resolvedAt): void
+    {
+        $em = static::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class);
+        $alerte = (new \App\Entity\Alerte())
+            ->setUuid(\Symfony\Component\Uid\Uuid::v4())
+            ->setType($type)
+            ->setDeclencheeLe($triggeredAt)
+            ->setResolueLe($resolvedAt);
+        $em->persist($alerte);
+        $em->flush();
+    }
 }

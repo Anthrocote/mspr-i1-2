@@ -4,6 +4,7 @@ namespace App\Service\Sync;
 
 use App\Entity\Alerte;
 use App\Entity\Entrepot;
+use App\Entity\Exploitation;
 use App\Entity\HistoriqueStockage;
 use App\Entity\Lot;
 use App\Entity\Mesure;
@@ -11,26 +12,29 @@ use App\Entity\Pays;
 use App\Entity\Produit;
 use App\Repository\AlerteRepository;
 use App\Repository\EntrepotRepository;
+use App\Repository\ExploitationRepository;
 use App\Repository\LotRepository;
 use App\Repository\MesureRepository;
 use App\Repository\PaysRepository;
 use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class SyncService
 {
     public function __construct(
-        private readonly HttpClientInterface    $httpClient,
-        private readonly EntityManagerInterface $em,
-        private readonly PaysRepository         $paysRepository,
-        private readonly EntrepotRepository     $entrepotRepository,
-        private readonly ProduitRepository      $produitRepository,
-        private readonly LotRepository          $lotRepository,
-        private readonly MesureRepository       $mesureRepository,
-        private readonly AlerteRepository       $alerteRepository,
-        private readonly LoggerInterface        $logger,
+        private readonly HttpClientInterface     $httpClient,
+        private readonly EntityManagerInterface  $em,
+        private readonly PaysRepository          $paysRepository,
+        private readonly EntrepotRepository      $entrepotRepository,
+        private readonly ProduitRepository       $produitRepository,
+        private readonly ExploitationRepository  $exploitationRepository,
+        private readonly LotRepository           $lotRepository,
+        private readonly MesureRepository        $mesureRepository,
+        private readonly AlerteRepository        $alerteRepository,
+        private readonly LoggerInterface         $logger,
     ) {
     }
 
@@ -51,9 +55,16 @@ class SyncService
         $headers = ['X-API-KEY' => $pays->getApiKey() ?? ''];
 
         try {
-            $lots     = $this->syncLots($pays, $baseUrl, $headers);
-            $mesures  = $this->syncMesures($pays, $baseUrl, $headers);
-            $alertes  = $this->syncAlertes($pays, $baseUrl, $headers);
+            // Warehouses first: creates/updates the entrepôts (and their sensor
+            // status) that measurements, lots and alerts reference by uuid.
+            $this->syncWarehouses($pays, $baseUrl, $headers);
+            // Order matters: lots reference products and exploitations by uuid,
+            // so their catalogues must be upserted before lots are resolved.
+            $produits      = $this->syncProducts($pays, $baseUrl, $headers);
+            $exploitations = $this->syncExploitations($pays, $baseUrl, $headers);
+            $lots          = $this->syncLots($pays, $baseUrl, $headers);
+            $mesures       = $this->syncMesures($pays, $baseUrl, $headers);
+            $alertes       = $this->syncAlertes($pays, $baseUrl, $headers);
 
             $pays->setLastSyncedAt(new \DateTimeImmutable());
             $this->em->flush();
@@ -68,24 +79,39 @@ class SyncService
             return;
         }
 
-        $this->ackSynced($baseUrl, $headers, $lots, $mesures, $alertes);
+        $this->ackSynced($baseUrl, $headers, $produits, $exploitations, $lots, $mesures, $alertes);
     }
 
     /**
+     * @param list<string> $produits
+     * @param list<string> $exploitations
      * @param list<string> $lots
      * @param list<string> $mesures
      * @param list<string> $alertes
      */
-    private function ackSynced(string $baseUrl, array $headers, array $lots, array $mesures, array $alertes): void
-    {
-        if ($lots === [] && $mesures === [] && $alertes === []) {
+    private function ackSynced(
+        string $baseUrl,
+        array $headers,
+        array $produits,
+        array $exploitations,
+        array $lots,
+        array $mesures,
+        array $alertes,
+    ): void {
+        if ($produits === [] && $exploitations === [] && $lots === [] && $mesures === [] && $alertes === []) {
             return;
         }
 
         try {
             $this->httpClient->request('POST', $baseUrl . '/sync/ack', [
                 'headers' => $headers,
-                'json'    => ['lots' => $lots, 'measurements' => $mesures, 'alerts' => $alertes],
+                'json'    => [
+                    'products'      => $produits,
+                    'exploitations' => $exploitations,
+                    'lots'          => $lots,
+                    'measurements'  => $mesures,
+                    'alerts'        => $alertes,
+                ],
             ]);
         } catch (\Throwable $e) {
             $this->logger->warning('Ack sync échoué vers {url} : {msg}', [
@@ -93,6 +119,74 @@ class SyncService
                 'msg' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Upsert each warehouse and its current sensor status. Not acked: the status
+     * is current state, re-sent every sync, not buffered data.
+     */
+    private function syncWarehouses(Pays $pays, string $baseUrl, array $headers): void
+    {
+        $response = $this->httpClient->request('GET', $baseUrl . '/sync/warehouses', ['headers' => $headers]);
+        $data = $response->toArray();
+
+        foreach ($data as $item) {
+            $entrepot = $this->entrepotRepository->find($item['uuid']);
+            if ($entrepot === null) {
+                $entrepot = (new Entrepot())
+                    ->setUuid(Uuid::fromString($item['uuid']))
+                    ->setNom($item['name'] ?? ('Entrepôt ' . $pays->getNom()))
+                    ->setNumeroRue(0)
+                    ->setAdresse('')
+                    ->setCodePostal(0)
+                    ->setVille('')
+                    ->setPays($pays);
+                $this->em->persist($entrepot);
+            }
+
+            $entrepot->setDernierStatut($item['last_status'] ?? null);
+            $entrepot->setDernierStatutLe(
+                !empty($item['last_status_at']) ? new \DateTimeImmutable($item['last_status_at']) : null,
+            );
+        }
+    }
+
+    /** @return list<string> uuid des produits durablement persistés, à confirmer au local */
+    private function syncProducts(Pays $pays, string $baseUrl, array $headers): array
+    {
+        $response = $this->httpClient->request('GET', $baseUrl . '/sync/products', ['headers' => $headers]);
+        $data = $response->toArray();
+
+        $synced = [];
+        foreach ($data as $item) {
+            $this->upsertProduit($item);
+            $synced[] = $item['uuid'];
+        }
+
+        return $synced;
+    }
+
+    /** @return list<string> uuid des exploitations durablement persistées, à confirmer au local */
+    private function syncExploitations(Pays $pays, string $baseUrl, array $headers): array
+    {
+        $response = $this->httpClient->request('GET', $baseUrl . '/sync/exploitations', ['headers' => $headers]);
+        $data = $response->toArray();
+
+        $synced = [];
+        foreach ($data as $item) {
+            $exploitation = $this->exploitationRepository->find($item['uuid']);
+            if ($exploitation === null) {
+                $exploitation = (new Exploitation())->setUuid(Uuid::fromString($item['uuid']));
+                $this->em->persist($exploitation);
+            }
+
+            $exploitation->setNom($item['name'])
+                ->setPays($pays);
+
+            $synced[] = $item['uuid'];
+        }
+
+        return $synced;
     }
 
     /** @return list<string> uuid des lots durablement persistés, à confirmer au local */
@@ -103,20 +197,40 @@ class SyncService
 
         $synced = [];
         foreach ($data as $item) {
+            $produit = $this->produitRepository->find($item['product_uuid']);
+            if ($produit === null) {
+                // The product catalogue is synced first; a missing product means the
+                // lot references an unknown record. Skip it rather than fail the batch.
+                $this->logger->warning('Lot {lot} ignoré : produit {produit} introuvable', [
+                    'lot'     => $item['uuid'],
+                    'produit' => $item['product_uuid'],
+                ]);
+                continue;
+            }
+
             $lot = $this->lotRepository->find($item['uuid']);
             if ($lot === null) {
-                $lot = new Lot();
+                $lot = (new Lot())->setUuid(Uuid::fromString($item['uuid']));
                 $this->em->persist($lot);
             }
 
-            $produit = $this->upsertProduit($item['product']);
             $entrepot = $this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null);
+
+            $exploitation = null;
+            if (!empty($item['exploitation_uuid'])) {
+                $exploitation = $this->exploitationRepository->find($item['exploitation_uuid']);
+            }
 
             $lot->setLibelle($item['label'] ?? null)
                 ->setQuantite((float) $item['quantity'])
                 ->setProduit($produit)
+                ->setExploitation($exploitation)
                 ->setStatut($item['status'] ?? Lot::STATUT_CONFORME)
                 ->setSyncedAt(new \DateTimeImmutable());
+
+            if (!empty($item['constituted_at'])) {
+                $lot->setConstitueeLe(new \DateTimeImmutable($item['constituted_at']));
+            }
 
             if ($entrepot !== null) {
                 $this->upsertHistoriqueStockage($lot, $entrepot, $item);
@@ -147,6 +261,7 @@ class SyncService
             }
 
             $mesure = (new Mesure())
+                ->setUuid(Uuid::fromString($item['uuid']))
                 ->setEntrepot($entrepot)
                 ->setTemperature((float) $item['temperature'])
                 ->setHumidite((float) $item['humidity'])
@@ -169,27 +284,28 @@ class SyncService
         foreach ($data as $item) {
             $synced[] = $item['uuid'];
 
-            if ($this->alerteRepository->find($item['uuid']) !== null) {
-                continue;
+            $alerte = $this->alerteRepository->find($item['uuid']);
+            if ($alerte === null) {
+                $alerte = (new Alerte())
+                    ->setUuid(Uuid::fromString($item['uuid']))
+                    ->setType($item['type'])
+                    ->setEntrepot($this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null))
+                    ->setDeclencheeLe(new \DateTimeImmutable($item['triggered_at']));
+
+                if (!empty($item['lot_uuid'])) {
+                    $alerte->setLot($this->lotRepository->find($item['lot_uuid']));
+                }
+
+                $this->em->persist($alerte);
             }
 
-            $entrepot = $this->resolveEntrepot($pays, $item['warehouse_uuid'] ?? null);
-
-            $alerte = (new Alerte())
-                ->setType($item['type'])
-                ->setEntrepot($entrepot)
-                ->setDeclencheeLe(new \DateTimeImmutable($item['triggered_at']));
-
-            if (!empty($item['lot_uuid'])) {
-                $lot = $this->lotRepository->find($item['lot_uuid']);
-                $alerte->setLot($lot);
-            }
-
-            if (!empty($item['resolved_at'])) {
-                $alerte->setResolueLe(new \DateTimeImmutable($item['resolved_at']));
-            }
-
-            $this->em->persist($alerte);
+            // Propagate resolution: the local re-sends a resolved alert (it marks it
+            // unacked on resolve), so an already-known alert may now carry resolved_at.
+            // Without updating it here, the siège would display the alert active forever
+            // and pile up several "active" alerts for the same warehouse.
+            $alerte->setResolueLe(
+                !empty($item['resolved_at']) ? new \DateTimeImmutable($item['resolved_at']) : null,
+            );
         }
 
         return $synced;
@@ -199,7 +315,7 @@ class SyncService
     {
         $produit = $this->produitRepository->find($data['uuid']);
         if ($produit === null) {
-            $produit = new Produit();
+            $produit = (new Produit())->setUuid(Uuid::fromString($data['uuid']));
             $this->em->persist($produit);
         }
 
@@ -219,6 +335,7 @@ class SyncService
         $entrepot = $this->entrepotRepository->find($entrepotUuid);
         if ($entrepot === null) {
             $entrepot = (new Entrepot())
+                ->setUuid(Uuid::fromString($entrepotUuid))
                 ->setNom('Entrepôt ' . $pays->getNom())
                 ->setNumeroRue(0)
                 ->setAdresse('')

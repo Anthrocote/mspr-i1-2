@@ -22,21 +22,30 @@ class AlerteController extends AbstractController
     }
 
     #[Route('', name: 'list', methods: ['GET'])]
-    #[OA\Get(path: '/api/alerts', summary: 'List active (unresolved) alerts')]
+    #[OA\Get(path: '/api/alerts', summary: 'List alerts (newest first), filterable by status/type/country/date')]
+    #[OA\Parameter(name: 'status',     in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['active', 'resolved', 'all'], default: 'active'))]
     #[OA\Parameter(name: 'type',       in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'country_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'from',       in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date-time'))]
+    #[OA\Parameter(name: 'to',         in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date-time'))]
     #[OA\Parameter(name: 'page',       in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
     #[OA\Parameter(name: 'limit',      in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
     #[OA\Response(response: 200, description: 'Paginated list of alerts')]
     public function list(Request $request): JsonResponse
     {
+        $status     = $request->query->get('status', AlerteRepository::STATUS_ACTIVE);
         $type       = $request->query->get('type');
         $paysId     = $request->query->get('country_id');
+        $from       = $this->parseDate($request->query->get('from'));
+        $to         = $this->parseDate($request->query->get('to'));
         $pagination = Pagination::fromRequest($request);
 
-        $result = $this->alerteRepository->findActives(
+        $result = $this->alerteRepository->findFiltered(
+            $status,
             $type,
             $paysId !== null ? (int) $paysId : null,
+            $from,
+            $to,
             $pagination->getLimit(),
             $pagination->getOffset(),
         );
@@ -44,6 +53,20 @@ class AlerteController extends AbstractController
         $data = array_map(fn ($a) => $this->serialize($a), $result['items']);
 
         return $this->json($pagination->envelope($data, $result['total']));
+    }
+
+    // Lenient ISO-8601 date parsing: an unparseable value is treated as "no
+    // bound" rather than a 400, so a malformed filter never breaks the list.
+    private function parseDate(?string $value): ?\DateTimeImmutable
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        try {
+            return new \DateTimeImmutable($value);
+        } catch (\Exception) {
+            return null;
+        }
     }
 
     #[Route('/{uuid}/resolve', name: 'resolve', methods: ['PATCH'])]

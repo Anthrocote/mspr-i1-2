@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\MesureRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -12,11 +11,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: MesureRepository::class)]
 class Mesure
 {
+    // The uuid is assigned from the producing tier's payload during sync, never
+    // generated here, so the siège shares the same identity as the local record.
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    private ?Uuid $uuid = null;
+    private Uuid $uuid;
 
     #[ORM\ManyToOne(targetEntity: Entrepot::class, inversedBy: 'mesures')]
     #[ORM\JoinColumn(referencedColumnName: 'uuid', nullable: false)]
@@ -45,7 +44,8 @@ class Mesure
         $this->syncedAt = new \DateTimeImmutable();
     }
 
-    public function getUuid(): ?Uuid { return $this->uuid; }
+    public function getUuid(): ?Uuid { return $this->uuid ?? null; }
+    public function setUuid(Uuid $uuid): static { $this->uuid = $uuid; return $this; }
 
     public function getEntrepot(): Entrepot { return $this->entrepot; }
     public function setEntrepot(Entrepot $entrepot): static { $this->entrepot = $entrepot; return $this; }

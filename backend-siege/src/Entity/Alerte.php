@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\AlerteRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -14,16 +13,17 @@ class Alerte
 {
     public const TYPE_CONDITION_HORS_PLAGE = 'out_of_range';
     public const TYPE_LOT_PERIME           = 'expired_lot';
+    public const TYPE_CAPTEUR_HORS_LIGNE   = 'sensor_offline';
 
+    // The uuid is assigned from the producing tier's payload during sync, never
+    // generated here, so the siège shares the same identity as the local record.
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    private ?Uuid $uuid = null;
+    private Uuid $uuid;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [self::TYPE_CONDITION_HORS_PLAGE, self::TYPE_LOT_PERIME])]
+    #[Assert\Choice(choices: [self::TYPE_CONDITION_HORS_PLAGE, self::TYPE_LOT_PERIME, self::TYPE_CAPTEUR_HORS_LIGNE])]
     private string $type;
 
     #[ORM\ManyToOne(targetEntity: Lot::class)]
@@ -46,7 +46,8 @@ class Alerte
         $this->declencheeLe = new \DateTimeImmutable();
     }
 
-    public function getUuid(): ?Uuid { return $this->uuid; }
+    public function getUuid(): ?Uuid { return $this->uuid ?? null; }
+    public function setUuid(Uuid $uuid): static { $this->uuid = $uuid; return $this; }
 
     public function getType(): string { return $this->type; }
     public function setType(string $type): static { $this->type = $type; return $this; }

@@ -10,6 +10,7 @@ use App\Entity\Produit;
 use App\Repository\LotRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * FIFO ordering of /api/lots must follow each lot's FIRST arrival date (the
@@ -28,15 +29,15 @@ class LotFifoOrderTest extends KernelTestCase
         try {
             $pays = (new Pays())->setNom('Fifo')->setCodeIso('ZZ');
             $em->persist($pays);
-            $e1 = (new Entrepot())->setNom('E1')->setNumeroRue(1)->setAdresse('a')->setCodePostal(1)->setVille('v')->setPays($pays);
-            $e2 = (new Entrepot())->setNom('E2')->setNumeroRue(2)->setAdresse('b')->setCodePostal(2)->setVille('w')->setPays($pays);
+            $e1 = (new Entrepot())->setUuid(Uuid::v4())->setNom('E1')->setNumeroRue(1)->setAdresse('a')->setCodePostal(1)->setVille('v')->setPays($pays);
+            $e2 = (new Entrepot())->setUuid(Uuid::v4())->setNom('E2')->setNumeroRue(2)->setAdresse('b')->setCodePostal(2)->setVille('w')->setPays($pays);
             $em->persist($e1);
             $em->persist($e2);
-            $produit = (new Produit())->setNom('P')->setDescription('d');
+            $produit = (new Produit())->setUuid(Uuid::v4())->setNom('P')->setDescription('d');
             $em->persist($produit);
 
             $mk = function (string $libelle) use ($em, $produit): Lot {
-                $lot = (new Lot())->setLibelle($libelle)->setQuantite(1)->setProduit($produit)
+                $lot = (new Lot())->setUuid(Uuid::v4())->setLibelle($libelle)->setQuantite(1)->setProduit($produit)
                     ->setStatut(Lot::STATUT_CONFORME)->setSyncedAt(new \DateTimeImmutable());
                 $em->persist($lot);
 
