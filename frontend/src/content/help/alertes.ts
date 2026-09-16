@@ -11,6 +11,7 @@ export const alertes: HelpArticle = {
     fr: [
       { kind: 'heading', text: 'Deux familles d\'alertes' },
       { kind: 'paragraph', text: 'La page Alertes regroupe les situations à risque détectées automatiquement. Elles se répartissent en deux familles : les conditions de stockage hors plage, et les lots trop anciens.' },
+      { kind: 'image', src: '/help/alertes/fr/liste.png', alt: 'Liste des alertes avec type, sujet et statut' },
       { kind: 'heading', text: 'Conditions hors plage' },
       { kind: 'paragraph', text: 'Quand la température ou l\'humidité d\'un entrepôt sort des seuils de son pays (tolérance comprise), une alerte s\'ouvre et un email part au destinataire configuré pour ce pays. L\'alerte se résout d\'elle-même quand les conditions reviennent dans la plage, et un second email signale ce retour à la normale.' },
       { kind: 'heading', text: 'Lot trop ancien' },
@@ -26,6 +27,7 @@ export const alertes: HelpArticle = {
     en: [
       { kind: 'heading', text: 'Two families of alerts' },
       { kind: 'paragraph', text: 'The Alerts page gathers the risk situations detected automatically. They fall into two families: out-of-range storage conditions, and lots that are too old.' },
+      { kind: 'image', src: '/help/alertes/en/liste.png', alt: 'Alert list with type, subject and status' },
       { kind: 'heading', text: 'Out-of-range conditions' },
       { kind: 'paragraph', text: 'When a warehouse\'s temperature or humidity leaves its country\'s thresholds (tolerance included), an alert opens and an email goes to the recipient configured for that country. The alert resolves itself when conditions return within range, and a second email reports that return to normal.' },
       { kind: 'heading', text: 'Lot too old' },
@@ -41,6 +43,7 @@ export const alertes: HelpArticle = {
     es: [
       { kind: 'heading', text: 'Dos familias de alertas' },
       { kind: 'paragraph', text: 'La página de Alertas reúne las situaciones de riesgo detectadas automáticamente. Se dividen en dos familias: las condiciones de almacenamiento fuera de rango y los lotes demasiado antiguos.' },
+      { kind: 'image', src: '/help/alertes/es/liste.png', alt: 'Lista de alertas con tipo, asunto y estado' },
       { kind: 'heading', text: 'Condiciones fuera de rango' },
       { kind: 'paragraph', text: 'Cuando la temperatura o la humedad de un almacén sale de los umbrales de su país (tolerancia incluida), se abre una alerta y se envía un correo al destinatario configurado para ese país. La alerta se resuelve por sí sola cuando las condiciones vuelven al rango, y un segundo correo señala ese regreso a la normalidad.' },
       { kind: 'heading', text: 'Lote demasiado antiguo' },

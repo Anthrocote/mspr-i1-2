@@ -11,6 +11,7 @@ export const priseEnMain: HelpArticle = {
     fr: [
       { kind: 'heading', text: 'À quoi sert FutureKawa' },
       { kind: 'paragraph', text: 'FutureKawa suit vos lots de café vert et les conditions de stockage de vos entrepôts au Brésil, en Équateur et en Colombie. Chaque entrepôt remonte automatiquement sa température et son humidité, et le siège consolide le tout dans cette interface.' },
+      { kind: 'image', src: '/help/prise-en-main/fr/apercu.png', alt: 'Vue d\'ensemble du tableau de bord FutureKawa' },
       { kind: 'heading', text: 'Se repérer dans le menu' },
       { kind: 'list', items: [
         'Dashboard : la vue globale consolidée, tous pays confondus.',
@@ -26,6 +27,7 @@ export const priseEnMain: HelpArticle = {
     en: [
       { kind: 'heading', text: 'What FutureKawa is for' },
       { kind: 'paragraph', text: 'FutureKawa tracks your green coffee lots and the storage conditions of your warehouses in Brazil, Ecuador and Colombia. Each warehouse reports its temperature and humidity automatically, and headquarters consolidates everything in this interface.' },
+      { kind: 'image', src: '/help/prise-en-main/en/apercu.png', alt: 'Overview of the FutureKawa dashboard' },
       { kind: 'heading', text: 'Finding your way around the menu' },
       { kind: 'list', items: [
         'Dashboard: the consolidated overview across all countries.',
@@ -41,6 +43,7 @@ export const priseEnMain: HelpArticle = {
     es: [
       { kind: 'heading', text: 'Para qué sirve FutureKawa' },
       { kind: 'paragraph', text: 'FutureKawa realiza el seguimiento de sus lotes de café verde y de las condiciones de almacenamiento de sus almacenes en Brasil, Ecuador y Colombia. Cada almacén informa automáticamente de su temperatura y humedad, y la sede consolida todo en esta interfaz.' },
+      { kind: 'image', src: '/help/prise-en-main/es/apercu.png', alt: 'Vista general del panel de FutureKawa' },
       { kind: 'heading', text: 'Orientarse en el menú' },
       { kind: 'list', items: [
         'Dashboard: la vista global consolidada, todos los países.',

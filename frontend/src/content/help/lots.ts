@@ -11,6 +11,7 @@ export const lots: HelpArticle = {
     fr: [
       { kind: 'heading', text: 'À quoi sert la page Lots' },
       { kind: 'paragraph', text: 'La page Gestion des Lots liste tous vos lots de café vert, du plus ancien au plus récent. Elle sert la traçabilité (d\'où vient chaque lot, où il est stocké) et la rotation des stocks : on expédie en priorité les lots entrés le plus tôt.' },
+      { kind: 'image', src: '/help/lots/fr/liste.png', alt: 'Liste des lots avec pays, entrepôt, durée et statut' },
       { kind: 'heading', text: 'Trier et filtrer' },
       { kind: 'list', items: [
         'Filtrer par pays et par entrepôt pour se concentrer sur un site.',
@@ -35,6 +36,7 @@ export const lots: HelpArticle = {
     en: [
       { kind: 'heading', text: 'What the Lots page is for' },
       { kind: 'paragraph', text: 'The Lot management page lists all your green coffee lots, oldest first. It serves traceability (where each lot comes from, where it is stored) and stock rotation: the lots that entered earliest are shipped first.' },
+      { kind: 'image', src: '/help/lots/en/liste.png', alt: 'Lot list with country, warehouse, duration and status' },
       { kind: 'heading', text: 'Sorting and filtering' },
       { kind: 'list', items: [
         'Filter by country and by warehouse to focus on one site.',
@@ -59,6 +61,7 @@ export const lots: HelpArticle = {
     es: [
       { kind: 'heading', text: 'Para qué sirve la página de Lotes' },
       { kind: 'paragraph', text: 'La página de Gestión de lotes enumera todos sus lotes de café verde, del más antiguo al más reciente. Sirve para la trazabilidad (de dónde viene cada lote, dónde está almacenado) y la rotación de existencias: se expiden primero los lotes que entraron antes.' },
+      { kind: 'image', src: '/help/lots/es/liste.png', alt: 'Lista de lotes con país, almacén, duración y estado' },
       { kind: 'heading', text: 'Ordenar y filtrar' },
       { kind: 'list', items: [
         'Filtrar por país y por almacén para centrarse en un sitio.',

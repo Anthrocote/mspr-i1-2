@@ -11,6 +11,7 @@ export const courbes: HelpArticle = {
     fr: [
       { kind: 'heading', text: 'À quoi sert le suivi des entrepôts' },
       { kind: 'paragraph', text: 'La page Suivi des entrepôts affiche la température et l\'humidité relevées par les capteurs de chaque entrepôt. Chaque courbe montre l\'évolution dans le temps et la compare à la plage idéale du pays.' },
+      { kind: 'image', src: '/help/courbes/fr/courbes.png', alt: 'Courbes de température et d\'humidité d\'un entrepôt avec plage tolérée' },
       { kind: 'heading', text: 'Les seuils par pays' },
       { kind: 'list', items: [
         'Brésil : 29 °C et 55 % d\'humidité.',
@@ -25,6 +26,7 @@ export const courbes: HelpArticle = {
     en: [
       { kind: 'heading', text: 'What warehouse monitoring is for' },
       { kind: 'paragraph', text: 'The Warehouse monitoring page shows the temperature and humidity recorded by each warehouse\'s sensors. Each chart shows the change over time and compares it to the country\'s ideal range.' },
+      { kind: 'image', src: '/help/courbes/en/courbes.png', alt: 'Temperature and humidity charts for a warehouse with tolerated range' },
       { kind: 'heading', text: 'Thresholds by country' },
       { kind: 'list', items: [
         'Brazil: 29 °C and 55% humidity.',
@@ -39,6 +41,7 @@ export const courbes: HelpArticle = {
     es: [
       { kind: 'heading', text: 'Para qué sirve el seguimiento de almacenes' },
       { kind: 'paragraph', text: 'La página de Seguimiento de almacenes muestra la temperatura y la humedad registradas por los sensores de cada almacén. Cada curva muestra la evolución en el tiempo y la compara con el rango ideal del país.' },
+      { kind: 'image', src: '/help/courbes/es/courbes.png', alt: 'Curvas de temperatura y humedad de un almacén con rango tolerado' },
       { kind: 'heading', text: 'Los umbrales por país' },
       { kind: 'list', items: [
         'Brasil: 29 °C y 55% de humedad.',
