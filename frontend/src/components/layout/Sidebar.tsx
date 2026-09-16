@@ -25,6 +25,9 @@ const MENU_ITEMS = [
   { id: 'exploitations', label: 'Exploitations', href: '/exploitations', icon: (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>
   )},
+  { id: 'aide', label: 'Aide', href: '/aide', icon: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  )},
 ];
 
 function isActive(href: string, pathname: string): boolean {

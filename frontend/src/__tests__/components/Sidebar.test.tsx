@@ -33,6 +33,11 @@ describe('Sidebar', () => {
     expect(screen.queryByText('Analytique')).not.toBeInTheDocument();
   });
 
+  it('links to the help center', () => {
+    render(<LanguageProvider><Sidebar /></LanguageProvider>);
+    expect(screen.getByText('Aide')).toBeInTheDocument();
+  });
+
   it('no longer links to the removed Paramètres page', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
     expect(screen.queryByText('Paramètres')).not.toBeInTheDocument();
