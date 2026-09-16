@@ -27,7 +27,7 @@ class LotFifoOrderTest extends KernelTestCase
 
         $em->beginTransaction();
         try {
-            $pays = (new Pays())->setNom('Fifo')->setCode('zz');
+            $pays = (new Pays())->setCode('zz');
             $em->persist($pays);
             $e1 = (new Entrepot())->setUuid(Uuid::v4())->setNom('E1')->setNumeroRue(1)->setAdresse('a')->setCodePostal(1)->setVille('v')->setPays($pays);
             $e2 = (new Entrepot())->setUuid(Uuid::v4())->setNom('E2')->setNumeroRue(2)->setAdresse('b')->setCodePostal(2)->setVille('w')->setPays($pays);

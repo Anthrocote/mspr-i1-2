@@ -193,8 +193,8 @@ class LotControllerTest extends ApiTestCase
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
 
-        $alpha = (new Pays())->setNom('Alpha')->setCode('aa');
-        $beta = (new Pays())->setNom('Beta')->setCode('bb');
+        $alpha = (new Pays())->setCode('aa');
+        $beta = (new Pays())->setCode('bb');
         $em->persist($alpha);
         $em->persist($beta);
 

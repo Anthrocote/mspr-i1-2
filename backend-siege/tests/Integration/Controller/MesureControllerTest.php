@@ -53,7 +53,7 @@ class MesureControllerTest extends ApiTestCase
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
 
-        $pays = (new Pays())->setNom('Équateur')->setCode('ec');
+        $pays = (new Pays())->setCode('ec');
         $em->persist($pays);
 
         $entrepot = (new Entrepot())

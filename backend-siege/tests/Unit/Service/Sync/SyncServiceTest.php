@@ -65,7 +65,7 @@ class SyncServiceTest extends TestCase
     public function testSyncAllSkipsPaysWithoutApiUrl(): void
     {
         $pays = new Pays();
-        $pays->setNom('Brésil')->setCode('br');
+        $pays->setCode('br');
 
         $this->paysRepository->expects($this->once())
             ->method('findAll')
@@ -80,7 +80,6 @@ class SyncServiceTest extends TestCase
     public function testSyncPaysCallsAllSixEndpoints(): void
     {
         $pays = (new Pays())
-            ->setNom('Brésil')
             ->setCode('br')
             ->setApiUrl('https://bresil.futurekawa.local')
             ->setApiKey('secret');
@@ -102,7 +101,6 @@ class SyncServiceTest extends TestCase
     public function testSyncAlertesUsesTriggerDateFromPayload(): void
     {
         $pays = (new Pays())
-            ->setNom('Colombie')
             ->setCode('co')
             ->setApiUrl('https://colombie.futurekawa.local')
             ->setApiKey('secret');
@@ -144,7 +142,6 @@ class SyncServiceTest extends TestCase
     public function testSyncPaysAcksPersistedRecords(): void
     {
         $pays = (new Pays())
-            ->setNom('Brésil')
             ->setCode('br')
             ->setApiUrl('https://bresil.futurekawa.local')
             ->setApiKey('secret');
@@ -186,7 +183,6 @@ class SyncServiceTest extends TestCase
     public function testSyncPaysDoesNotAckWhenNothingSynced(): void
     {
         $pays = (new Pays())
-            ->setNom('Colombie')
             ->setCode('co')
             ->setApiUrl('https://colombie.futurekawa.local')
             ->setApiKey('secret');
@@ -210,7 +206,6 @@ class SyncServiceTest extends TestCase
     public function testSyncPaysLogsErrorOnHttpFailure(): void
     {
         $pays = (new Pays())
-            ->setNom('Équateur')
             ->setCode('ec')
             ->setApiUrl('https://equateur.futurekawa.local');
 
@@ -228,7 +223,6 @@ class SyncServiceTest extends TestCase
     public function testSyncProductThenLotPersistWithPayloadUuidAndLink(): void
     {
         $pays = (new Pays())
-            ->setNom('Brésil')
             ->setCode('br')
             ->setApiUrl('https://bresil.futurekawa.local')
             ->setApiKey('secret');
@@ -307,7 +301,6 @@ class SyncServiceTest extends TestCase
     public function testSyncLotLinksExploitationAndSetsConstitueeLe(): void
     {
         $pays = (new Pays())
-            ->setNom('Colombie')
             ->setCode('co')
             ->setApiUrl('https://colombie.futurekawa.local')
             ->setApiKey('secret');
@@ -404,7 +397,6 @@ class SyncServiceTest extends TestCase
     public function testSyncLotSkippedWhenProductMissing(): void
     {
         $pays = (new Pays())
-            ->setNom('Équateur')
             ->setCode('ec')
             ->setApiUrl('https://equateur.futurekawa.local')
             ->setApiKey('secret');
