@@ -69,7 +69,7 @@ export default function Topbar({ title, subtitle, onMenuClick, onHelpClick }: To
             aria-label={t('help_open')}
             className="w-9 h-9 flex items-center justify-center rounded-full bg-parchment-100 border-[1.5px] border-parchment-400 text-espresso-900 hover:border-[#A0714F] transition-colors cursor-pointer"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </button>
         )}
 
