@@ -18,15 +18,14 @@ final class Version20260709075720 extends AbstractMigration
     {
         $this->addSql(<<<'SQL'
             CREATE TABLE pays (
-                id SERIAL NOT NULL,
+                code VARCHAR(2) NOT NULL,
                 nom VARCHAR(50) NOT NULL,
-                code_iso VARCHAR(3) NOT NULL,
                 api_url VARCHAR(255) DEFAULT NULL,
                 api_key VARCHAR(255) DEFAULT NULL,
                 last_synced_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
                 temp_ideale DOUBLE PRECISION DEFAULT NULL,
                 humidite_ideale DOUBLE PRECISION DEFAULT NULL,
-                PRIMARY KEY(id)
+                PRIMARY KEY(code)
             )
         SQL);
 
@@ -47,7 +46,7 @@ final class Version20260709075720 extends AbstractMigration
         $this->addSql(<<<'SQL'
             CREATE TABLE entrepot (
                 uuid UUID NOT NULL,
-                pays_id INT NOT NULL,
+                pays_code VARCHAR(2) NOT NULL,
                 nom VARCHAR(150) NOT NULL,
                 numero_rue INT NOT NULL,
                 adresse VARCHAR(200) NOT NULL,
@@ -57,8 +56,8 @@ final class Version20260709075720 extends AbstractMigration
                 PRIMARY KEY(uuid)
             )
         SQL);
-        $this->addSql('CREATE INDEX IDX_ENTREPOT_PAYS ON entrepot (pays_id)');
-        $this->addSql('ALTER TABLE entrepot ADD CONSTRAINT FK_entrepot_pays FOREIGN KEY (pays_id) REFERENCES pays (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('CREATE INDEX IDX_ENTREPOT_PAYS ON entrepot (pays_code)');
+        $this->addSql('ALTER TABLE entrepot ADD CONSTRAINT FK_entrepot_pays FOREIGN KEY (pays_code) REFERENCES pays (code) NOT DEFERRABLE INITIALLY IMMEDIATE');
 
         $this->addSql(<<<'SQL'
             CREATE TABLE lot (

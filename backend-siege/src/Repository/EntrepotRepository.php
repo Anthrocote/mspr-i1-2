@@ -15,14 +15,14 @@ class EntrepotRepository extends ServiceEntityRepository
     }
 
     /** @return array{items: list<Entrepot>, total: int} */
-    public function findFilteredPaginated(?int $paysId, int $limit, int $offset): array
+    public function findFilteredPaginated(?string $paysCode, int $limit, int $offset): array
     {
         $qb = $this->createQueryBuilder('e')->orderBy('e.nom', 'ASC');
 
-        if ($paysId !== null) {
+        if ($paysCode !== null) {
             $qb->join('e.pays', 'p')
-               ->andWhere('p.id = :paysId')
-               ->setParameter('paysId', $paysId);
+               ->andWhere('p.code = :paysCode')
+               ->setParameter('paysCode', $paysCode);
         }
 
         return QueryPaginator::paginate($qb, $limit, $offset);

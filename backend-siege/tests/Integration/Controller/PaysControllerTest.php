@@ -14,7 +14,7 @@ class PaysControllerTest extends ApiTestCase
 
     public function testShowNonExistentPaysReturns404(): void
     {
-        $this->client->request('GET', '/api/countries/9999');
+        $this->client->request('GET', '/api/countries/xx');
 
         $this->assertResponseStatusCodeSame(404);
     }

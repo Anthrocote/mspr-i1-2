@@ -18,7 +18,7 @@ class SyncPaysMessageHandler
 
     public function __invoke(SyncPaysMessage $message): void
     {
-        $pays = $this->paysRepository->find($message->paysId);
+        $pays = $this->paysRepository->find($message->code);
         if ($pays === null || $pays->getApiUrl() === null) {
             return;
         }

@@ -22,7 +22,7 @@ class LotController extends AbstractController
     #[OA\Get(path: '/api/lots', summary: 'List lots (FIFO), filterable')]
     #[OA\Parameter(name: 'warehouse_id', in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Parameter(name: 'status',       in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'country_id',   in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'country',      in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: '2-letter ISO country code')]
     #[OA\Parameter(name: 'page',         in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
     #[OA\Parameter(name: 'limit',        in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
     #[OA\Parameter(name: 'search',       in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Case-insensitive substring on lot label, product, warehouse and country names')]
@@ -34,7 +34,7 @@ class LotController extends AbstractController
     {
         $entrepotUuid = $request->query->get('warehouse_id');
         $statut       = $request->query->get('status');
-        $paysId       = $request->query->get('country_id');
+        $paysCode     = $request->query->get('country');
         $search       = $request->query->get('search');
         $age          = $request->query->get('age');
         $sort         = $request->query->get('sort');
@@ -44,7 +44,7 @@ class LotController extends AbstractController
         $result = $this->lotRepository->findFiltered(
             $entrepotUuid,
             $statut,
-            $paysId !== null ? (int) $paysId : null,
+            $paysCode !== null ? (string) $paysCode : null,
             $pagination->getLimit(),
             $pagination->getOffset(),
             $search,
@@ -93,9 +93,8 @@ class LotController extends AbstractController
                 'name' => $entrepot->getNom(),
             ],
             'country'          => $entrepot === null ? null : [
-                'id'      => $entrepot->getPays()->getId(),
-                'name'    => $entrepot->getPays()->getNom(),
-                'isoCode' => $entrepot->getPays()->getCodeIso(),
+                'code' => $entrepot->getPays()->getCode(),
+                'name' => $entrepot->getPays()->getNom(),
             ],
             'exploitation'     => $exploitation === null ? null : [
                 'uuid' => (string) $exploitation->getUuid(),

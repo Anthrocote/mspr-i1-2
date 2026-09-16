@@ -10,7 +10,7 @@ import {
   formatHumidity,
   formatTemperature,
   HUM_TOLERANCE,
-  isoToCountryCode,
+  toCountryCode,
   lotStatusToVariant,
   TEMP_TOLERANCE,
   toleranceBand,
@@ -23,19 +23,15 @@ import type {
   ApiWarehouse,
 } from '@/lib/api/types';
 
-describe('country iso mapping', () => {
-  it('maps 3-letter iso codes to 2-letter presentation codes', () => {
-    expect(isoToCountryCode('BRA')).toBe('br');
-    expect(isoToCountryCode('ECU')).toBe('ec');
-    expect(isoToCountryCode('COL')).toBe('co');
+describe('country code validation', () => {
+  it('accepts the known 2-letter presentation codes', () => {
+    expect(toCountryCode('br')).toBe('br');
+    expect(toCountryCode('ec')).toBe('ec');
+    expect(toCountryCode('co')).toBe('co');
   });
 
-  it('is case-insensitive on the iso input', () => {
-    expect(isoToCountryCode('bra')).toBe('br');
-  });
-
-  it('throws on an unknown iso code instead of guessing', () => {
-    expect(() => isoToCountryCode('USA')).toThrow(/Unknown iso/);
+  it('throws on an unknown code instead of guessing', () => {
+    expect(() => toCountryCode('xx')).toThrow(/Unknown country code/);
   });
 
   it('exposes a flag per code', () => {
@@ -92,9 +88,8 @@ describe('distribution from counts', () => {
 });
 
 const COUNTRY_BR: ApiCountry = {
-  id: 1,
+  code: 'br',
   name: 'Brésil',
-  isoCode: 'BRA',
   idealTemperature: 29,
   idealHumidity: 55,
   lastSyncedAt: null,
@@ -110,7 +105,7 @@ const WAREHOUSE_BR: ApiWarehouse = {
   active: true,
   status: 'online',
   statusAt: '2025-01-01T00:00:00Z',
-  country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+  country: { code: 'br', name: 'Brésil' },
 };
 
 describe('warehouse composition', () => {
@@ -235,7 +230,7 @@ const ENRICHED_LOT: ApiLotSummary = {
   syncedAt: '2026-09-15T10:00:00+00:00',
   product: { uuid: 'p-1', name: 'Arabica Minas Gerais' },
   currentWarehouse: { uuid: 'wh-1', name: 'Entrepôt Manaus' },
-  country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+  country: { code: 'br', name: 'Brésil' },
   exploitation: { uuid: 'exp-1', name: 'Fazenda Serra Verde' },
   constitutedAt: '2026-07-17T00:00:00+00:00',
   arrivedAt: '2026-08-01T00:00:00+00:00',
@@ -297,7 +292,7 @@ describe('exploitation adaptation', () => {
   const api: ApiExploitation = {
     uuid: 'exp-1',
     name: 'Fazenda Serra Verde',
-    country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+    country: { code: 'br', name: 'Brésil' },
     lotsCount: 7,
   };
 

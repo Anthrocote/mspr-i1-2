@@ -45,7 +45,7 @@ class Entrepot
     private string $ville;
 
     #[ORM\ManyToOne(targetEntity: Pays::class, inversedBy: 'entrepots')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'pays_code', referencedColumnName: 'code', nullable: false)]
     #[Assert\NotNull]
     private Pays $pays;
 

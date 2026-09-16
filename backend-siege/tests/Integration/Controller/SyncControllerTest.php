@@ -14,7 +14,7 @@ class SyncControllerTest extends ApiTestCase
 
     public function testSyncNonExistentPaysReturns404(): void
     {
-        $this->client->request('POST', '/api/sync/countries/9999');
+        $this->client->request('POST', '/api/sync/countries/xx');
 
         $this->assertResponseStatusCodeSame(404);
     }

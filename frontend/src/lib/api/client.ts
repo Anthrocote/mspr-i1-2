@@ -206,8 +206,8 @@ export class ApiClient {
     return this.getPage<ApiCountry>('/api/countries', params, options);
   }
 
-  getCountry(id: number, options?: RequestOptions): Promise<ApiCountry> {
-    return this.request<ApiCountry>(`/api/countries/${id}`, {}, options);
+  getCountry(code: string, options?: RequestOptions): Promise<ApiCountry> {
+    return this.request<ApiCountry>(`/api/countries/${encodeURIComponent(code)}`, {}, options);
   }
 
   // ── Products ──

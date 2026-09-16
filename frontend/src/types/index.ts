@@ -41,10 +41,8 @@ export interface Lot {
   uuid?: string;
   countryCode: CountryCode;
   country: string;
-  // Siège country id / current-warehouse uuid, used to drive the server-side
-  // location filter (country_id / warehouse_id). Null when the relation is
-  // unresolved at the source.
-  countryId: number | null;
+  // Siège current-warehouse uuid, used to drive the server-side location filter
+  // (warehouse_id). Null when the relation is unresolved at the source.
   warehouseId: string | null;
   flag: string;
   warehouse: string;

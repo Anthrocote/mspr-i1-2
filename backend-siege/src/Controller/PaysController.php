@@ -29,9 +29,8 @@ class PaysController extends AbstractController
         $result = $this->paysRepository->findPaginated($pagination->getLimit(), $pagination->getOffset());
 
         $data = array_map(fn ($p) => [
-            'id'               => $p->getId(),
+            'code'             => $p->getCode(),
             'name'             => $p->getNom(),
-            'isoCode'          => $p->getCodeIso(),
             'idealTemperature' => $p->getTempIdeale(),
             'idealHumidity'    => $p->getHumiditeIdeale(),
             'lastSyncedAt'     => $p->getLastSyncedAt()?->format(\DateTimeInterface::ATOM),
@@ -40,21 +39,20 @@ class PaysController extends AbstractController
         return $this->json($pagination->envelope($data, $result['total']));
     }
 
-    #[Route('/{id}', name: 'show', methods: ['GET'])]
-    #[OA\Get(path: '/api/countries/{id}', summary: 'Country detail')]
+    #[Route('/{code}', name: 'show', methods: ['GET'])]
+    #[OA\Get(path: '/api/countries/{code}', summary: 'Country detail')]
     #[OA\Response(response: 200, description: 'Country found')]
     #[OA\Response(response: 404, description: 'Country not found')]
-    public function show(int $id): JsonResponse
+    public function show(string $code): JsonResponse
     {
-        $pays = $this->paysRepository->find($id);
+        $pays = $this->paysRepository->find($code);
         if ($pays === null) {
             return $this->json(['error' => 'Country not found'], 404);
         }
 
         return $this->json([
-            'id'               => $pays->getId(),
+            'code'             => $pays->getCode(),
             'name'             => $pays->getNom(),
-            'isoCode'          => $pays->getCodeIso(),
             'idealTemperature' => $pays->getTempIdeale(),
             'idealHumidity'    => $pays->getHumiditeIdeale(),
             'lastSyncedAt'     => $pays->getLastSyncedAt()?->format(\DateTimeInterface::ATOM),

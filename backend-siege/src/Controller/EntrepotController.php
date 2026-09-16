@@ -20,17 +20,17 @@ class EntrepotController extends AbstractController
 
     #[Route('', name: 'list', methods: ['GET'])]
     #[OA\Get(path: '/api/warehouses', summary: 'List warehouses, filterable by country')]
-    #[OA\Parameter(name: 'country_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
-    #[OA\Parameter(name: 'page',       in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
-    #[OA\Parameter(name: 'limit',      in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
+    #[OA\Parameter(name: 'country', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: '2-letter ISO country code')]
+    #[OA\Parameter(name: 'page',    in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
+    #[OA\Parameter(name: 'limit',   in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 50))]
     #[OA\Response(response: 200, description: 'Paginated list of warehouses')]
     public function list(Request $request): JsonResponse
     {
-        $paysId = $request->query->get('country_id');
+        $paysCode = $request->query->get('country');
         $pagination = Pagination::fromRequest($request);
 
         $result = $this->entrepotRepository->findFilteredPaginated(
-            $paysId !== null ? (int) $paysId : null,
+            $paysCode !== null ? (string) $paysCode : null,
             $pagination->getLimit(),
             $pagination->getOffset(),
         );
@@ -67,9 +67,8 @@ class EntrepotController extends AbstractController
             'status'       => $e->getDernierStatut(),
             'statusAt'     => $e->getDernierStatutLe()?->format(\DateTimeInterface::ATOM),
             'country'      => [
-                'id'      => $e->getPays()->getId(),
-                'name'    => $e->getPays()->getNom(),
-                'isoCode' => $e->getPays()->getCodeIso(),
+                'code' => $e->getPays()->getCode(),
+                'name' => $e->getPays()->getNom(),
             ],
         ];
     }

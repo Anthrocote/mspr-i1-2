@@ -15,7 +15,6 @@ function lot(over: Partial<Lot> & { id: string; countryCode: CountryCode; wareho
   const { countryCode } = over;
   return {
     country: COUNTRY_LABEL[countryCode],
-    countryId: 1,
     warehouseId: 'wh-uuid',
     flag: COUNTRY_FLAG[countryCode],
     exploitationId: '',
@@ -52,12 +51,12 @@ const FARMS: Farm[] = [
 
 const FILTER_OPTIONS: LotFilterOptions = {
   countries: [
-    { id: 1, code: 'br', name: 'Brésil', flag: '🇧🇷' },
-    { id: 2, code: 'co', name: 'Colombie', flag: '🇨🇴' },
+    { code: 'br', name: 'Brésil', flag: '🇧🇷' },
+    { code: 'co', name: 'Colombie', flag: '🇨🇴' },
   ],
   warehouses: [
-    { id: 'wh-sp', name: 'São Paulo A', countryId: 1 },
-    { id: 'wh-bo', name: 'Bogotá C', countryId: 2 },
+    { id: 'wh-sp', name: 'São Paulo A', countryCode: 'br' },
+    { id: 'wh-bo', name: 'Bogotá C', countryCode: 'co' },
   ],
 };
 
@@ -124,8 +123,8 @@ describe('LotsView', () => {
     const props = renderLots();
     fireEvent.click(screen.getByText('Filtrer'));
     const locationSelect = screen.getAllByRole('combobox')[0];
-    fireEvent.change(locationSelect, { target: { value: 'country:2' } });
-    expect(props.onLocation).toHaveBeenCalledWith('country:2');
+    fireEvent.change(locationSelect, { target: { value: 'country:co' } });
+    expect(props.onLocation).toHaveBeenCalledWith('country:co');
   });
 
   it('renders server pagination metadata and reports page intent', () => {

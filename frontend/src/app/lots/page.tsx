@@ -27,9 +27,9 @@ const PAGE_SIZE = 8;
 const SEARCH_DEBOUNCE_MS = 300;
 
 // Decode the location select value into the server filter params. The value is
-// `all`, `country:<id>` or `wh:<uuid>` (country > warehouse hierarchy).
-function locationParams(location: string): { countryId?: number; warehouseId?: string } {
-  if (location.startsWith('country:')) return { countryId: Number(location.slice(8)) };
+// `all`, `country:<code>` or `wh:<uuid>` (country > warehouse hierarchy).
+function locationParams(location: string): { country?: string; warehouseId?: string } {
+  if (location.startsWith('country:')) return { country: location.slice(8) };
   if (location.startsWith('wh:')) return { warehouseId: location.slice(3) };
   return {};
 }
@@ -100,7 +100,7 @@ export default function LotsPage() {
       apiClient,
       {
         status: statusFilter === 'all' ? undefined : (statusFilter as ApiLotStatus),
-        countryId: loc.countryId,
+        country: loc.country,
         warehouseId: loc.warehouseId,
         search: debouncedSearch || undefined,
         age: ageFilter === 'all' ? undefined : ageFilter,
