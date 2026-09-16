@@ -76,7 +76,7 @@ export default function WarehouseWatchlist({ exceptions }: WarehouseWatchlistPro
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-[#1E0F06] truncate">{e.warehouse.name}</div>
-                <div className="text-xs text-[#A08060]">{e.warehouse.lots} {t('lots_count')} · {e.warehouse.country}</div>
+                <div className="text-xs text-[#A08060]">{e.warehouse.lots} {t('lots_count')} · {t(e.warehouse.countryCode)}</div>
               </div>
               <Reading label={t('temperature')} dev={e.temp} unit="°C" display={e.warehouse.temp} vsIdeal={t('vs_ideal')} within={t('within_threshold')} />
               <Reading label={t('humidity')} dev={e.hum} unit="%" display={e.warehouse.hum} vsIdeal={t('vs_ideal')} within={t('within_threshold')} />

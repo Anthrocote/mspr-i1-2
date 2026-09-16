@@ -38,14 +38,16 @@ describe('Sidebar', () => {
     expect(screen.queryByText('Paramètres')).not.toBeInTheDocument();
   });
 
-  it('shows 248 badge on Gestion des Lots', () => {
+  it('no longer shows a hardcoded lots count badge', () => {
+    // The sidebar is pure navigation chrome and does not fetch; the honest lots
+    // total lives on the lots page, sourced from the siège.
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
-    expect(screen.getByText('248')).toBeInTheDocument();
+    expect(screen.queryByText('248')).not.toBeInTheDocument();
   });
 
-  it('shows 7 badge on Alertes', () => {
+  it('no longer shows a hardcoded alerts count badge', () => {
     render(<LanguageProvider><Sidebar /></LanguageProvider>);
-    expect(screen.getByText('7')).toBeInTheDocument();
+    expect(screen.queryByText('7')).not.toBeInTheDocument();
   });
 
   it('no longer shows the hardcoded conformity widget', () => {

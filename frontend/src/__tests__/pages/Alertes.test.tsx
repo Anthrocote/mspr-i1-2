@@ -1,70 +1,116 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AlertesPage from '@/app/alertes/page';
+import type { Alert } from '@/types';
+import type { AlertsPageResult } from '@/lib/api/queries';
+import { formatDateTime } from '@/lib/format';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SearchProvider } from '@/contexts/SearchContext';
+import * as queries from '@/lib/api/queries';
 
+jest.mock('@/lib/api/queries');
 
-describe('AlertesPage', () => {
-  it('renders all 7 alerts by default', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText('Toutes · 7')).toBeInTheDocument();
-    expect(screen.getByText('Lot périmé — LOT-BR-2023-00018')).toBeInTheDocument();
-    expect(screen.getByText('Lot périmé — LOT-EC-2023-00045')).toBeInTheDocument();
-    expect(screen.getByText('Température hors plage — Quito B')).toBeInTheDocument();
-    expect(screen.getByText('Humidité élevée — Bogotá C')).toBeInTheDocument();
-    expect(screen.getByText('Capteur dégradé — Guayaquil A')).toBeInTheDocument();
+const mockedQueries = queries as jest.Mocked<typeof queries>;
+
+function alert(over: Partial<Alert> & { id: string; type: string; subject: string }): Alert {
+  return {
+    severity: 'alerte',
+    icon: over.type === 'sensor_offline' ? '📡' : '🌡️',
+    bgColor: '#FEF3E2',
+    borderColor: '#B45309',
+    status: 'active',
+    triggeredAt: '2026-09-15T20:25:00.000Z',
+    resolvedAt: null,
+    ...over,
+  };
+}
+
+const A1_TRIGGERED = '2026-09-15T20:13:00.000Z';
+const A1_RESOLVED = '2026-09-15T20:15:00.000Z';
+
+const ALERTS: Alert[] = [
+  alert({ id: 'a1', type: 'sensor_offline', subject: 'Entrepôt Équateur', triggeredAt: A1_TRIGGERED, status: 'resolved', resolvedAt: A1_RESOLVED }),
+  alert({ id: 'a2', type: 'out_of_range', subject: 'Quito B', triggeredAt: '2026-09-15T20:25:00.000Z' }),
+];
+
+function pageResult(over: Partial<AlertsPageResult> = {}): AlertsPageResult {
+  return { alerts: ALERTS, page: 1, pages: 1, total: ALERTS.length, ...over };
+}
+
+function renderPage() {
+  return render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
+}
+
+describe('AlertesPage container', () => {
+  beforeEach(() => {
+    mockedQueries.fetchAlertsPage.mockResolvedValue(pageResult());
   });
 
-  it('renders filter chips with counts', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText('Critiques · 2')).toBeInTheDocument();
-    expect(screen.getByText('Avertissements · 5')).toBeInTheDocument();
+  afterEach(() => jest.clearAllMocks());
+
+  it('renders the current page of the alert history as a table', async () => {
+    renderPage();
+    expect(await screen.findByText('Capteur hors ligne')).toBeInTheDocument();
+    expect(screen.getByText('Condition hors plage')).toBeInTheDocument();
+    expect(screen.getByText('Entrepôt Équateur')).toBeInTheDocument();
+    expect(screen.getByText('Quito B')).toBeInTheDocument();
+    // Date AND time are shown, formatted in the active language.
+    expect(screen.getByText(formatDateTime(A1_TRIGGERED, 'fr'))).toBeInTheDocument();
   });
 
-  it('filters to only critiques when clicking Critiques filter', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    fireEvent.click(screen.getByText('Critiques · 2'));
-    expect(screen.getByText('Lot périmé — LOT-BR-2023-00018')).toBeInTheDocument();
-    expect(screen.getByText('Lot périmé — LOT-EC-2023-00045')).toBeInTheDocument();
-    expect(screen.queryByText('Température hors plage — Quito B')).not.toBeInTheDocument();
-    expect(screen.queryByText('Capteur dégradé — Guayaquil A')).not.toBeInTheDocument();
+  it('shows the total alert count', async () => {
+    renderPage();
+    expect(await screen.findByText('2 alertes')).toBeInTheDocument();
   });
 
-  it('filters to only avertissements when clicking Avertissements filter', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    fireEvent.click(screen.getByText('Avertissements · 5'));
-    expect(screen.queryByText('Lot périmé — LOT-BR-2023-00018')).not.toBeInTheDocument();
-    expect(screen.getByText('Température hors plage — Quito B')).toBeInTheDocument();
-    expect(screen.getByText('Humidité élevée — Bogotá C')).toBeInTheDocument();
-    expect(screen.getByText('Capteur dégradé — Guayaquil A')).toBeInTheDocument();
+  it('shows the resolution status of each alert', async () => {
+    renderPage();
+    await screen.findByText('Capteur hors ligne');
+    expect(screen.getByText('Résolue')).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
+    // The resolved alert shows its resolution time; the active one shows a dash.
+    expect(screen.getByText(formatDateTime(A1_RESOLVED, 'fr'))).toBeInTheDocument();
   });
 
-  it('shows alert descriptions', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText(/387 j de stockage/)).toBeInTheDocument();
-    expect(screen.getByText(/34°C relevé/)).toBeInTheDocument();
+  it('defaults to the full history (status=all)', async () => {
+    renderPage();
+    await screen.findByText('Capteur hors ligne');
+    expect(mockedQueries.fetchAlertsPage).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ status: 'all', page: 1 }),
+      expect.anything(),
+    );
   });
 
-  it('shows alert times', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    expect(screen.getByText('il y a 5 min')).toBeInTheDocument();
-    expect(screen.getByText('il y a 40 min')).toBeInTheDocument();
+  it('refetches with the chosen status when the filter changes', async () => {
+    renderPage();
+    fireEvent.click(await screen.findByText('Filtrer'));
+    const select = screen.getByDisplayValue('Tous les statuts');
+    fireEvent.change(select, { target: { value: 'resolved' } });
+    await waitFor(() =>
+      expect(mockedQueries.fetchAlertsPage).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ status: 'resolved', page: 1 }),
+        expect.anything(),
+      ),
+    );
   });
 
-  it('shows severity badges', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    const critiqueBadges = screen.getAllByText('Critique');
-    expect(critiqueBadges.length).toBe(2);
-    const alerteBadges = screen.getAllByText('Alerte');
-    expect(alerteBadges.length).toBe(5);
+  it('drives pagination from the server metadata', async () => {
+    mockedQueries.fetchAlertsPage.mockResolvedValue(pageResult({ page: 1, pages: 3, total: 30 }));
+    renderPage();
+    fireEvent.click(await screen.findByText('Suivant'));
+    await waitFor(() =>
+      expect(mockedQueries.fetchAlertsPage).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ page: 2 }),
+        expect.anything(),
+      ),
+    );
   });
 
-  it('exposes no write action (read-only siège view)', () => {
-    render(<LanguageProvider><SearchProvider><AlertesPage /></SearchProvider></LanguageProvider>);
-    expect(screen.queryByText('Traiter →')).not.toBeInTheDocument();
-    expect(screen.queryByText(/Résoudre/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Reporter/)).not.toBeInTheDocument();
-    // Only the three filter chips remain interactive; no per-alert button.
-    expect(screen.getAllByRole('button').length).toBe(3);
+  it('shows an error state when the fetch fails', async () => {
+    mockedQueries.fetchAlertsPage.mockRejectedValue(new Error('boom'));
+    renderPage();
+    expect(await screen.findByText(/Impossible de charger les données/)).toBeInTheDocument();
   });
 });

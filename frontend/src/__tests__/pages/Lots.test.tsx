@@ -1,17 +1,93 @@
-import { useEffect } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import LotsPage from '@/app/lots/page';
-import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
-import { SearchProvider, useSearch } from '@/contexts/SearchContext';
+import LotsView from '@/app/lots/LotsView';
+import type { BadgeVariant, CountryCode, Farm, Lot } from '@/types';
+import type { LotFilterOptions } from '@/lib/api/queries';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
-function renderLots() {
-  return render(
+// Inline presentation fixtures: the same adapted shape the queries produce.
+// LotsView is now a PURE view — the siège filters/sorts/paginates, so this test
+// only checks rendering of the given page, the sort/filter/page callbacks, and
+// the read-only detail. The fetch wiring lives in Lots.integration.test.tsx.
+const COUNTRY_LABEL: Record<CountryCode, string> = { br: 'Brésil', ec: 'Équateur', co: 'Colombie' };
+const COUNTRY_FLAG: Record<CountryCode, string> = { br: '🇧🇷', ec: '🇪🇨', co: '🇨🇴' };
+
+function lot(over: Partial<Lot> & { id: string; countryCode: CountryCode; warehouse: string }): Lot {
+  const { countryCode } = over;
+  return {
+    country: COUNTRY_LABEL[countryCode],
+    countryId: 1,
+    warehouseId: 'wh-uuid',
+    flag: COUNTRY_FLAG[countryCode],
+    exploitationId: '',
+    constitutedAtIso: '2023-01-05T00:00:00.000Z',
+    stays: [],
+    duration: '90 j',
+    durationDays: 90,
+    statusVariant: 'ok' as BadgeVariant,
+    durationVariant: '',
+    temp: '',
+    hum: '',
+    idealTemp: '',
+    idealHum: '',
+    ...over,
+  };
+}
+
+const LOTS: Lot[] = [
+  lot({
+    id: 'LOT-BR-2023-00018', countryCode: 'br', warehouse: 'São Paulo A', exploitationId: 'br-santa-lucia', duration: '387 j', durationDays: 387, statusVariant: 'err', durationVariant: 'err',
+    temp: '31°C', hum: '56%', idealTemp: '29°C ±3', idealHum: '55% ±2',
+    stays: [
+      { warehouse: 'Rio C', entreeIso: '2023-01-12T00:00:00.000Z', sortieIso: '2023-06-20T00:00:00.000Z' },
+      { warehouse: 'São Paulo A', entreeIso: '2023-06-21T00:00:00.000Z', sortieIso: null },
+    ],
+  }),
+  lot({ id: 'LOT-EC-2024-00107', countryCode: 'ec', warehouse: 'Quito B', duration: '240 j', durationDays: 240, statusVariant: 'warn', durationVariant: 'warn' }),
+  lot({ id: 'LOT-CO-2024-00342', countryCode: 'co', warehouse: 'Bogotá C', duration: '134 j', durationDays: 134 }),
+];
+
+const FARMS: Farm[] = [
+  { id: 'br-santa-lucia', name: 'Fazenda Santa Lúcia', countryCode: 'br', country: 'Brésil', flag: '🇧🇷', lots: 42 },
+];
+
+const FILTER_OPTIONS: LotFilterOptions = {
+  countries: [
+    { id: 1, code: 'br', name: 'Brésil', flag: '🇧🇷' },
+    { id: 2, code: 'co', name: 'Colombie', flag: '🇨🇴' },
+  ],
+  warehouses: [
+    { id: 'wh-sp', name: 'São Paulo A', countryId: 1 },
+    { id: 'wh-bo', name: 'Bogotá C', countryId: 2 },
+  ],
+};
+
+function renderLots(overrides: Partial<React.ComponentProps<typeof LotsView>> = {}) {
+  const props = {
+    lots: LOTS,
+    farms: FARMS,
+    page: 1,
+    pages: 1,
+    total: LOTS.length,
+    filterOptions: FILTER_OPTIONS,
+    location: 'all',
+    statusFilter: 'all' as const,
+    ageFilter: 'all' as const,
+    sortField: null,
+    sortOrder: 'asc' as const,
+    onLocation: jest.fn(),
+    onStatus: jest.fn(),
+    onAge: jest.fn(),
+    onSort: jest.fn(),
+    onReset: jest.fn(),
+    onPage: jest.fn(),
+    ...overrides,
+  };
+  render(
     <LanguageProvider>
-      <SearchProvider>
-        <LotsPage />
-      </SearchProvider>
+      <LotsView {...props} />
     </LanguageProvider>
   );
+  return props;
 }
 
 function openRow(id: string) {
@@ -19,20 +95,18 @@ function openRow(id: string) {
   if (row) fireEvent.click(row);
 }
 
-describe('LotsPage', () => {
-  // setLanguage() persists to localStorage; keep language state from leaking
-  // between tests.
+describe('LotsView', () => {
   afterEach(() => localStorage.clear());
 
-  it('renders the single Filtrer control and no create/quick-chip affordances', () => {
+  it('renders the current page of lots and the single Filtrer control', () => {
     renderLots();
     expect(screen.getByText('Filtrer')).toBeInTheDocument();
+    expect(screen.getByText('LOT-BR-2023-00018')).toBeInTheDocument();
+    expect(screen.getByText('LOT-EC-2024-00107')).toBeInTheDocument();
     expect(screen.queryByText('Nouveau Lot')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Tous les lots' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Alertes actives' })).not.toBeInTheDocument();
   });
 
-  it('renders table headers including the constitution date', () => {
+  it('renders sortable table headers including the constitution date', () => {
     renderLots();
     expect(screen.getByText('ID Lot')).toBeInTheDocument();
     expect(screen.getByText('Entrepôt')).toBeInTheDocument();
@@ -40,25 +114,25 @@ describe('LotsPage', () => {
     expect(screen.queryByText('Stocké le')).not.toBeInTheDocument();
   });
 
-  it('paginates: first page holds 8 lots, page 2 reveals the rest', () => {
-    renderLots();
-    expect(screen.getByText('LOT-BR-2023-00018')).toBeInTheDocument();
-    // 10 lots, page size 8 -> the last two are on page 2.
-    expect(screen.queryByText('LOT-BR-2024-00760')).not.toBeInTheDocument();
-    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('Suivant'));
-    expect(screen.getByText('LOT-BR-2024-00760')).toBeInTheDocument();
-    expect(screen.queryByText('LOT-BR-2023-00018')).not.toBeInTheDocument();
+  it('reports a sort intent when a sortable header is clicked', () => {
+    const props = renderLots();
+    fireEvent.click(screen.getByText('Durée'));
+    expect(props.onSort).toHaveBeenCalledWith('duration');
   });
 
-  it('filters by location through the consolidated Localisation select', () => {
-    renderLots();
+  it('reports a location filter intent through the Localisation select', () => {
+    const props = renderLots();
     fireEvent.click(screen.getByText('Filtrer'));
     const locationSelect = screen.getAllByRole('combobox')[0];
-    fireEvent.change(locationSelect, { target: { value: 'country:co' } });
-    expect(screen.getByText('LOT-CO-2024-00342')).toBeInTheDocument();
-    expect(screen.queryByText('LOT-BR-2023-00018')).not.toBeInTheDocument();
+    fireEvent.change(locationSelect, { target: { value: 'country:2' } });
+    expect(props.onLocation).toHaveBeenCalledWith('country:2');
+  });
+
+  it('renders server pagination metadata and reports page intent', () => {
+    const props = renderLots({ page: 1, pages: 2, total: 12 });
+    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Suivant'));
+    expect(props.onPage).toHaveBeenCalled();
   });
 
   it('opens a read-only detail view with the lot journey', () => {
@@ -66,18 +140,14 @@ describe('LotsPage', () => {
     openRow('LOT-BR-2023-00018');
     expect(screen.getByText('Retour aux lots')).toBeInTheDocument();
     expect(screen.getByText('Parcours du lot')).toBeInTheDocument();
-    // No write action on the detail view.
     expect(screen.queryByText('Valider conforme')).not.toBeInTheDocument();
-    expect(screen.queryByText('Marquer en transit')).not.toBeInTheDocument();
   });
 
   it('detail view shows the exploitation link and warehouse-stay history', () => {
     renderLots();
     openRow('LOT-BR-2023-00018');
-    // exploitationId br-santa-lucia -> Fazenda Santa Lúcia
     expect(screen.getByText(/Fazenda Santa Lúcia/)).toBeInTheDocument();
     expect(screen.getByText('Constitué')).toBeInTheDocument();
-    // This lot moved: it has a São Paulo A stay in its history.
     expect(screen.getByText('Entreposé · São Paulo A')).toBeInTheDocument();
   });
 
@@ -87,28 +157,6 @@ describe('LotsPage', () => {
     expect(screen.getByText('Conditions actuelles')).toBeInTheDocument();
     expect(screen.getByText('Température')).toBeInTheDocument();
     expect(screen.getByText('Humidité')).toBeInTheDocument();
-  });
-
-  it('searches on the translated labels the user actually sees', () => {
-    function Harness() {
-      const { setLanguage } = useLanguage();
-      const { setSearchQuery } = useSearch();
-      useEffect(() => {
-        setLanguage('en');
-        setSearchQuery('brazil');
-      }, [setLanguage, setSearchQuery]);
-      return <LotsPage />;
-    }
-    render(
-      <LanguageProvider>
-        <SearchProvider>
-          <Harness />
-        </SearchProvider>
-      </LanguageProvider>
-    );
-    // In English the country renders as "Brazil"; searching it must find BR lots.
-    expect(screen.getByText('LOT-BR-2023-00018')).toBeInTheDocument();
-    expect(screen.queryByText('LOT-EC-2024-00107')).not.toBeInTheDocument();
   });
 
   it('returns to the list from the detail view', () => {

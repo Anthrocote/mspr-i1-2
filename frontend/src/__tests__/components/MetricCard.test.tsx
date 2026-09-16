@@ -6,7 +6,6 @@ describe('MetricCard', () => {
   const defaultProps = {
     label: 'Total Lots',
     value: '248',
-    trend: '↑ +12 ce mois',
     icon: <svg data-testid="icon" />,
   };
 
@@ -18,11 +17,6 @@ describe('MetricCard', () => {
   it('renders the value', () => {
     render(<MetricCard {...defaultProps} />);
     expect(screen.getByText('248')).toBeInTheDocument();
-  });
-
-  it('renders the trend text', () => {
-    render(<MetricCard {...defaultProps} />);
-    expect(screen.getByText('↑ +12 ce mois')).toBeInTheDocument();
   });
 
   it('renders the icon', () => {

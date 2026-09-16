@@ -17,10 +17,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "exploitations": "Exploitations",
 
     // Page Subtitles
-    "dashboard_subtitle": "Vue globale · 3 pays · 248 lots en stock",
+    "dashboard_subtitle": "Vue globale consolidée",
     "lots_subtitle": "Traçabilité & rotation des stocks",
     "iot_subtitle": "Température & humidité des entrepôts en temps réel",
-    "alertes_subtitle": "Alertes actives · vue consolidée",
+    "alertes_subtitle": "Historique complet · toutes les alertes",
     "exploitations_subtitle": "Brésil · Équateur · Colombie",
 
     // Dashboard Metrics
@@ -100,6 +100,22 @@ export const translations: Record<Language, Record<string, string>> = {
     "all": "Toutes",
     "critical": "Critiques",
     "warnings": "Avertissements",
+    "severity": "Sévérité",
+    "alert_type": "Type",
+    "alert_subject": "Sujet",
+    "triggered_at": "Déclenchée le",
+    "resolved_at": "Résolue le",
+    "status_active": "Active",
+    "status_resolved": "Résolue",
+    "alert_status_all": "Tous les statuts",
+    "alert_status_active": "Actives",
+    "alert_status_resolved": "Résolues",
+    "date_from": "Du",
+    "date_to": "Au",
+    "no_alerts_match": "Aucune alerte ne correspond à ces filtres.",
+    "alert_type_out_of_range": "Condition hors plage",
+    "alert_type_expired_lot": "Lot périmé",
+    "alert_type_sensor_offline": "Capteur hors ligne",
 
     // Farms Page
     "farms_count": "exploitations",
@@ -111,7 +127,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "out_of_range": "Hors plage",
     "farm": "Exploitation",
     "lots_supplied": "Lots fournis",
-    "certification": "Certification",
 
     "language": "Langue",
 
@@ -121,6 +136,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     "open_menu": "Ouvrir le menu",
     "search": "Rechercher…",
+    "loading": "Chargement…",
+    "load_error": "Impossible de charger les données. Vérifiez la connexion au serveur.",
     "page_not_found": "Page non trouvée",
     "error_404": "Erreur 404",
     "back_to_dashboard": "Retour au tableau de bord",
@@ -142,10 +159,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "exploitations": "Farms",
 
     // Page Subtitles
-    "dashboard_subtitle": "Global view · 3 countries · 248 lots in stock",
+    "dashboard_subtitle": "Consolidated global view",
     "lots_subtitle": "Traceability & stock rotation",
     "iot_subtitle": "Warehouse temperature & humidity in real time",
-    "alertes_subtitle": "Active alerts · consolidated view",
+    "alertes_subtitle": "Full history · all alerts",
     "exploitations_subtitle": "Brazil · Ecuador · Colombia",
 
     // Dashboard Metrics
@@ -225,6 +242,22 @@ export const translations: Record<Language, Record<string, string>> = {
     "all": "All",
     "critical": "Critical",
     "warnings": "Warnings",
+    "severity": "Severity",
+    "alert_type": "Type",
+    "alert_subject": "Subject",
+    "triggered_at": "Triggered at",
+    "resolved_at": "Resolved at",
+    "status_active": "Active",
+    "status_resolved": "Resolved",
+    "alert_status_all": "All statuses",
+    "alert_status_active": "Active",
+    "alert_status_resolved": "Resolved",
+    "date_from": "From",
+    "date_to": "To",
+    "no_alerts_match": "No alert matches these filters.",
+    "alert_type_out_of_range": "Out-of-range condition",
+    "alert_type_expired_lot": "Expired lot",
+    "alert_type_sensor_offline": "Sensor offline",
 
     // Farms Page
     "farms_count": "farms",
@@ -236,7 +269,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "out_of_range": "Out of range",
     "farm": "Farm",
     "lots_supplied": "Lots supplied",
-    "certification": "Certification",
 
     "language": "Language",
 
@@ -246,6 +278,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     "open_menu": "Open menu",
     "search": "Search…",
+    "loading": "Loading…",
+    "load_error": "Could not load data. Check the server connection.",
     "page_not_found": "Page not found",
     "error_404": "Error 404",
     "back_to_dashboard": "Back to dashboard",
@@ -267,10 +301,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "exploitations": "Explotaciones",
 
     // Page Subtitles
-    "dashboard_subtitle": "Vista global · 3 países · 248 lotes en stock",
+    "dashboard_subtitle": "Vista global consolidada",
     "lots_subtitle": "Trazabilidad y rotación de stock",
     "iot_subtitle": "Temperatura y humedad de almacenes en tiempo real",
-    "alertes_subtitle": "Alertas activas · vista consolidada",
+    "alertes_subtitle": "Historial completo · todas las alertas",
     "exploitations_subtitle": "Brasil · Ecuador · Colombia",
 
     // Dashboard Metrics
@@ -350,6 +384,22 @@ export const translations: Record<Language, Record<string, string>> = {
     "all": "Todas",
     "critical": "Críticas",
     "warnings": "Advertencias",
+    "severity": "Severidad",
+    "alert_type": "Tipo",
+    "alert_subject": "Sujeto",
+    "triggered_at": "Activada el",
+    "resolved_at": "Resuelta el",
+    "status_active": "Activa",
+    "status_resolved": "Resuelta",
+    "alert_status_all": "Todos los estados",
+    "alert_status_active": "Activas",
+    "alert_status_resolved": "Resueltas",
+    "date_from": "Desde",
+    "date_to": "Hasta",
+    "no_alerts_match": "Ninguna alerta coincide con estos filtros.",
+    "alert_type_out_of_range": "Condición fuera de rango",
+    "alert_type_expired_lot": "Lote caducado",
+    "alert_type_sensor_offline": "Sensor desconectado",
 
     // Farms Page
     "farms_count": "explotaciones",
@@ -361,7 +411,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "out_of_range": "Fuera de rango",
     "farm": "Explotación",
     "lots_supplied": "Lotes suministrados",
-    "certification": "Certificación",
 
     "language": "Idioma",
 
@@ -371,6 +420,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     "open_menu": "Abrir menú",
     "search": "Buscar…",
+    "loading": "Cargando…",
+    "load_error": "No se pudieron cargar los datos. Comprueba la conexión con el servidor.",
     "page_not_found": "Página no encontrada",
     "error_404": "Error 404",
     "back_to_dashboard": "Volver al panel",
