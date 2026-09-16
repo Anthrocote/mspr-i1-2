@@ -20,13 +20,10 @@ const LOT: Lot = {
   flag: '🇧🇷',
   warehouse: 'Entrepôt Manaus',
   exploitationId: 'exp-1',
-  constitutedAt: '17 juil. 2026',
   constitutedAtIso: '2026-07-17T00:00:00.000Z',
-  storageDate: '17 juil. 2026',
   stays: [],
   duration: '60 j',
   durationDays: 60,
-  status: 'Conforme',
   statusVariant: 'ok',
   durationVariant: '',
   temp: '',
@@ -107,7 +104,7 @@ describe('LotsPage container', () => {
   it('fetches the detail (stays + conditions) when a lot is opened', async () => {
     mockedQueries.fetchLotDetail.mockResolvedValue({
       lot: LOT,
-      stays: [{ warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: null, entreeIso: '2026-07-17T00:00:00.000Z', sortieIso: null }],
+      stays: [{ warehouse: 'Entrepôt Manaus', entreeIso: '2026-07-17T00:00:00.000Z', sortieIso: null }],
       temp: 31,
       hum: 56,
     });

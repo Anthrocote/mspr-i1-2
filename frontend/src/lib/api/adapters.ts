@@ -11,7 +11,6 @@ import type {
   CountryCode,
   Farm,
   Lot,
-  LotStatus,
   StatusDistribution,
   Warehouse,
   WarehouseStay,
@@ -43,12 +42,6 @@ const CODE_TO_FLAG: Record<CountryCode, string> = {
   co: '🇨🇴',
 };
 
-const CODE_TO_LABEL_FR: Record<CountryCode, string> = {
-  br: 'Brésil',
-  ec: 'Équateur',
-  co: 'Colombie',
-};
-
 export function isoToCountryCode(iso: string): CountryCode {
   const code = ISO3_TO_CODE[iso?.toUpperCase?.()];
   if (!code) {
@@ -67,39 +60,17 @@ export function countryFlag(code: CountryCode): string {
   return CODE_TO_FLAG[code];
 }
 
-export function countryLabelFr(code: CountryCode): string {
-  return CODE_TO_LABEL_FR[code];
-}
-
 // ── Lot status enum mapping ──
+// The lot status is rendered via the badge variant + t('status_' + variant);
+// only the variant mapping is needed here.
 const STATUS_TO_VARIANT: Record<ApiLotStatus, BadgeVariant> = {
   compliant: 'ok',
   in_alert: 'warn',
   expired: 'err',
 };
 
-const STATUS_TO_LOT_STATUS: Record<ApiLotStatus, LotStatus> = {
-  compliant: 'conforme',
-  in_alert: 'alerte',
-  expired: 'perime',
-};
-
-const STATUS_TO_LABEL_FR: Record<ApiLotStatus, string> = {
-  compliant: 'Conforme',
-  in_alert: 'En Alerte',
-  expired: 'Périmé',
-};
-
 export function lotStatusToVariant(status: ApiLotStatus): BadgeVariant {
   return STATUS_TO_VARIANT[status];
-}
-
-export function lotStatusToPresentation(status: ApiLotStatus): LotStatus {
-  return STATUS_TO_LOT_STATUS[status];
-}
-
-export function lotStatusLabelFr(status: ApiLotStatus): string {
-  return STATUS_TO_LABEL_FR[status];
 }
 
 // ── Numeric readings → display strings ──
@@ -110,22 +81,6 @@ export function formatTemperature(celsius: number): string {
 
 export function formatHumidity(percent: number): string {
   return `${Math.round(percent)}%`;
-}
-
-// ── ISO 8601 → French short date (e.g. "5 jan. 2023") ──
-// Uses UTC calendar parts so the rendered day is stable regardless of the
-// runtime timezone.
-const MONTHS_FR = [
-  'jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin',
-  'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.',
-];
-
-export function formatDateFr(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    throw new Error(`Invalid ISO date: ${iso}`);
-  }
-  return `${d.getUTCDate()} ${MONTHS_FR[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
 // Whole-day span between two instants (UTC), used for lot storage duration.
@@ -200,67 +155,45 @@ export function adaptWarehouse(input: WarehouseCompositionInput): Warehouse {
 }
 
 // ── Alerts ──
-// The wire alert carries only { type, triggeredAt, lot, warehouse }. Severity,
-// title and colours are DERIVED from the (closed) set of alert types. The
-// description is a minimal factual line built from the relation — the siège has
-// no free-text description field, so nothing is invented beyond formatting.
+// The wire alert carries only { type, triggeredAt, resolvedAt, lot, warehouse }.
+// Severity, icon and colours are DERIVED from the (closed) set of alert types;
+// the type label and dates are translated/formatted by the views at render time
+// from the raw `type` and ISO instants exposed here.
 const ALERT_TYPE_TO_SEVERITY: Record<ApiAlertType, AlertSeverity> = {
   expired_lot: 'critique',
   out_of_range: 'alerte',
   sensor_offline: 'alerte',
 };
 
-// Title and (optional) icon per alert type; the icon falls back to the severity's.
-const ALERT_TITLE: Record<ApiAlertType, string> = {
-  expired_lot: 'Lot périmé',
-  out_of_range: 'Condition hors plage',
-  sensor_offline: 'Capteur hors ligne',
-};
-
+// Optional per-type icon; falls back to the severity's icon.
 const ALERT_ICON: Partial<Record<ApiAlertType, string>> = {
   sensor_offline: '📡',
 };
 
 const SEVERITY_PRESENTATION: Record<AlertSeverity, {
-  level: string;
   icon: string;
-  variant: BadgeVariant;
   bgColor: string;
   borderColor: string;
 }> = {
-  critique: { level: 'Critique', icon: '⛔', variant: 'err', bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
-  alerte: { level: 'Alerte', icon: '🌡️', variant: 'warn', bgColor: '#FEF3E2', borderColor: '#B45309' },
+  critique: { icon: '⛔', bgColor: '#FEF2F2', borderColor: '#9B1C1C' },
+  alerte: { icon: '🌡️', bgColor: '#FEF3E2', borderColor: '#B45309' },
 };
 
 export function adaptAlert(alert: ApiAlert): Alert {
   const severity = ALERT_TYPE_TO_SEVERITY[alert.type];
   const p = SEVERITY_PRESENTATION[severity];
-  const subject = alert.lot?.label ?? alert.warehouse?.name ?? '—';
-  const typeLabel = ALERT_TITLE[alert.type];
-  const title = `${typeLabel} — ${subject}`;
-  const resolved = alert.resolvedAt !== null;
 
   return {
     id: alert.uuid,
     severity,
-    level: p.level,
     icon: ALERT_ICON[alert.type] ?? p.icon,
-    variant: p.variant,
-    title,
-    description: `Déclenchée le ${formatDateFr(alert.triggeredAt)}`,
-    time: formatDateFr(alert.triggeredAt),
     bgColor: p.bgColor,
     borderColor: p.borderColor,
-    // Raw enum + raw ISO instants kept so views translate the type label AND
-    // format the dates in the active language at render time (the French strings
-    // above are the `fr` canonical fallback).
     type: alert.type,
     triggeredAt: alert.triggeredAt,
     resolvedAt: alert.resolvedAt,
-    // History-table fields.
-    typeLabel,
-    subject,
-    status: resolved ? 'resolved' : 'active',
+    subject: alert.lot?.label ?? alert.warehouse?.name ?? '—',
+    status: alert.resolvedAt !== null ? 'resolved' : 'active',
   };
 }
 
@@ -271,14 +204,8 @@ export function adaptAlert(alert: ApiAlert): Alert {
 // history are NOT on the summary — they are filled only in the detail path (see
 // `adaptStays` + `fetchLotDetail`), so they stay empty here.
 export function adaptLotSummary(api: ApiLotSummary): Lot {
-  const statusLabel = lotStatusLabelFr(api.status);
   const statusVariant = lotStatusToVariant(api.status);
   const countryCode = api.country ? isoToCountryCode(api.country.isoCode) : DEFAULT_COUNTRY_CODE;
-
-  const constitutedAt = api.constitutedAt ? formatDateFr(api.constitutedAt) : '';
-  const storageDate = api.arrivedAt
-    ? formatDateFr(api.arrivedAt)
-    : constitutedAt;
 
   return {
     id: api.label,
@@ -291,13 +218,10 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
     flag: api.country ? countryFlag(countryCode) : '',
     warehouse: api.currentWarehouse?.name ?? '',
     exploitationId: api.exploitation?.uuid ?? '',
-    constitutedAt,
     constitutedAtIso: api.constitutedAt,
-    storageDate,
     stays: [],
     duration: api.durationDays != null ? `${api.durationDays} j` : '',
     durationDays: api.durationDays ?? 0,
-    status: statusLabel,
     statusVariant,
     durationVariant: statusVariant === 'err' ? 'err' : statusVariant === 'warn' ? 'warn' : '',
     temp: '',
@@ -329,8 +253,6 @@ export function adaptExploitation(api: ApiExploitation): Farm {
 export function adaptStays(history: ApiStorageHistoryEntry[]): WarehouseStay[] {
   return history.map((entry) => ({
     warehouse: entry.warehouse.name,
-    entree: formatDateFr(entry.arrivedAt),
-    sortie: entry.departedAt ? formatDateFr(entry.departedAt) : null,
     entreeIso: entry.arrivedAt,
     sortieIso: entry.departedAt,
   }));

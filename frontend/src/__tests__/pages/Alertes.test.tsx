@@ -11,19 +11,10 @@ jest.mock('@/lib/api/queries');
 
 const mockedQueries = queries as jest.Mocked<typeof queries>;
 
-function alert(over: Partial<Alert> & { id: string; typeLabel: string; subject: string }): Alert {
-  const type = over.typeLabel === 'Capteur hors ligne' ? 'sensor_offline'
-    : over.typeLabel === 'Lot périmé' ? 'expired_lot'
-    : 'out_of_range';
+function alert(over: Partial<Alert> & { id: string; type: string; subject: string }): Alert {
   return {
     severity: 'alerte',
-    level: 'Alerte',
-    icon: '🌡️',
-    variant: 'warn',
-    type,
-    title: `${over.typeLabel} — ${over.subject}`,
-    description: '',
-    time: '5 jan. 2026',
+    icon: over.type === 'sensor_offline' ? '📡' : '🌡️',
     bgColor: '#FEF3E2',
     borderColor: '#B45309',
     status: 'active',
@@ -37,8 +28,8 @@ const A1_TRIGGERED = '2026-09-15T20:13:00.000Z';
 const A1_RESOLVED = '2026-09-15T20:15:00.000Z';
 
 const ALERTS: Alert[] = [
-  alert({ id: 'a1', typeLabel: 'Capteur hors ligne', subject: 'Entrepôt Équateur', icon: '📡', triggeredAt: A1_TRIGGERED, status: 'resolved', resolvedAt: A1_RESOLVED }),
-  alert({ id: 'a2', typeLabel: 'Condition hors plage', subject: 'Quito B', triggeredAt: '2026-09-15T20:25:00.000Z' }),
+  alert({ id: 'a1', type: 'sensor_offline', subject: 'Entrepôt Équateur', triggeredAt: A1_TRIGGERED, status: 'resolved', resolvedAt: A1_RESOLVED }),
+  alert({ id: 'a2', type: 'out_of_range', subject: 'Quito B', triggeredAt: '2026-09-15T20:25:00.000Z' }),
 ];
 
 function pageResult(over: Partial<AlertsPageResult> = {}): AlertsPageResult {

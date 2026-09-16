@@ -28,9 +28,8 @@ export interface Warehouse {
 // entries themselves are recorded by the local country tier.
 export interface WarehouseStay {
   warehouse: string;
-  entree: string;
-  sortie: string | null;
-  // Raw ISO instants; views format them in the active language.
+  // Raw ISO instants; views format them in the active language. `sortieIso` is
+  // null while the lot is still in that warehouse.
   entreeIso: string;
   sortieIso: string | null;
 }
@@ -50,16 +49,12 @@ export interface Lot {
   flag: string;
   warehouse: string;
   exploitationId: string;
-  // Date the lot was constituted at the exploitation. Distinct from a warehouse
-  // entry date: duration is counted from here, not from the current storage.
-  constitutedAt: string;
-  // Raw ISO of the constitution date; views format it in the active language.
+  // Raw ISO of the constitution date (at the exploitation); views format it in
+  // the active language. Duration is counted from here, not the current storage.
   constitutedAtIso: string | null;
-  storageDate: string;
   stays: WarehouseStay[];
   duration: string;
   durationDays: number;
-  status: string;
   statusVariant: BadgeVariant;
   durationVariant: '' | 'warn' | 'err';
   temp: string;
@@ -73,24 +68,17 @@ export type AlertStatus = 'active' | 'resolved';
 export interface Alert {
   id: string;
   severity: AlertSeverity;
-  level: string;
+  // Presentation derived from severity/type: emoji icon + card colours.
   icon: string;
-  title: string;
-  description: string;
-  time: string;
-  variant: BadgeVariant;
   bgColor: string;
   borderColor: string;
   // Raw wire alert type (out_of_range | expired_lot | sensor_offline). Views
-  // translate it at render time via t('alert_type_' + type); `typeLabel`/`title`
-  // hold the French canonical fallback.
+  // translate it at render time via t('alert_type_' + type).
   type: string;
   // Raw ISO instants; views format them in the active language (date + hour).
   triggeredAt: string;
   resolvedAt: string | null;
-  // History-table fields (Alertes page). `title` bundles type + subject for the
-  // dashboard card; the table keeps them apart.
-  typeLabel: string;
+  // Subject = lot label or warehouse name.
   subject: string;
   status: AlertStatus;
 }

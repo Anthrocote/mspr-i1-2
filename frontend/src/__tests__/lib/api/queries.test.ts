@@ -228,7 +228,7 @@ describe('fetchLotDetail', () => {
 
     expect(result.lot.id).toBe('LOT-BRA-2025-001');
     expect(result.stays).toEqual([
-      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: null, entreeIso: '2026-07-17T00:00:00Z', sortieIso: null },
+      { warehouse: 'Entrepôt Manaus', entreeIso: '2026-07-17T00:00:00Z', sortieIso: null },
     ]);
     expect(result.temp).toBe(31.4);
     expect(result.hum).toBe(56.8);
@@ -272,6 +272,7 @@ describe('fetchRecentAlerts', () => {
 
     expect(alerts.map((a) => a.id)).toEqual(['a-new', 'a-old']);
     expect(alerts[0].severity).toBe('critique');
-    expect(alerts[0].title).toBe('Lot périmé — LOT-X');
+    expect(alerts[0].type).toBe('expired_lot');
+    expect(alerts[0].subject).toBe('LOT-X');
   });
 });

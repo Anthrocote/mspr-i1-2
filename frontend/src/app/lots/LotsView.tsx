@@ -309,7 +309,7 @@ export default function LotsView({
                   </CountryTag>
                 </div>
                 <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
-                <div className="text-[13px] text-[#443524]">{l.constitutedAtIso ? formatDate(l.constitutedAtIso, language) : l.constitutedAt}</div>
+                <div className="text-[13px] text-[#443524]">{l.constitutedAtIso ? formatDate(l.constitutedAtIso, language) : ''}</div>
                 <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>{l.duration}</div>
                 <div>
                   <Badge variant={l.statusVariant}>{t('status_' + l.statusVariant)}</Badge>
@@ -371,7 +371,7 @@ function FilterSelect({ label, value, onChange, children }: { label: string; val
 function LotDetail({ lot, farms, onBack }: { lot: Lot; farms: Farm[]; onBack: () => void }) {
   const { t, language } = useLanguage();
   const exploitation = farms.find((e) => e.id === lot.exploitationId);
-  const constitutedDisplay = lot.constitutedAtIso ? formatDate(lot.constitutedAtIso, language) : lot.constitutedAt;
+  const constitutedDisplay = lot.constitutedAtIso ? formatDate(lot.constitutedAtIso, language) : '';
   return (
     <motion.div
       className="max-w-[1100px] mx-auto w-full"

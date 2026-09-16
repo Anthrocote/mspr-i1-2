@@ -5,16 +5,12 @@ import {
   adaptStays,
   adaptWarehouse,
   countryFlag,
-  countryLabelFr,
   daysBetween,
   distributionFromCounts,
-  formatDateFr,
   formatHumidity,
   formatTemperature,
   HUM_TOLERANCE,
   isoToCountryCode,
-  lotStatusLabelFr,
-  lotStatusToPresentation,
   lotStatusToVariant,
   TEMP_TOLERANCE,
   toleranceBand,
@@ -42,13 +38,10 @@ describe('country iso mapping', () => {
     expect(() => isoToCountryCode('USA')).toThrow(/Unknown iso/);
   });
 
-  it('exposes flag and French label per code', () => {
+  it('exposes a flag per code', () => {
     expect(countryFlag('br')).toBe('🇧🇷');
     expect(countryFlag('ec')).toBe('🇪🇨');
     expect(countryFlag('co')).toBe('🇨🇴');
-    expect(countryLabelFr('br')).toBe('Brésil');
-    expect(countryLabelFr('ec')).toBe('Équateur');
-    expect(countryLabelFr('co')).toBe('Colombie');
   });
 });
 
@@ -57,18 +50,6 @@ describe('lot status enum mapping', () => {
     expect(lotStatusToVariant('compliant')).toBe('ok');
     expect(lotStatusToVariant('in_alert')).toBe('warn');
     expect(lotStatusToVariant('expired')).toBe('err');
-  });
-
-  it('maps to presentation LotStatus', () => {
-    expect(lotStatusToPresentation('compliant')).toBe('conforme');
-    expect(lotStatusToPresentation('in_alert')).toBe('alerte');
-    expect(lotStatusToPresentation('expired')).toBe('perime');
-  });
-
-  it('maps to French labels', () => {
-    expect(lotStatusLabelFr('compliant')).toBe('Conforme');
-    expect(lotStatusLabelFr('in_alert')).toBe('En Alerte');
-    expect(lotStatusLabelFr('expired')).toBe('Périmé');
   });
 });
 
@@ -86,17 +67,6 @@ describe('numeric formatting', () => {
 });
 
 describe('date formatting', () => {
-  it('formats ISO 8601 to French short date (UTC calendar)', () => {
-    expect(formatDateFr('2023-01-05T10:00:00+00:00')).toBe('5 jan. 2023');
-    expect(formatDateFr('2024-02-25T00:00:00Z')).toBe('25 fév. 2024');
-    expect(formatDateFr('2024-08-07T23:30:00Z')).toBe('7 août 2024');
-    expect(formatDateFr('2024-12-31T12:00:00Z')).toBe('31 déc. 2024');
-  });
-
-  it('throws on an invalid date', () => {
-    expect(() => formatDateFr('not-a-date')).toThrow(/Invalid ISO date/);
-  });
-
   it('computes whole-day spans', () => {
     expect(daysBetween('2024-01-01T00:00:00Z', '2024-01-11T00:00:00Z')).toBe(10);
     // Never negative even if the range is inverted.
@@ -192,7 +162,7 @@ describe('alert adaptation', () => {
     warehouse: null,
   };
 
-  it('derives critical severity + title for an expired lot', () => {
+  it('derives critical severity for an expired lot', () => {
     const alert: ApiAlert = {
       ...base,
       type: 'expired_lot',
@@ -200,12 +170,11 @@ describe('alert adaptation', () => {
     };
     const a = adaptAlert(alert);
     expect(a.severity).toBe('critique');
-    expect(a.variant).toBe('err');
-    expect(a.title).toBe('Lot périmé — LOT-BRA-2025-001');
-    expect(a.time).toBe('5 jan. 2025');
+    expect(a.type).toBe('expired_lot');
+    expect(a.subject).toBe('LOT-BRA-2025-001');
   });
 
-  it('derives warning severity + title for an out-of-range condition', () => {
+  it('derives warning severity for an out-of-range condition', () => {
     const alert: ApiAlert = {
       ...base,
       type: 'out_of_range',
@@ -214,11 +183,11 @@ describe('alert adaptation', () => {
     };
     const a = adaptAlert(alert);
     expect(a.severity).toBe('alerte');
-    expect(a.variant).toBe('warn');
-    expect(a.title).toBe('Condition hors plage — Entrepôt Quito');
+    expect(a.type).toBe('out_of_range');
+    expect(a.subject).toBe('Entrepôt Quito');
   });
 
-  it('derives a sensor-offline title and icon', () => {
+  it('derives a sensor-offline icon', () => {
     const alert: ApiAlert = {
       ...base,
       type: 'sensor_offline',
@@ -227,11 +196,10 @@ describe('alert adaptation', () => {
     };
     const a = adaptAlert(alert);
     expect(a.severity).toBe('alerte');
-    expect(a.title).toBe('Capteur hors ligne — Entrepôt Quito');
     expect(a.icon).toBe('📡');
   });
 
-  it('splits type + subject and marks an active alert', () => {
+  it('exposes the raw type + ISO and marks an active alert', () => {
     const a = adaptAlert({
       ...base,
       type: 'out_of_range',
@@ -239,7 +207,6 @@ describe('alert adaptation', () => {
       warehouse: { uuid: 'wh-1', name: 'Entrepôt Quito' },
     });
     expect(a.type).toBe('out_of_range');
-    expect(a.typeLabel).toBe('Condition hors plage');
     expect(a.subject).toBe('Entrepôt Quito');
     expect(a.status).toBe('active');
     expect(a.resolvedAt).toBeNull();
@@ -285,12 +252,10 @@ describe('enriched lot adaptation', () => {
     expect(lot.flag).toBe('🇧🇷');
     expect(lot.warehouse).toBe('Entrepôt Manaus');
     expect(lot.exploitationId).toBe('exp-1');
-    expect(lot.constitutedAt).toBe('17 juil. 2026');
-    // storageDate comes from the warehouse arrival date, not the constitution.
-    expect(lot.storageDate).toBe('1 août 2026');
+    // Raw ISO exposed; the view localises it.
+    expect(lot.constitutedAtIso).toBe('2026-07-17T00:00:00+00:00');
     expect(lot.durationDays).toBe(60);
     expect(lot.duration).toBe('60 j');
-    expect(lot.status).toBe('Conforme');
     expect(lot.statusVariant).toBe('ok');
     expect(lot.durationVariant).toBe('');
     // Conditions + stays are detail-only, never on the list summary.
@@ -304,11 +269,6 @@ describe('enriched lot adaptation', () => {
   it('derives err/warn duration variants from the status', () => {
     expect(adaptLotSummary({ ...ENRICHED_LOT, status: 'expired' }).durationVariant).toBe('err');
     expect(adaptLotSummary({ ...ENRICHED_LOT, status: 'in_alert' }).durationVariant).toBe('warn');
-  });
-
-  it('falls back to the constitution date for storage when arrival is null', () => {
-    const lot = adaptLotSummary({ ...ENRICHED_LOT, arrivedAt: null });
-    expect(lot.storageDate).toBe('17 juil. 2026');
   });
 
   it('degrades gracefully when every nullable relation/date is null', () => {
@@ -327,8 +287,7 @@ describe('enriched lot adaptation', () => {
     expect(lot.flag).toBe('');
     expect(lot.warehouse).toBe('');
     expect(lot.exploitationId).toBe('');
-    expect(lot.constitutedAt).toBe('');
-    expect(lot.storageDate).toBe('');
+    expect(lot.constitutedAtIso).toBeNull();
     expect(lot.durationDays).toBe(0);
     expect(lot.duration).toBe('');
   });
@@ -360,8 +319,8 @@ describe('storage history adaptation', () => {
       { warehouse: { uuid: 'w-2', name: 'Entrepôt Rio' }, arrivedAt: '2026-08-02T00:00:00Z', departedAt: null },
     ]);
     expect(stays).toEqual([
-      { warehouse: 'Entrepôt Manaus', entree: '17 juil. 2026', sortie: '1 août 2026', entreeIso: '2026-07-17T00:00:00Z', sortieIso: '2026-08-01T00:00:00Z' },
-      { warehouse: 'Entrepôt Rio', entree: '2 août 2026', sortie: null, entreeIso: '2026-08-02T00:00:00Z', sortieIso: null },
+      { warehouse: 'Entrepôt Manaus', entreeIso: '2026-07-17T00:00:00Z', sortieIso: '2026-08-01T00:00:00Z' },
+      { warehouse: 'Entrepôt Rio', entreeIso: '2026-08-02T00:00:00Z', sortieIso: null },
     ]);
   });
 });

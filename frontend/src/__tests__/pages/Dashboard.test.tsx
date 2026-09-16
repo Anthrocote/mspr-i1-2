@@ -29,15 +29,14 @@ const WAREHOUSES: Warehouse[] = [
 
 function alert(id: string, severity: Alert['severity'], title: string): Alert {
   const p = severity === 'critique'
-    ? { level: 'Critique', icon: '⛔', variant: 'err' as const, bgColor: '#FEF2F2', borderColor: '#9B1C1C' }
-    : { level: 'Alerte', icon: '🌡️', variant: 'warn' as const, bgColor: '#FEF3E2', borderColor: '#B45309' };
+    ? { icon: '⛔', bgColor: '#FEF2F2', borderColor: '#9B1C1C' }
+    : { icon: '🌡️', bgColor: '#FEF3E2', borderColor: '#B45309' };
   const [typeLabel, subject] = title.split(' — ');
   const type = typeLabel === 'Lot périmé' ? 'expired_lot'
     : typeLabel === 'Capteur hors ligne' ? 'sensor_offline'
     : 'out_of_range';
   return {
-    id, severity, title, description: 'Déclenchée le 5 jan. 2025', time: '5 jan. 2025',
-    type, typeLabel, subject: subject ?? '—', status: 'active' as const,
+    id, severity, type, subject: subject ?? '—', status: 'active' as const,
     triggeredAt: '2025-01-05T09:00:00.000Z', resolvedAt: null,
     ...p,
   };
