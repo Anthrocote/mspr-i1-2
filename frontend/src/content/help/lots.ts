@@ -31,7 +31,7 @@ export const lots: HelpArticle = {
         'Suivez le parcours du lot : sa constitution, puis chaque entrepôt traversé avec ses dates d\'entrée et de sortie.',
         'Repérez les conditions actuelles : la température et l\'humidité du lot, comparées à leurs valeurs idéales.',
       ] },
-      { kind: 'callout', tone: 'info', text: 'Règle FIFO : expédiez d\'abord les lots les plus anciens. C\'est le sens du tri par défaut et de l\'alerte « périmé ».' },
+      { kind: 'callout', tone: 'info', text: 'Expédiez toujours en priorité les lots les plus anciens : c\'est le sens du tri par défaut et de l\'alerte « périmé ».' },
     ],
     en: [
       { kind: 'heading', text: 'What the Lots page is for' },
@@ -56,7 +56,7 @@ export const lots: HelpArticle = {
         'Follow the lot\'s journey: its constitution, then each warehouse it went through with entry and exit dates.',
         'Check the current conditions: the lot\'s temperature and humidity, compared to their ideal values.',
       ] },
-      { kind: 'callout', tone: 'info', text: 'FIFO rule: ship the oldest lots first. That is what the default sort and the "expired" alert are for.' },
+      { kind: 'callout', tone: 'info', text: 'Always ship the oldest lots first: that is what the default sort and the "expired" alert are for.' },
     ],
     es: [
       { kind: 'heading', text: 'Para qué sirve la página de Lotes' },
@@ -81,7 +81,7 @@ export const lots: HelpArticle = {
         'Siga el recorrido del lote: su constitución y cada almacén por el que pasó con sus fechas de entrada y salida.',
         'Consulte las condiciones actuales: la temperatura y la humedad del lote, comparadas con sus valores ideales.',
       ] },
-      { kind: 'callout', tone: 'info', text: 'Regla FIFO: expida primero los lotes más antiguos. Ese es el sentido del orden predeterminado y de la alerta «caducado».' },
+      { kind: 'callout', tone: 'info', text: 'Expida siempre primero los lotes más antiguos: ese es el sentido del orden predeterminado y de la alerta «caducado».' },
     ],
   },
 };
