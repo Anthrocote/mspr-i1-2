@@ -240,8 +240,8 @@ export default function LotsView({
                 <FilterSelect label={t('location')} value={location} onChange={onLocation}>
                   <option value="all">{t('all_locations')}</option>
                   {filterOptions.countries.map((c) => (
-                    <optgroup key={c.code} label={`${c.flag} ${c.name}`}>
-                      <option value={`country:${c.code}`}>{c.name} {t('location_all_suffix')}</option>
+                    <optgroup key={c.code} label={`${c.flag} ${t(c.code)}`}>
+                      <option value={`country:${c.code}`}>{t(c.code)} {t('location_all_suffix')}</option>
                       {filterOptions.warehouses
                         .filter((w) => w.countryCode === c.code)
                         .map((w) => (

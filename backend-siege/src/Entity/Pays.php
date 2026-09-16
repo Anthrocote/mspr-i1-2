@@ -21,11 +21,6 @@ class Pays
     #[Assert\Length(exactly: 2)]
     private string $code;
 
-    #[ORM\Column(length: 50)]
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 50)]
-    private string $nom;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $apiUrl = null;
 
@@ -53,9 +48,6 @@ class Pays
 
     public function getCode(): string { return $this->code; }
     public function setCode(string $code): static { $this->code = $code; return $this; }
-
-    public function getNom(): string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
 
     public function getApiUrl(): ?string { return $this->apiUrl; }
     public function setApiUrl(?string $apiUrl): static { $this->apiUrl = $apiUrl; return $this; }

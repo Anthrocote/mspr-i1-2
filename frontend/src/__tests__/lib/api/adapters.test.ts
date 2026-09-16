@@ -89,7 +89,6 @@ describe('distribution from counts', () => {
 
 const COUNTRY_BR: ApiCountry = {
   code: 'br',
-  name: 'Brésil',
   idealTemperature: 29,
   idealHumidity: 55,
   lastSyncedAt: null,
@@ -105,7 +104,7 @@ const WAREHOUSE_BR: ApiWarehouse = {
   active: true,
   status: 'online',
   statusAt: '2025-01-01T00:00:00Z',
-  country: { code: 'br', name: 'Brésil' },
+  country: { code: 'br' },
 };
 
 describe('warehouse composition', () => {
@@ -128,7 +127,6 @@ describe('warehouse composition', () => {
     expect(w.name).toBe('Entrepôt Manaus');
     expect(w.countryCode).toBe('br');
     expect(w.flag).toBe('🇧🇷');
-    expect(w.country).toBe('Brésil');
     expect(w.tempNum).toBe(31.2);
     expect(w.humNum).toBe(56.8);
     expect(w.temp).toBe('31°C');
@@ -230,7 +228,7 @@ const ENRICHED_LOT: ApiLotSummary = {
   syncedAt: '2026-09-15T10:00:00+00:00',
   product: { uuid: 'p-1', name: 'Arabica Minas Gerais' },
   currentWarehouse: { uuid: 'wh-1', name: 'Entrepôt Manaus' },
-  country: { code: 'br', name: 'Brésil' },
+  country: { code: 'br' },
   exploitation: { uuid: 'exp-1', name: 'Fazenda Serra Verde' },
   constitutedAt: '2026-07-17T00:00:00+00:00',
   arrivedAt: '2026-08-01T00:00:00+00:00',
@@ -243,7 +241,6 @@ describe('enriched lot adaptation', () => {
     expect(lot.id).toBe('LOT-BRA-2025-001');
     expect(lot.uuid).toBe('lot-uuid-1');
     expect(lot.countryCode).toBe('br');
-    expect(lot.country).toBe('Brésil');
     expect(lot.flag).toBe('🇧🇷');
     expect(lot.warehouse).toBe('Entrepôt Manaus');
     expect(lot.exploitationId).toBe('exp-1');
@@ -275,9 +272,8 @@ describe('enriched lot adaptation', () => {
       arrivedAt: null,
       durationDays: null,
     });
-    // No country -> safe placeholder code but blank name/flag, nothing invented.
+    // No country -> safe placeholder code but blank flag, nothing invented.
     expect(lot.countryCode).toBe('br');
-    expect(lot.country).toBe('');
     expect(lot.flag).toBe('');
     expect(lot.warehouse).toBe('');
     expect(lot.exploitationId).toBe('');
@@ -290,7 +286,7 @@ describe('exploitation adaptation', () => {
   const api: ApiExploitation = {
     uuid: 'exp-1',
     name: 'Fazenda Serra Verde',
-    country: { code: 'br', name: 'Brésil' },
+    country: { code: 'br' },
     lotsCount: 7,
   };
 
@@ -299,7 +295,6 @@ describe('exploitation adaptation', () => {
     expect(farm.id).toBe('exp-1');
     expect(farm.name).toBe('Fazenda Serra Verde');
     expect(farm.countryCode).toBe('br');
-    expect(farm.country).toBe('Brésil');
     expect(farm.flag).toBe('🇧🇷');
     expect(farm.lots).toBe(7);
   });

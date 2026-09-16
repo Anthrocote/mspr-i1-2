@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Country\CountryName;
 use App\Message\SyncPaysMessage;
 use App\Pagination\Pagination;
 use App\Repository\PaysRepository;
@@ -38,7 +39,7 @@ class SyncController extends AbstractController
 
         $this->bus->dispatch(new SyncPaysMessage($code));
 
-        return $this->json(['message' => 'Sync triggered for ' . $pays->getNom()], 202);
+        return $this->json(['message' => 'Sync triggered for ' . CountryName::of($pays->getCode())], 202);
     }
 
     #[Route('/status', name: 'status', methods: ['GET'])]
@@ -53,7 +54,6 @@ class SyncController extends AbstractController
 
         $data = array_map(fn ($p) => [
             'code'         => $p->getCode(),
-            'name'         => $p->getNom(),
             'configured'   => $p->getApiUrl() !== null,
             'lastSyncedAt' => $p->getLastSyncedAt()?->format(\DateTimeInterface::ATOM),
         ], $result['items']);

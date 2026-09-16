@@ -14,7 +14,6 @@ const LOT: Lot = {
   id: 'LOT-BRA-2025-001',
   uuid: 'lot-uuid-1',
   countryCode: 'br',
-  country: 'Brésil',
   warehouseId: 'wh-manaus',
   flag: '🇧🇷',
   warehouse: 'Entrepôt Manaus',
@@ -34,15 +33,14 @@ const FARM: Farm = {
   id: 'exp-1',
   name: 'Fazenda Serra Verde',
   countryCode: 'br',
-  country: 'Brésil',
   flag: '🇧🇷',
   lots: 7,
 };
 
 const FILTER_OPTIONS: LotFilterOptions = {
   countries: [
-    { code: 'br', name: 'Brésil', flag: '🇧🇷' },
-    { code: 'co', name: 'Colombie', flag: '🇨🇴' },
+    { code: 'br', flag: '🇧🇷' },
+    { code: 'co', flag: '🇨🇴' },
   ],
   warehouses: [{ id: 'wh-manaus', name: 'Entrepôt Manaus', countryCode: 'br' }],
 };

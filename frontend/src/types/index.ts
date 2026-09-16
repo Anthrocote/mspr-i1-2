@@ -6,7 +6,6 @@ export type CountryCode = 'br' | 'ec' | 'co';
 export interface Warehouse {
   id: string;
   name: string;
-  country: string;
   countryCode: CountryCode;
   flag: string;
   temp: string;
@@ -40,7 +39,6 @@ export interface Lot {
   // key everything on the human-readable label `id`); never rendered.
   uuid?: string;
   countryCode: CountryCode;
-  country: string;
   // Siège current-warehouse uuid, used to drive the server-side location filter
   // (warehouse_id). Null when the relation is unresolved at the source.
   warehouseId: string | null;
@@ -85,7 +83,6 @@ export interface Farm {
   id: string;
   name: string;
   countryCode: CountryCode;
-  country: string;
   flag: string;
   lots: number;
 }

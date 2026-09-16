@@ -68,7 +68,6 @@ class EntrepotController extends AbstractController
             'statusAt'     => $e->getDernierStatutLe()?->format(\DateTimeInterface::ATOM),
             'country'      => [
                 'code' => $e->getPays()->getCode(),
-                'name' => $e->getPays()->getNom(),
             ],
         ];
     }

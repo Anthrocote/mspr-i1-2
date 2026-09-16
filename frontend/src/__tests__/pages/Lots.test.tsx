@@ -8,13 +8,11 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 // LotsView is now a PURE view — the siège filters/sorts/paginates, so this test
 // only checks rendering of the given page, the sort/filter/page callbacks, and
 // the read-only detail. The fetch wiring lives in Lots.integration.test.tsx.
-const COUNTRY_LABEL: Record<CountryCode, string> = { br: 'Brésil', ec: 'Équateur', co: 'Colombie' };
 const COUNTRY_FLAG: Record<CountryCode, string> = { br: '🇧🇷', ec: '🇪🇨', co: '🇨🇴' };
 
 function lot(over: Partial<Lot> & { id: string; countryCode: CountryCode; warehouse: string }): Lot {
   const { countryCode } = over;
   return {
-    country: COUNTRY_LABEL[countryCode],
     warehouseId: 'wh-uuid',
     flag: COUNTRY_FLAG[countryCode],
     exploitationId: '',
@@ -45,13 +43,13 @@ const LOTS: Lot[] = [
 ];
 
 const FARMS: Farm[] = [
-  { id: 'br-santa-lucia', name: 'Fazenda Santa Lúcia', countryCode: 'br', country: 'Brésil', flag: '🇧🇷', lots: 42 },
+  { id: 'br-santa-lucia', name: 'Fazenda Santa Lúcia', countryCode: 'br', flag: '🇧🇷', lots: 42 },
 ];
 
 const FILTER_OPTIONS: LotFilterOptions = {
   countries: [
-    { code: 'br', name: 'Brésil', flag: '🇧🇷' },
-    { code: 'co', name: 'Colombie', flag: '🇨🇴' },
+    { code: 'br', flag: '🇧🇷' },
+    { code: 'co', flag: '🇨🇴' },
   ],
   warehouses: [
     { id: 'wh-sp', name: 'São Paulo A', countryCode: 'br' },

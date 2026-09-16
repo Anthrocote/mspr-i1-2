@@ -101,10 +101,10 @@ def stack():
         # would: Brazil instrumented (sync URL/key point at the pays container),
         # Ecuador and Colombia declared with thresholds but no sync URL.
         _compose("exec", "-T", "db", "psql", "-U", "app", "-d", "futurekawa_siege", "-c",
-                 "INSERT INTO pays (code, nom, temp_ideale, humidite_ideale, api_url, api_key) VALUES "
-                 "('br', 'Brésil', 29, 55, 'http://pays:8000', 'e2e-secret'), "
-                 "('ec', 'Équateur', 31, 60, NULL, NULL), "
-                 "('co', 'Colombie', 26, 80, NULL, NULL);")
+                 "INSERT INTO pays (code, temp_ideale, humidite_ideale, api_url, api_key) VALUES "
+                 "('br', 29, 55, 'http://pays:8000', 'e2e-secret'), "
+                 "('ec', 31, 60, NULL, NULL), "
+                 "('co', 26, 80, NULL, NULL);")
 
         yield
     finally:

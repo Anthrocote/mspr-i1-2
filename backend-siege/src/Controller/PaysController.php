@@ -30,7 +30,6 @@ class PaysController extends AbstractController
 
         $data = array_map(fn ($p) => [
             'code'             => $p->getCode(),
-            'name'             => $p->getNom(),
             'idealTemperature' => $p->getTempIdeale(),
             'idealHumidity'    => $p->getHumiditeIdeale(),
             'lastSyncedAt'     => $p->getLastSyncedAt()?->format(\DateTimeInterface::ATOM),
@@ -52,7 +51,6 @@ class PaysController extends AbstractController
 
         return $this->json([
             'code'             => $pays->getCode(),
-            'name'             => $pays->getNom(),
             'idealTemperature' => $pays->getTempIdeale(),
             'idealHumidity'    => $pays->getHumiditeIdeale(),
             'lastSyncedAt'     => $pays->getLastSyncedAt()?->format(\DateTimeInterface::ATOM),

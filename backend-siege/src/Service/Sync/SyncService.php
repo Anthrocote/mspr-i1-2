@@ -2,6 +2,7 @@
 
 namespace App\Service\Sync;
 
+use App\Country\CountryName;
 use App\Entity\Alerte;
 use App\Entity\Entrepot;
 use App\Entity\Exploitation;
@@ -69,10 +70,10 @@ class SyncService
             $pays->setLastSyncedAt(new \DateTimeImmutable());
             $this->em->flush();
 
-            $this->logger->info('Sync OK pour le pays {pays}', ['pays' => $pays->getNom()]);
+            $this->logger->info('Sync OK pour le pays {pays}', ['pays' => CountryName::of($pays->getCode())]);
         } catch (\Throwable $e) {
             $this->logger->error('Sync échouée pour {pays} : {msg}', [
-                'pays' => $pays->getNom(),
+                'pays' => CountryName::of($pays->getCode()),
                 'msg'  => $e->getMessage(),
             ]);
 
@@ -135,7 +136,7 @@ class SyncService
             if ($entrepot === null) {
                 $entrepot = (new Entrepot())
                     ->setUuid(Uuid::fromString($item['uuid']))
-                    ->setNom($item['name'] ?? ('Entrepôt ' . $pays->getNom()))
+                    ->setNom($item['name'] ?? ('Entrepôt ' . CountryName::of($pays->getCode())))
                     ->setNumeroRue(0)
                     ->setAdresse('')
                     ->setCodePostal(0)
@@ -336,7 +337,7 @@ class SyncService
         if ($entrepot === null) {
             $entrepot = (new Entrepot())
                 ->setUuid(Uuid::fromString($entrepotUuid))
-                ->setNom('Entrepôt ' . $pays->getNom())
+                ->setNom('Entrepôt ' . CountryName::of($pays->getCode()))
                 ->setNumeroRue(0)
                 ->setAdresse('')
                 ->setCodePostal(0)

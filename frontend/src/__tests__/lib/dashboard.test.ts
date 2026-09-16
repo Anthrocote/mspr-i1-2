@@ -3,7 +3,7 @@ import type { Warehouse, Alert } from '@/types';
 
 function warehouse(over: Partial<Warehouse>): Warehouse {
   return {
-    id: 'w', name: 'W', country: 'Brésil', countryCode: 'br', flag: '🇧🇷',
+    id: 'w', name: 'W', countryCode: 'br', flag: '🇧🇷',
     temp: '29°C', hum: '55%', tempNum: 29, humNum: 55,
     tempRange: [26, 32], humRange: [53, 57],
     idealTemp: '29°C ±3', idealHum: '55% ±2', lots: 10,
