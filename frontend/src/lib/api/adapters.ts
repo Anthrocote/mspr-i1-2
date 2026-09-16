@@ -216,7 +216,6 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
     exploitationId: api.exploitation?.uuid ?? '',
     constitutedAtIso: api.constitutedAt,
     stays: [],
-    duration: api.durationDays != null ? `${api.durationDays} j` : '',
     durationDays: api.durationDays ?? 0,
     statusVariant,
     durationVariant: statusVariant === 'err' ? 'err' : statusVariant === 'warn' ? 'warn' : '',

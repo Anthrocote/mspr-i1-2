@@ -172,7 +172,7 @@ describe('fetchLots', () => {
       countryCode: 'br',
       warehouse: 'Entrepôt Manaus',
       exploitationId: 'exp-1',
-      duration: '60 j',
+      durationDays: 60,
       statusVariant: 'ok',
     });
   });

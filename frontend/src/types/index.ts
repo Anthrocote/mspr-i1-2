@@ -51,7 +51,7 @@ export interface Lot {
   // the active language. Duration is counted from here, not the current storage.
   constitutedAtIso: string | null;
   stays: WarehouseStay[];
-  duration: string;
+  // Storage age in whole days; the view appends the localized unit (t('day_unit')).
   durationDays: number;
   statusVariant: BadgeVariant;
   durationVariant: '' | 'warn' | 'err';

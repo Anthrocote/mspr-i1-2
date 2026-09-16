@@ -21,7 +21,6 @@ const LOT: Lot = {
   exploitationId: 'exp-1',
   constitutedAtIso: '2026-07-17T00:00:00.000Z',
   stays: [],
-  duration: '60 j',
   durationDays: 60,
   statusVariant: 'ok',
   durationVariant: '',

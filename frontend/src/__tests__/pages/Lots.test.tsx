@@ -20,7 +20,6 @@ function lot(over: Partial<Lot> & { id: string; countryCode: CountryCode; wareho
     exploitationId: '',
     constitutedAtIso: '2023-01-05T00:00:00.000Z',
     stays: [],
-    duration: '90 j',
     durationDays: 90,
     statusVariant: 'ok' as BadgeVariant,
     durationVariant: '',
@@ -34,15 +33,15 @@ function lot(over: Partial<Lot> & { id: string; countryCode: CountryCode; wareho
 
 const LOTS: Lot[] = [
   lot({
-    id: 'LOT-BR-2023-00018', countryCode: 'br', warehouse: 'São Paulo A', exploitationId: 'br-santa-lucia', duration: '387 j', durationDays: 387, statusVariant: 'err', durationVariant: 'err',
+    id: 'LOT-BR-2023-00018', countryCode: 'br', warehouse: 'São Paulo A', exploitationId: 'br-santa-lucia', durationDays: 387, statusVariant: 'err', durationVariant: 'err',
     temp: '31°C', hum: '56%', idealTemp: '29°C ±3', idealHum: '55% ±2',
     stays: [
       { warehouse: 'Rio C', entreeIso: '2023-01-12T00:00:00.000Z', sortieIso: '2023-06-20T00:00:00.000Z' },
       { warehouse: 'São Paulo A', entreeIso: '2023-06-21T00:00:00.000Z', sortieIso: null },
     ],
   }),
-  lot({ id: 'LOT-EC-2024-00107', countryCode: 'ec', warehouse: 'Quito B', duration: '240 j', durationDays: 240, statusVariant: 'warn', durationVariant: 'warn' }),
-  lot({ id: 'LOT-CO-2024-00342', countryCode: 'co', warehouse: 'Bogotá C', duration: '134 j', durationDays: 134 }),
+  lot({ id: 'LOT-EC-2024-00107', countryCode: 'ec', warehouse: 'Quito B', durationDays: 240, statusVariant: 'warn', durationVariant: 'warn' }),
+  lot({ id: 'LOT-CO-2024-00342', countryCode: 'co', warehouse: 'Bogotá C', durationDays: 134 }),
 ];
 
 const FARMS: Farm[] = [

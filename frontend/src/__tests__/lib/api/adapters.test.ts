@@ -250,7 +250,6 @@ describe('enriched lot adaptation', () => {
     // Raw ISO exposed; the view localises it.
     expect(lot.constitutedAtIso).toBe('2026-07-17T00:00:00+00:00');
     expect(lot.durationDays).toBe(60);
-    expect(lot.duration).toBe('60 j');
     expect(lot.statusVariant).toBe('ok');
     expect(lot.durationVariant).toBe('');
     // Conditions + stays are detail-only, never on the list summary.
@@ -284,7 +283,6 @@ describe('enriched lot adaptation', () => {
     expect(lot.exploitationId).toBe('');
     expect(lot.constitutedAtIso).toBeNull();
     expect(lot.durationDays).toBe(0);
-    expect(lot.duration).toBe('');
   });
 });
 

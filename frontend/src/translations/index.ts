@@ -33,6 +33,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "close_menu": "Fermer le menu",
     "collapse_menu": "Réduire le menu",
     "expand_menu": "Agrandir le menu",
+    "day_unit": "j",
 
     // Dashboard Metrics
     "total_lots": "Total Lots",
@@ -186,6 +187,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "close_menu": "Close menu",
     "collapse_menu": "Collapse menu",
     "expand_menu": "Expand menu",
+    "day_unit": "d",
 
     // Dashboard Metrics
     "total_lots": "Total Lots",
@@ -339,6 +341,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "close_menu": "Cerrar el menú",
     "collapse_menu": "Contraer el menú",
     "expand_menu": "Ampliar el menú",
+    "day_unit": "d",
 
     // Dashboard Metrics
     "total_lots": "Total Lotes",

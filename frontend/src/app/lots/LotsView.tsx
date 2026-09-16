@@ -318,7 +318,7 @@ export default function LotsView({
                 </div>
                 <div className="text-[13px] text-[#443524]">{l.warehouse}</div>
                 <div className="text-[13px] text-[#443524]">{l.constitutedAtIso ? formatDate(l.constitutedAtIso, language) : ''}</div>
-                <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>{l.duration}</div>
+                <div className={`text-[13px] font-semibold ${durationColor(l.durationVariant)}`}>{l.durationDays > 0 ? `${l.durationDays} ${t('day_unit')}` : ''}</div>
                 <div>
                   <Badge variant={l.statusVariant}>{t('status_' + l.statusVariant)}</Badge>
                 </div>
@@ -416,7 +416,7 @@ function LotDetail({ lot, farms, onBack }: { lot: Lot; farms: Farm[]; onBack: ()
               <DetailField label={t('constituted_on')} value={constitutedDisplay} />
               <DetailField
                 label={t('duration_in_stock')}
-                value={lot.duration}
+                value={lot.durationDays > 0 ? `${lot.durationDays} ${t('day_unit')}` : ''}
                 valueColor={lot.durationVariant === 'err' ? '#9B1C1C' : lot.durationVariant === 'warn' ? '#B45309' : '#1E0F06'}
                 bold
               />
