@@ -105,7 +105,7 @@ describe('fetchWarehouseConditions', () => {
                 postalCode: 69000,
                 city: 'Manaus',
                 active: true,
-                country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+                country: { code: 'br', name: 'Brésil' },
               },
             ]),
           ),
@@ -113,7 +113,7 @@ describe('fetchWarehouseConditions', () => {
       }
       if (/\/api\/countries/.test(url)) {
         return Promise.resolve(
-          json(page([{ id: 1, name: 'Brésil', isoCode: 'BRA', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null }])),
+          json(page([{ code: 'br', name: 'Brésil', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null }])),
         );
       }
       if (/measurements/.test(url)) {
@@ -150,7 +150,7 @@ const ENRICHED_LOT = {
   syncedAt: '2026-09-15T10:00:00+00:00',
   product: { uuid: 'p-1', name: 'Arabica' },
   currentWarehouse: { uuid: 'wh-1', name: 'Entrepôt Manaus' },
-  country: { id: 1, name: 'Brésil', isoCode: 'BRA' },
+  country: { code: 'br', name: 'Brésil' },
   exploitation: { uuid: 'exp-1', name: 'Fazenda Serra Verde' },
   constitutedAt: '2026-07-17T00:00:00+00:00',
   arrivedAt: '2026-07-17T00:00:00+00:00',
@@ -184,7 +184,7 @@ describe('fetchExploitations', () => {
       {
         match: /\/api\/exploitations/,
         body: page([
-          { uuid: 'exp-1', name: 'Fazenda Serra Verde', country: { id: 1, name: 'Brésil', isoCode: 'BRA' }, lotsCount: 7 },
+          { uuid: 'exp-1', name: 'Fazenda Serra Verde', country: { code: 'br', name: 'Brésil' }, lotsCount: 7 },
         ]),
       },
     ]);
@@ -212,9 +212,9 @@ describe('fetchLotDetail', () => {
     };
     const fetchMock = jest.fn((url: string) => {
       if (/\/api\/lots\/lot-1/.test(url)) return Promise.resolve(json(detail));
-      // getCountry(1) -> ideal band source.
-      if (/\/api\/countries\/1/.test(url)) {
-        return Promise.resolve(json({ id: 1, name: 'Brésil', isoCode: 'BRA', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null }));
+      // getCountry('br') -> ideal band source.
+      if (/\/api\/countries\/br/.test(url)) {
+        return Promise.resolve(json({ code: 'br', name: 'Brésil', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null }));
       }
       // Single measurement -> probe returns it directly.
       if (/measurements/.test(url)) {
@@ -241,7 +241,7 @@ describe('fetchLotDetail', () => {
     const detail = { ...ENRICHED_LOT, currentWarehouse: null, storageHistory: [] };
     const fetchMock = router([
       { match: /\/api\/lots\/lot-1/, body: detail },
-      { match: /\/api\/countries\/1/, body: { id: 1, name: 'Brésil', isoCode: 'BRA', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null } },
+      { match: /\/api\/countries\/br/, body: { code: 'br', name: 'Brésil', idealTemperature: 29, idealHumidity: 55, lastSyncedAt: null } },
     ]);
     const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock as unknown as typeof fetch });
 

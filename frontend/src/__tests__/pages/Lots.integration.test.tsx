@@ -15,7 +15,6 @@ const LOT: Lot = {
   uuid: 'lot-uuid-1',
   countryCode: 'br',
   country: 'Brésil',
-  countryId: 1,
   warehouseId: 'wh-manaus',
   flag: '🇧🇷',
   warehouse: 'Entrepôt Manaus',
@@ -43,10 +42,10 @@ const FARM: Farm = {
 
 const FILTER_OPTIONS: LotFilterOptions = {
   countries: [
-    { id: 1, code: 'br', name: 'Brésil', flag: '🇧🇷' },
-    { id: 2, code: 'co', name: 'Colombie', flag: '🇨🇴' },
+    { code: 'br', name: 'Brésil', flag: '🇧🇷' },
+    { code: 'co', name: 'Colombie', flag: '🇨🇴' },
   ],
-  warehouses: [{ id: 'wh-manaus', name: 'Entrepôt Manaus', countryId: 1 }],
+  warehouses: [{ id: 'wh-manaus', name: 'Entrepôt Manaus', countryCode: 'br' }],
 };
 
 function renderPage() {
@@ -79,11 +78,11 @@ describe('LotsPage container', () => {
     renderPage();
     fireEvent.click(await screen.findByText('Filtrer'));
     const locationSelect = screen.getAllByRole('combobox')[0];
-    fireEvent.change(locationSelect, { target: { value: 'country:2' } });
+    fireEvent.change(locationSelect, { target: { value: 'country:co' } });
     await waitFor(() =>
       expect(mockedQueries.fetchLotsServer).toHaveBeenCalledWith(
         expect.anything(),
-        expect.objectContaining({ countryId: 2, page: 1 }),
+        expect.objectContaining({ country: 'co', page: 1 }),
         expect.anything(),
       ),
     );

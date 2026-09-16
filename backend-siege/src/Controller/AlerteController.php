@@ -25,7 +25,7 @@ class AlerteController extends AbstractController
     #[OA\Get(path: '/api/alerts', summary: 'List alerts (newest first), filterable by status/type/country/date')]
     #[OA\Parameter(name: 'status',     in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['active', 'resolved', 'all'], default: 'active'))]
     #[OA\Parameter(name: 'type',       in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
-    #[OA\Parameter(name: 'country_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'country',    in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: '2-letter ISO country code')]
     #[OA\Parameter(name: 'from',       in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date-time'))]
     #[OA\Parameter(name: 'to',         in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date-time'))]
     #[OA\Parameter(name: 'page',       in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))]
@@ -35,7 +35,7 @@ class AlerteController extends AbstractController
     {
         $status     = $request->query->get('status', AlerteRepository::STATUS_ACTIVE);
         $type       = $request->query->get('type');
-        $paysId     = $request->query->get('country_id');
+        $paysCode   = $request->query->get('country');
         $from       = $this->parseDate($request->query->get('from'));
         $to         = $this->parseDate($request->query->get('to'));
         $pagination = Pagination::fromRequest($request);
@@ -43,7 +43,7 @@ class AlerteController extends AbstractController
         $result = $this->alerteRepository->findFiltered(
             $status,
             $type,
-            $paysId !== null ? (int) $paysId : null,
+            $paysCode !== null ? (string) $paysCode : null,
             $from,
             $to,
             $pagination->getLimit(),

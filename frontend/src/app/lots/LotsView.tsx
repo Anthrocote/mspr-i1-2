@@ -71,7 +71,7 @@ export interface LotsViewProps {
   filterOptions: LotFilterOptions;
   // Filter/sort state (owned by the container so the server query is the single
   // source of truth).
-  location: string; // 'all' | `country:${id}` | `wh:${uuid}`
+  location: string; // 'all' | `country:${code}` | `wh:${uuid}`
   statusFilter: LotStatusFilter;
   ageFilter: LotAgeChoice;
   sortField: LotSortField | null;
@@ -240,10 +240,10 @@ export default function LotsView({
                 <FilterSelect label={t('location')} value={location} onChange={onLocation}>
                   <option value="all">{t('all_locations')}</option>
                   {filterOptions.countries.map((c) => (
-                    <optgroup key={c.id} label={`${c.flag} ${c.name}`}>
-                      <option value={`country:${c.id}`}>{c.name} {t('location_all_suffix')}</option>
+                    <optgroup key={c.code} label={`${c.flag} ${c.name}`}>
+                      <option value={`country:${c.code}`}>{c.name} {t('location_all_suffix')}</option>
                       {filterOptions.warehouses
-                        .filter((w) => w.countryId === c.id)
+                        .filter((w) => w.countryCode === c.code)
                         .map((w) => (
                           <option key={w.id} value={`wh:${w.id}`}>{w.name}</option>
                         ))}

@@ -15,7 +15,7 @@ import {
   distributionFromCounts,
   formatHumidity,
   formatTemperature,
-  isoToCountryCode,
+  toCountryCode,
   HUM_TOLERANCE,
   TEMP_TOLERANCE,
 } from './adapters';
@@ -75,13 +75,13 @@ export async function fetchWarehouseConditions(
     client.getCountries({ limit: 200 }, options),
   ]);
 
-  const countryById = new Map(countriesPage.items.map((c) => [c.id, c]));
+  const countryByCode = new Map(countriesPage.items.map((c) => [c.code, c]));
 
   return Promise.all(
     warehousesPage.items.map(async (warehouse) => {
-      const country = countryById.get(warehouse.country.id);
+      const country = countryByCode.get(warehouse.country.code);
       if (!country) {
-        throw new Error(`Country ${warehouse.country.id} missing for warehouse ${warehouse.uuid}`);
+        throw new Error(`Country ${warehouse.country.code} missing for warehouse ${warehouse.uuid}`);
       }
       const [latest, lotsPage] = await Promise.all([
         fetchLatestMeasurement(client, warehouse.uuid, options),
@@ -110,7 +110,8 @@ export async function fetchWarehouseMeasurements(
 // Per-country roll-up for the exploitations page. Every figure is sourced:
 //   - ideal temp/humidity from /api/countries;
 //   - lots / warehouses / alerts counts from the pagination total of a size-1
-//     query filtered by `country_id` (a verified filter on all three routes);
+//     query filtered by `country` (the 2-letter code, a verified filter on all
+//     three routes);
 //   - farms counted client-side from the exploitations list (the exploitations
 //     route exposes no verified country filter, so grouping the fetched farms is
 //     the honest source).
@@ -141,11 +142,11 @@ export async function fetchCountrySummaries(
 
   return Promise.all(
     countriesPage.items.map(async (country) => {
-      const code = isoToCountryCode(country.isoCode);
+      const code = toCountryCode(country.code);
       const [lots, warehouses, alerts] = await Promise.all([
-        client.getLots({ country_id: country.id, limit: 1, page: 1 }, options),
-        client.getWarehouses({ country_id: country.id, limit: 1, page: 1 }, options),
-        client.getAlerts({ country_id: country.id, limit: 1, page: 1 }, options),
+        client.getLots({ country: country.code, limit: 1, page: 1 }, options),
+        client.getWarehouses({ country: country.code, limit: 1, page: 1 }, options),
+        client.getAlerts({ country: country.code, limit: 1, page: 1 }, options),
       ]);
       return {
         countryCode: code,
@@ -250,7 +251,7 @@ export type SortOrder = 'asc' | 'desc';
 
 export interface LotsQuery {
   status?: ApiLotStatus;
-  countryId?: number;
+  country?: string;
   warehouseId?: string;
   search?: string;
   age?: LotAgeFilter;
@@ -274,7 +275,7 @@ export async function fetchLotsServer(
 ): Promise<LotsPageResult> {
   const params: QueryParams = {
     status: query.status,
-    country_id: query.countryId,
+    country: query.country,
     warehouse_id: query.warehouseId,
     search: query.search,
     age: query.age,
@@ -296,7 +297,6 @@ export async function fetchLotsServer(
 // current page no longer contains every country/warehouse, so the filter is
 // sourced from the dedicated list endpoints instead of the page on screen.
 export interface LotFilterCountry {
-  id: number;
   code: CountryCode;
   name: string;
   flag: string;
@@ -304,7 +304,7 @@ export interface LotFilterCountry {
 export interface LotFilterWarehouse {
   id: string; // uuid
   name: string;
-  countryId: number;
+  countryCode: CountryCode;
 }
 export interface LotFilterOptions {
   countries: LotFilterCountry[];
@@ -321,13 +321,13 @@ export async function fetchLotFilterOptions(
   ]);
   return {
     countries: countries.items.map((c) => {
-      const code = isoToCountryCode(c.isoCode);
-      return { id: c.id, code, name: c.name, flag: countryFlag(code) };
+      const code = toCountryCode(c.code);
+      return { code, name: c.name, flag: countryFlag(code) };
     }),
     warehouses: warehouses.items.map((w) => ({
       id: w.uuid,
       name: w.name,
-      countryId: w.country.id,
+      countryCode: toCountryCode(w.country.code),
     })),
   };
 }
@@ -371,7 +371,7 @@ export async function fetchLotDetail(
   let idealTemp: string | undefined;
   let idealHum: string | undefined;
   if (detail.country) {
-    const country = await client.getCountry(detail.country.id, options);
+    const country = await client.getCountry(detail.country.code, options);
     idealTemp = `${formatTemperature(country.idealTemperature)} ±${TEMP_TOLERANCE}`;
     idealHum = `${formatHumidity(country.idealHumidity)} ±${HUM_TOLERANCE}`;
   }

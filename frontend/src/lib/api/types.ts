@@ -6,7 +6,7 @@
 // Contract verified against backend-siege/src/Controller/*.php on 2025-09-15.
 // Notable facts (they contradict some early assumptions):
 //   - The pagination envelope nests page/limit/total/pages under `pagination`.
-//   - Country iso field is `isoCode` (not `codeIso`) and is 3 letters (BRA/ECU/COL).
+//   - Country identity is the 2-letter iso code (`code`), lowercase (br/ec/co).
 //   - Warehouses carry NO temperature/humidity readings; those live on measurements.
 //   - Lot summaries are now enriched: they carry the current warehouse, country,
 //     exploitation, constitution/arrival dates and a precomputed duration. Any of
@@ -89,9 +89,8 @@ export interface ApiMeasurement {
 }
 
 export interface ApiCountryRef {
-  id: number;
+  code: string; // 2 letters, lowercase, e.g. br/ec/co
   name: string;
-  isoCode: string; // 3 letters, e.g. BRA/ECU/COL
 }
 
 export interface ApiWarehouse {
@@ -110,9 +109,8 @@ export interface ApiWarehouse {
 }
 
 export interface ApiCountry {
-  id: number;
+  code: string; // 2 letters, lowercase, e.g. br/ec/co
   name: string;
-  isoCode: string;
   idealTemperature: number; // float, °C
   idealHumidity: number; // float, %
   lastSyncedAt: string | null;

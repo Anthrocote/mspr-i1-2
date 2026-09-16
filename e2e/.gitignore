@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+.sensor_state.json
+.pty.txt
+.compose.log

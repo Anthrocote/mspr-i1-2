@@ -17,7 +17,7 @@ class PaysRepository extends ServiceEntityRepository
     public function findPaginated(int $limit, int $offset): array
     {
         return [
-            'items' => $this->findBy([], ['id' => 'ASC'], $limit, $offset),
+            'items' => $this->findBy([], ['code' => 'ASC'], $limit, $offset),
             'total' => $this->count([]),
         ];
     }

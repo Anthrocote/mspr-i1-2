@@ -14,7 +14,7 @@ class EntrepotControllerTest extends ApiTestCase
 
     public function testListFilterByCountryReturns200(): void
     {
-        $this->client->request('GET', '/api/warehouses?country_id=1');
+        $this->client->request('GET', '/api/warehouses?country=br');
 
         $this->assertResponseStatusCodeSame(200);
     }

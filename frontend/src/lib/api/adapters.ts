@@ -27,27 +27,24 @@ import type {
   ApiWarehouse,
 } from './types';
 
-// ── Country iso3 → presentation ──
-// The siège exposes 3-letter iso codes; the UI keys everything on 2-letter
-// codes plus a flag emoji.
-const ISO3_TO_CODE: Record<string, CountryCode> = {
-  BRA: 'br',
-  ECU: 'ec',
-  COL: 'co',
-};
-
+// ── Country code → presentation ──
+// The siège now exposes the 2-letter lowercase code (br/ec/co) as the country
+// identity, exactly the presentation CountryCode. No translation is needed; the
+// UI just pairs each code with a flag emoji.
 const CODE_TO_FLAG: Record<CountryCode, string> = {
   br: '🇧🇷',
   ec: '🇪🇨',
   co: '🇨🇴',
 };
 
-export function isoToCountryCode(iso: string): CountryCode {
-  const code = ISO3_TO_CODE[iso?.toUpperCase?.()];
-  if (!code) {
-    throw new Error(`Unknown iso country code from siège: ${iso}`);
+// The presentation CountryCode is a closed union. A code coming off the wire is
+// validated against it here so an unknown/out-of-contract value fails loudly
+// instead of leaking into the UI (the same safety net the iso3 map used to give).
+export function toCountryCode(code: string): CountryCode {
+  if (code in CODE_TO_FLAG) {
+    return code as CountryCode;
   }
-  return code;
+  throw new Error(`Unknown country code from siège: ${code}`);
 }
 
 // A lot's country can be null (relation not resolved at the source). The
@@ -129,7 +126,7 @@ export interface WarehouseCompositionInput {
 
 export function adaptWarehouse(input: WarehouseCompositionInput): Warehouse {
   const { warehouse, country, latest, lots = 0 } = input;
-  const code = isoToCountryCode(country.isoCode);
+  const code = toCountryCode(country.code);
   const tempNum = latest ? latest.temperature : country.idealTemperature;
   const humNum = latest ? latest.humidity : country.idealHumidity;
   const tempRange = toleranceBand(country.idealTemperature, TEMP_TOLERANCE);
@@ -205,14 +202,13 @@ export function adaptAlert(alert: ApiAlert): Alert {
 // `adaptStays` + `fetchLotDetail`), so they stay empty here.
 export function adaptLotSummary(api: ApiLotSummary): Lot {
   const statusVariant = lotStatusToVariant(api.status);
-  const countryCode = api.country ? isoToCountryCode(api.country.isoCode) : DEFAULT_COUNTRY_CODE;
+  const countryCode = api.country ? toCountryCode(api.country.code) : DEFAULT_COUNTRY_CODE;
 
   return {
     id: api.label,
     uuid: api.uuid,
     countryCode,
     country: api.country?.name ?? '',
-    countryId: api.country?.id ?? null,
     warehouseId: api.currentWarehouse?.uuid ?? null,
     // Never invent a flag for a country-less lot.
     flag: api.country ? countryFlag(countryCode) : '',
@@ -236,7 +232,7 @@ export function adaptLotSummary(api: ApiLotSummary): Lot {
 // count. There is no certification (or other audited attribute) on the model, so
 // only the sourced fields are mapped.
 export function adaptExploitation(api: ApiExploitation): Farm {
-  const code = isoToCountryCode(api.country.isoCode);
+  const code = toCountryCode(api.country.code);
   return {
     id: api.uuid,
     name: api.name,

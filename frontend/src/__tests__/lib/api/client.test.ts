@@ -53,11 +53,11 @@ describe('ApiClient', () => {
     const fetchMock = jest.fn().mockResolvedValue(jsonResponse(envelope([])));
     const client = new ApiClient({ baseUrl: 'http://h', fetch: fetchMock });
 
-    await client.getLots({ status: 'expired', country_id: 3, warehouse_id: undefined, page: 1 });
+    await client.getLots({ status: 'expired', country: 'co', warehouse_id: undefined, page: 1 });
 
     const url = fetchMock.mock.calls[0][0] as string;
     expect(url).toContain('status=expired');
-    expect(url).toContain('country_id=3');
+    expect(url).toContain('country=co');
     expect(url).toContain('page=1');
     expect(url).not.toContain('warehouse_id');
   });

@@ -46,7 +46,7 @@ class LotRepository extends ServiceEntityRepository
     public function findFiltered(
         ?string $entrepotUuid,
         ?string $statut,
-        ?int $paysId,
+        ?string $paysCode,
         int $limit,
         int $offset,
         ?string $search = null,
@@ -68,8 +68,8 @@ class LotRepository extends ServiceEntityRepository
         if ($entrepotUuid !== null) {
             $qb->andWhere('e.uuid = :entrepotUuid')->setParameter('entrepotUuid', $entrepotUuid);
         }
-        if ($paysId !== null) {
-            $qb->andWhere('pays.id = :paysId')->setParameter('paysId', $paysId);
+        if ($paysCode !== null) {
+            $qb->andWhere('pays.code = :paysCode')->setParameter('paysCode', $paysCode);
         }
 
         if ($search !== null && $search !== '') {

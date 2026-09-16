@@ -4,7 +4,7 @@ import os
 SERIAL_PORT = os.environ.get("GATEWAY_SERIAL_PORT", "/dev/ttyUSB0")
 SERIAL_BAUD = 115200
 MQTT_BROKER = os.environ.get("MQTT_BROKER", "localhost")
-MQTT_PORT = 1883
+MQTT_PORT = int(os.environ.get("MQTT_PORT", "1883"))
 PAYS = "br"                    # code pays ISO, en minuscules
 ENTREPOT = "entrepot-sao-paulo"
 DEVICE_ID = "uno-br-01"

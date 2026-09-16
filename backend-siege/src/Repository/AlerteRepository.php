@@ -26,7 +26,7 @@ class AlerteRepository extends ServiceEntityRepository
     public function findFiltered(
         string $status,
         ?string $type,
-        ?int $paysId,
+        ?string $paysCode,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $to,
         int $limit,
@@ -49,11 +49,11 @@ class AlerteRepository extends ServiceEntityRepository
         if ($type !== null) {
             $qb->andWhere('a.type = :type')->setParameter('type', $type);
         }
-        if ($paysId !== null) {
+        if ($paysCode !== null) {
             $qb->leftJoin('a.entrepot', 'e')
                ->leftJoin('e.pays', 'p')
-               ->andWhere('p.id = :paysId')
-               ->setParameter('paysId', $paysId);
+               ->andWhere('p.code = :paysCode')
+               ->setParameter('paysCode', $paysCode);
         }
         if ($from !== null) {
             $qb->andWhere('a.declencheeLe >= :from')->setParameter('from', $from);

@@ -65,7 +65,7 @@ class SyncServiceTest extends TestCase
     public function testSyncAllSkipsPaysWithoutApiUrl(): void
     {
         $pays = new Pays();
-        $pays->setNom('Brésil')->setCodeIso('BRA');
+        $pays->setNom('Brésil')->setCode('br');
 
         $this->paysRepository->expects($this->once())
             ->method('findAll')
@@ -81,7 +81,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Brésil')
-            ->setCodeIso('BRA')
+            ->setCode('br')
             ->setApiUrl('https://bresil.futurekawa.local')
             ->setApiKey('secret');
 
@@ -103,7 +103,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Colombie')
-            ->setCodeIso('COL')
+            ->setCode('co')
             ->setApiUrl('https://colombie.futurekawa.local')
             ->setApiKey('secret');
 
@@ -145,7 +145,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Brésil')
-            ->setCodeIso('BRA')
+            ->setCode('br')
             ->setApiUrl('https://bresil.futurekawa.local')
             ->setApiKey('secret');
 
@@ -187,7 +187,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Colombie')
-            ->setCodeIso('COL')
+            ->setCode('co')
             ->setApiUrl('https://colombie.futurekawa.local')
             ->setApiKey('secret');
 
@@ -211,7 +211,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Équateur')
-            ->setCodeIso('ECU')
+            ->setCode('ec')
             ->setApiUrl('https://equateur.futurekawa.local');
 
         $this->httpClient->method('request')
@@ -229,7 +229,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Brésil')
-            ->setCodeIso('BRA')
+            ->setCode('br')
             ->setApiUrl('https://bresil.futurekawa.local')
             ->setApiKey('secret');
 
@@ -308,7 +308,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Colombie')
-            ->setCodeIso('COL')
+            ->setCode('co')
             ->setApiUrl('https://colombie.futurekawa.local')
             ->setApiKey('secret');
 
@@ -405,7 +405,7 @@ class SyncServiceTest extends TestCase
     {
         $pays = (new Pays())
             ->setNom('Équateur')
-            ->setCodeIso('ECU')
+            ->setCode('ec')
             ->setApiUrl('https://equateur.futurekawa.local')
             ->setApiKey('secret');
 

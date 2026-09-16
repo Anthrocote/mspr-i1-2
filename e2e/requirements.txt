@@ -1,0 +1,5 @@
+pytest==8.3.4
+playwright==1.49.1
+requests==2.32.3
+pyserial==3.5
+paho-mqtt==2.1.0
