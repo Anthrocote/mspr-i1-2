@@ -53,6 +53,17 @@ export default function IoTPage() {
   const [range, setRange] = useState<TimeRange>('24h');
   const [measurements, setMeasurements] = useState<ApiMeasurement[]>([]);
 
+  // Clear the chart when switching warehouse or window, so a stale series is not
+  // shown while the new one loads (a poll tick, in contrast, refreshes in place).
+  // Done during render via the "adjust state on change" pattern rather than an
+  // effect, so it applies before paint without a synchronous setState in effect.
+  const seriesKey = `${selectedId ?? ''}-${range}`;
+  const [prevSeriesKey, setPrevSeriesKey] = useState(seriesKey);
+  if (seriesKey !== prevSeriesKey) {
+    setPrevSeriesKey(seriesKey);
+    setMeasurements([]);
+  }
+
   // Poll tick: drives a periodic refetch so new readings show without a reload.
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -77,12 +88,6 @@ export default function IoTPage() {
       });
     return () => controller.abort();
   }, [tick]);
-
-  // Clear the chart when switching warehouse or window, so a stale series is not
-  // shown while the new one loads (a poll tick, in contrast, refreshes in place).
-  useEffect(() => {
-    setMeasurements([]);
-  }, [selectedId, range]);
 
   // Measurements for the selected warehouse + window. Refetched on selection,
   // window, or poll tick change.

@@ -61,15 +61,15 @@ export default function LotsPage() {
 
   // Debounce the global search so typing doesn't fire a request per keystroke.
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  // A new search term changes the result set, so return to the first page. Both
+  // updates happen in the timeout callback (not synchronously in the effect).
   useEffect(() => {
-    const id = setTimeout(() => setDebouncedSearch(searchQuery.trim()), SEARCH_DEBOUNCE_MS);
+    const id = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+      setPage(1);
+    }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(id);
   }, [searchQuery]);
-
-  // A new search term changes the result set, so return to the first page.
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
 
   // Static data: partner exploitations (detail view) + location filter options.
   useEffect(() => {
@@ -92,9 +92,10 @@ export default function LotsPage() {
 
   const loc = useMemo(() => locationParams(location), [location]);
 
+  // Keep the previous page visible during a refetch (the initial state is
+  // already 'loading'); a failed refetch never blanks an already-loaded page.
   useEffect(() => {
     const controller = new AbortController();
-    setState((current) => (current.status === 'ready' ? current : { status: 'loading' }));
     fetchLotsServer(
       apiClient,
       {
@@ -113,7 +114,7 @@ export default function LotsPage() {
       .then((result) => setState({ status: 'ready', result }))
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') return;
-        setState({ status: 'error' });
+        setState((current) => (current.status === 'ready' ? current : { status: 'error' }));
       });
     return () => controller.abort();
   }, [statusFilter, loc, ageFilter, sortField, sortOrder, debouncedSearch, page]);

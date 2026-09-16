@@ -36,9 +36,10 @@ export default function AlertesPage() {
   const [to, setTo] = useState('');
   const [page, setPage] = useState(1);
 
+  // Keep the previous page visible during a refetch (the initial state is
+  // already 'loading'); a failed refetch never blanks an already-loaded page.
   useEffect(() => {
     const controller = new AbortController();
-    setState((current) => (current.status === 'ready' ? current : { status: 'loading' }));
     fetchAlertsPage(
       apiClient,
       { status: statusFilter, from: dayStart(from), to: dayEnd(to), page, limit: PAGE_SIZE },
@@ -47,7 +48,7 @@ export default function AlertesPage() {
       .then((result) => setState({ status: 'ready', result }))
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') return;
-        setState({ status: 'error' });
+        setState((current) => (current.status === 'ready' ? current : { status: 'error' }));
       });
     return () => controller.abort();
   }, [statusFilter, from, to, page]);

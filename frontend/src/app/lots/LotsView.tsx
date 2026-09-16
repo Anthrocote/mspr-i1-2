@@ -134,10 +134,18 @@ export default function LotsView({
 
   const selectedLot = selectedLotId ? lots.find((l) => l.id === selectedLotId) ?? null : null;
 
+  // Drop stale detail as soon as the opened lot changes — done during render
+  // (adjust-state-on-change pattern) so it applies before the fetch below,
+  // without a synchronous setState inside the effect.
+  const [prevSelectedLotId, setPrevSelectedLotId] = useState(selectedLotId);
+  if (selectedLotId !== prevSelectedLotId) {
+    setPrevSelectedLotId(selectedLotId);
+    setDetailExtras(null);
+  }
+
   // Fetch the stay history + current conditions when a lot is opened. Guarded so
   // a late response for a previously-selected lot can't overwrite the view.
   useEffect(() => {
-    setDetailExtras(null);
     if (!selectedLot || !loadDetail) return;
     let active = true;
     loadDetail(selectedLot)
