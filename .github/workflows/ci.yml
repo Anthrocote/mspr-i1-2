@@ -12,6 +12,8 @@ concurrency:
 
 permissions:
   contents: read
+  # dorny/paths-filter lists the PR's changed files through the GitHub API.
+  pull-requests: read
 
 jobs:
   # Detect which component changed so a frontend-only PR does not run the PHP
@@ -183,13 +185,13 @@ jobs:
   # Single required status check for branch protection. Path-filtered jobs may be
   # skipped; this gate is green only when nothing that ran actually failed.
   ci:
-    needs: [backend-siege, backend-local, iot, frontend, e2e]
+    needs: [changes, backend-siege, backend-local, iot, frontend, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Verify no job failed
         run: |
-          results='${{ needs.backend-siege.result }} ${{ needs.backend-local.result }} ${{ needs.iot.result }} ${{ needs.frontend.result }} ${{ needs.e2e.result }}'
+          results='${{ needs.changes.result }} ${{ needs.backend-siege.result }} ${{ needs.backend-local.result }} ${{ needs.iot.result }} ${{ needs.frontend.result }} ${{ needs.e2e.result }}'
           echo "results: $results"
           for r in $results; do
             if [ "$r" = "failure" ] || [ "$r" = "cancelled" ]; then
