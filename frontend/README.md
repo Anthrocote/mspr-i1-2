@@ -32,14 +32,14 @@ npm start
 
 | Variable | Rôle | Défaut |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | URL de base de l'API du siège | `http://localhost:8000` |
+| `NEXT_PUBLIC_API_URL` | URL de base du siège, **sans** suffixe `/api` (le client ajoute `/api/...` à chaque appel) | `http://localhost:8000` |
 
 > **Important.** Le défaut intégré (`http://localhost:8000`) pointe le port d'un
 > backend **pays**, pas le siège. Pour une stack complète, renseignez explicitement
 > l'URL du siège :
 >
 > ```bash
-> NEXT_PUBLIC_API_URL=http://localhost:8080/api npm run dev
+> NEXT_PUBLIC_API_URL=http://localhost:8080 npm run dev
 > ```
 >
 > Sans backend joignable à cette URL, les pages affichent leur état d'erreur de
